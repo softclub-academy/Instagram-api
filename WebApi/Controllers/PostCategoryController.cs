@@ -35,7 +35,7 @@ public class PostCategoryController : ControllerBase
     }
 
     [HttpPost("add-PostCategory")]
-    public async Task<IActionResult> AddPostCategory([FromQuery]PostCategoryDto postCategory)
+    public async Task<IActionResult> AddPostCategory([FromBody]PostCategoryDto postCategory)
     {
         if (ModelState.IsValid)
         {
@@ -49,7 +49,7 @@ public class PostCategoryController : ControllerBase
     }
     
     [HttpPut("update-PostCategory")]
-    public async Task<IActionResult> UpdatePostCategory([FromQuery]UpdatePostCategoryDto postCategory)
+    public async Task<IActionResult> UpdatePostCategory([FromBody]UpdatePostCategoryDto postCategory)
     {
         if (ModelState.IsValid)
         {

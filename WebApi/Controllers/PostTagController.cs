@@ -34,7 +34,7 @@ public class PostTagController : ControllerBase
     }
 
     [HttpPost("add-PostTag")]
-    public async Task<IActionResult> AddPostTag([FromQuery]PostTagDto postTag)
+    public async Task<IActionResult> AddPostTag([FromBody]PostTagDto postTag)
     {
         if (ModelState.IsValid)
         {

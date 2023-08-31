@@ -72,8 +72,10 @@ public class AccountService : IAccountService
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new List<Claim>()
         {
+            new Claim(JwtRegisteredClaimNames.Sid, user.Id),
             new Claim(JwtRegisteredClaimNames.Name, user.UserName),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            
         };
         //add roles
 

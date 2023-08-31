@@ -34,7 +34,7 @@ public class PostCommentController : ControllerBase
     }
 
     [HttpPost("add-PostComment")]
-    public async Task<IActionResult> AddPostComment([FromQuery]AddPostCommentDto postComment)
+    public async Task<IActionResult> AddPostComment([FromBody]AddPostCommentDto postComment)
     {
         if (ModelState.IsValid)
         {

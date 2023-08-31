@@ -42,7 +42,7 @@ public class PostController : ControllerBase
     }
 
     [HttpPost("add-Post")]
-    public async Task<IActionResult> AddPost([FromForm]AddPostDto post)
+    public async Task<IActionResult> AddPost([FromBody]AddPostDto post)
     {
         if (ModelState.IsValid)
         {
@@ -56,7 +56,7 @@ public class PostController : ControllerBase
     }
     
     [HttpPut("update-Post")]
-    public async Task<IActionResult> UpdatePost([FromQuery]AddPostDto post)
+    public async Task<IActionResult> UpdatePost([FromBody]AddPostDto post)
     {
         if (ModelState.IsValid)
         {

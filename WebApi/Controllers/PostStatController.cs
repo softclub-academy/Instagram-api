@@ -27,7 +27,7 @@ public class PostStatController : ControllerBase
     }
 
     [HttpPost("add-PostStat")]
-    public async Task<IActionResult> AddPostStat(string userId, int postId)
+    public async Task<IActionResult> AddPostStat([FromBody]string userId, int postId)
     {
         if (ModelState.IsValid)
         {
