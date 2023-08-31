@@ -39,6 +39,24 @@ app.UseCors(
         .AllowAnyMethod()
 );
 
+// update database
+try
+{
+    var serviceProvider = app.Services.CreateScope().ServiceProvider; 
+    var dataContext = serviceProvider.GetRequiredService<DataContext>();
+    await dataContext.Database.MigrateAsync();
+    
+    //seed data
+    var seeder = serviceProvider.GetRequiredService<Seeder>();
+    await seeder.SeedRole();
+    await seeder.SeedUser();
+}
+catch (Exception e)
+{
+    // ignored
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
