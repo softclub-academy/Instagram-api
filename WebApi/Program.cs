@@ -34,7 +34,7 @@ var app = builder.Build();
 
 
 app.UseCors(
-    builder => builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000")
+    builder => builder.WithOrigins("http://127.0.0.1:5500/", "http://localhost:3000")
         .AllowAnyHeader()
         .AllowAnyMethod()
 );
