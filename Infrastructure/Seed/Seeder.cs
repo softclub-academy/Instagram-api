@@ -6,18 +6,16 @@ namespace Infrastructure.Seed;
 
 public class Seeder
 {
-    private readonly DataContext _context;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
 
     public Seeder(DataContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
     {
-        _context = context;
         _userManager = userManager;
         _roleManager = roleManager;
     }
 
-    public async Task<bool> SeedRole()
+    public async Task SeedRole()
     {
         var newroles = new List<IdentityRole>()
         {
@@ -33,8 +31,6 @@ public class Seeder
                 await _roleManager.CreateAsync(role);
             }
         }
-
-        return true;
     }
 
     public async Task SeedUser()

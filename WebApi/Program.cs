@@ -1,5 +1,6 @@
 using Infrastructure.AutoMapper;
 using Infrastructure.Data;
+using Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using WebApi.ExtensionMethods.AuthConfiguration;
 using WebApi.ExtensionMethods.RegisterService;
@@ -36,10 +37,10 @@ try
     var dataContext = serviceProvider.GetRequiredService<DataContext>();
     await dataContext.Database.MigrateAsync();
     
-    // //seed data
-    // var seeder = serviceProvider.GetRequiredService<Seeder>();
-    // await seeder.SeedRole();
-    // await seeder.SeedUser();
+    //seed data
+    var seeder = serviceProvider.GetRequiredService<Seeder>();
+    await seeder.SeedRole();
+    await seeder.SeedUser();
 }
 catch (Exception e)
 {
