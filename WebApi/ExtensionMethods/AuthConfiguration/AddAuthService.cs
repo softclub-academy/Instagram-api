@@ -9,7 +9,7 @@ public static class AddAuthService
     public static IServiceCollection AddAuthConfigureService(this IServiceCollection services,
         IConfiguration configuration)
     {
-        var key = configuration["Jwt:JwtKey"];
+        var key = configuration["JWT:Key"];
 
         services.AddAuthentication(x =>
         {

@@ -122,6 +122,10 @@ public class PostService : IPostService
             {
                 PostId = post.PostId
             };
+            var postView = new PostView()
+            {
+                PostId = post.PostId
+            };
             var list = new List<string>();
             foreach (var image in addPost.Images)
             {
@@ -135,6 +139,7 @@ public class PostService : IPostService
                 await _context.Images.AddAsync(images);
                 await _context.SaveChangesAsync();
             }
+            await _context.PostViews.AddAsync(postView);
             await _context.PostStats.AddAsync(postStat);
             await _context.SaveChangesAsync();
             var mapped = _mapper.Map<GetPostDto>(post);

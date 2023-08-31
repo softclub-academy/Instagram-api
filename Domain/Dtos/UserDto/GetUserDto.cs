@@ -2,6 +2,6 @@
 
 public class GetUserDto : UserDto
 {
-    public int UserId { get; set; }
+    public string Id { get; set; }
     public DateTime DateRegistred { get; set; }
 }

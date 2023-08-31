@@ -11,7 +11,7 @@ public class User : IdentityUser
     [MaxLength(45)]
     public UserType UserType { get; set; }
     [MaxLength(45)]
-    public string AccountStatus { get; set; }
+    public string? AccountStatus { get; set; }
     public UserSetting UserSetting { get; set; }
     public List<UserProfile> UserProfiles { get; set; }
     public ExternalAccount ExternalAccount { get; set; }

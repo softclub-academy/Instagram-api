@@ -34,7 +34,8 @@ public class AccountService : IAccountService
             {
                 UserName = model.UserName,
                 Email = model.Email,
-                UserType = model.UserType
+                UserType = model.UserType,
+                DateRegistred = DateTime.UtcNow
             };
             await _userManager.CreateAsync(user);
             return new Response<string>($"Done.  Your registered by id {user.Id}");

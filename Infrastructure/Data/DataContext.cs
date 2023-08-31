@@ -64,4 +64,6 @@ public class DataContext : IdentityDbContext
     public DbSet<Location> Locations { get; set; }
     public DbSet<Image> Images { get; set; }
     public DbSet<StatUserId> StatUserIds { get; set; }
+    public DbSet<PostView> PostViews { get; set; }
+    public DbSet<PostViewUser> PostViewUsers { get; set; }
 }
