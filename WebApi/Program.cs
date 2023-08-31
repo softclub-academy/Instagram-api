@@ -17,6 +17,7 @@ builder.Services.AddSwaggerGen();
 
 // connection to database && dependency injection
 builder.Services.AddRegisterService(builder.Configuration);
+builder.Services.AddCors();
 
 // register swagger configuration
 builder.Services.SwaggerService();
@@ -31,21 +32,12 @@ builder.Services.AddAutoMapper(typeof(MapperProfile));
 
 var app = builder.Build();
 
-try
-{
-    var serviceProvider = app.Services.CreateScope().ServiceProvider; 
-    var dataContext = serviceProvider.GetRequiredService<DataContext>();
-    await dataContext.Database.MigrateAsync();
-    
-    //seed data
-    var seeder = serviceProvider.GetRequiredService<Seeder>();
-    await seeder.SeedRole();
-    await seeder.SeedUser();
-}
-catch (Exception e)
-{
-    // ignored
-}
+
+app.UseCors(
+    builder => builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
