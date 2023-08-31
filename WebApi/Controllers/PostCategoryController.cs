@@ -1,14 +1,16 @@
 ﻿using System.Net;
+using Domain.Dtos.LocationDto;
 using Domain.Dtos.PostCategoryDto;
 using Domain.Filters;
 using Domain.Responses;
 using Infrastructure.Services.PostCategoryService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("post-category")]
+[Route("[controller]")]
+[Authorize]
 public class PostCategoryController : ControllerBase
 {
     private readonly IPostCategoryService _service;
@@ -47,7 +49,7 @@ public class PostCategoryController : ControllerBase
     }
     
     [HttpPut("update-PostCategory")]
-    public async Task<IActionResult> UpdatePostCategory([FromQuery]PostCategoryDto postCategory)
+    public async Task<IActionResult> UpdatePostCategory([FromQuery]UpdatePostCategoryDto postCategory)
     {
         if (ModelState.IsValid)
         {

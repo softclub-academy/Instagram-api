@@ -9,6 +9,6 @@ public interface ICategoryService
     Task<PagedResponse<List<CategoryDto>>> GetCategoriesByName(CategoryFilter filter);
     Task<Response<CategoryDto>> GetCategoryById(int id);
     Task<Response<CategoryDto>> AddCategory(CategoryDto category);
-    Task<Response<CategoryDto>> UpdateCategory(CategoryDto category);
+    Task<Response<CategoryDto>> UpdateCategory(UpdateCategoryDto category);
     Task<Response<bool>> DeleteCategory(int id);
 }

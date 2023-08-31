@@ -6,6 +6,7 @@ using Domain.Filters.PostFilter;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Services.FileService;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.PostService;
@@ -15,13 +16,17 @@ public class PostService : IPostService
     private readonly DataContext _context;
     private readonly IMapper _mapper;
     private readonly IFileService _fileService;
+    private readonly UserManager<IdentityUser> _userManager;
     private readonly IFileService _service;
 
-    public PostService(DataContext context, IMapper mapper, IFileService fileService)
+    public PostService(DataContext context, IMapper mapper, 
+        IFileService fileService,
+        UserManager<IdentityUser> userManager)
     {
         _context = context;
         _mapper = mapper;
         _fileService = fileService;
+        _userManager = userManager;
     }
 
     public async Task<PagedResponse<List<GetPostDto>>> GetPosts(PostFilter filter)
@@ -84,8 +89,8 @@ public class PostService : IPostService
         try
         {
             var posts = await (from p in _context.Posts
-                join u in _context.Users on p.UserId equals u.UserId
-                join f in _context.FollowingRelationShips on u.UserId equals f.FollowingId
+                join u in _context.Users on p.UserId equals u.Id
+                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
                 where f.UserId == filter.UserId
                 select new GetPostDto()
                 {
@@ -110,12 +115,14 @@ public class PostService : IPostService
     {
         try
         {
-            var user = await _context.UserLogs.FirstOrDefaultAsync(u => u.UserId == addPost.UserId && u.LogoutDate == null);
-            if (user == null) return new Response<GetPostDto>(HttpStatusCode.BadRequest, "Login first!!!");
             var post = _mapper.Map<Post>(addPost);  
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
             var postStat = new PostStat()
+            {
+                PostId = post.PostId
+            };
+            var postView = new PostView()
             {
                 PostId = post.PostId
             };
@@ -132,6 +139,7 @@ public class PostService : IPostService
                 await _context.Images.AddAsync(images);
                 await _context.SaveChangesAsync();
             }
+            await _context.PostViews.AddAsync(postView);
             await _context.PostStats.AddAsync(postStat);
             await _context.SaveChangesAsync();
             var mapped = _mapper.Map<GetPostDto>(post);
@@ -148,8 +156,6 @@ public class PostService : IPostService
     {
         try
         {
-            var user = await _context.UserLogs.FirstOrDefaultAsync(u => u.UserId == addPost.UserId && u.LogoutDate == null);
-            if (user == null) return new Response<GetPostDto>(HttpStatusCode.BadRequest, "Login first!!!");
             var post = _mapper.Map<Post>(addPost);  
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();

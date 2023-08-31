@@ -5,7 +5,7 @@ namespace Domain.Entities.Post;
 public class Post
 {
     public int PostId { get; set; }
-    public int UserId { get; set; }
+    public string UserId { get; set; }
     public User.User User { get; set; }
     [MaxLength(45)]
     public string Title { get; set; }

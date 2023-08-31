@@ -9,6 +9,6 @@ public interface ILocationService
     Task<PagedResponse<List<GetLocationDto>>> GetLocations(LocationFilter filter);
     Task<Response<GetLocationDto>> GetLocationById(int id);
     Task<Response<GetLocationDto>> AddLocation(AddLocationDto addLocation);
-    Task<Response<GetLocationDto>> UpdateLocation(AddLocationDto addLocation);
+    Task<Response<GetLocationDto>> UpdateLocation(UpdateLocationDto addLocation);
     Task<Response<bool>> DeleteLocation(int id);
 }

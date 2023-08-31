@@ -3,12 +3,13 @@ using Domain.Dtos.CategoryDto;
 using Domain.Filters.CategoryFilter;
 using Domain.Responses;
 using Infrastructure.Services.CategoryService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("Category")]
+[Route("[controller]")]
+[Authorize]
 public class CategoryController : ControllerBase
 {
     private readonly ICategoryService _service;
@@ -47,7 +48,7 @@ public class CategoryController : ControllerBase
     }
     
     [HttpPut("update-category")]
-    public async Task<IActionResult> UpdateCategory([FromQuery]CategoryDto category)
+    public async Task<IActionResult> UpdateCategory([FromQuery]UpdateCategoryDto category)
     {
         if (ModelState.IsValid)
         {

@@ -10,6 +10,6 @@ public interface IPostCategoryService
     Task<PagedResponse<List<PostCategoryDto>>> GetPostCategories(PaginationFilter filter);
     Task<Response<PostCategoryDto>> GetPostCategoryById(int id);
     Task<Response<PostCategoryDto>> AddPostCategory(PostCategoryDto addPostCategory);
-    Task<Response<PostCategoryDto>> UpdatePostCategory(PostCategoryDto addPostCategory);
+    Task<Response<PostCategoryDto>> UpdatePostCategory(UpdatePostCategoryDto addPostCategory);
     Task<Response<bool>> DeletePostCategory(int id);
 }

@@ -9,8 +9,7 @@ public class RegisterDto
     public string Email { get; set; }
     [DataType(DataType.Password)]
     public string Password { get; set; }
-    [Compare("Password")]
+    [Compare("Password")][DataType(DataType.Password)]
     public string ConfirmPassword { get; set; }
     public UserType UserType { get; set; }
-    // public string AccountStatus { get; set; }
 }

@@ -3,12 +3,13 @@ using Domain.Dtos.PostStatDto;
 using Domain.Filters;
 using Domain.Responses;
 using Infrastructure.Services.PostStatService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("post-stat")]
+[Route("[controller]")]
+[Authorize]
 public class PostStatController : ControllerBase
 {
     private readonly IPostStatService _service;
@@ -26,7 +27,7 @@ public class PostStatController : ControllerBase
     }
 
     [HttpPost("add-PostStat")]
-    public async Task<IActionResult> AddPostStat(int userId, int postId)
+    public async Task<IActionResult> AddPostStat(string userId, int postId)
     {
         if (ModelState.IsValid)
         {
@@ -40,7 +41,7 @@ public class PostStatController : ControllerBase
     }
 
     [HttpDelete("delete-PostStat")]
-    public async Task<IActionResult> DeletePostStat(int userId, int postId)
+    public async Task<IActionResult> DeletePostStat(string userId, int postId)
     {
         var result = await _service.DeletePostStat(userId, postId);
         return StatusCode(result.StatusCode, result);

@@ -3,12 +3,13 @@ using Domain.Dtos.LocationDto;
 using Domain.Filters.LocationFilter;
 using Domain.Responses;
 using Infrastructure.Services.LocationDto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("location")]
+[Route("[controller]")]
+[Authorize]
 public class LocationController : ControllerBase
 {
     private readonly ILocationService _service;
@@ -47,7 +48,7 @@ public class LocationController : ControllerBase
     }
     
     [HttpPut("update-Location")]
-    public async Task<IActionResult> UpdateLocation([FromQuery]AddLocationDto location)
+    public async Task<IActionResult> UpdateLocation([FromQuery]UpdateLocationDto location)
     {
         if (ModelState.IsValid)
         {

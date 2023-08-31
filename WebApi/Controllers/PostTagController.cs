@@ -3,12 +3,13 @@ using Domain.Dtos.PostTagDto;
 using Domain.Filters;
 using Domain.Responses;
 using Infrastructure.Services.PostTagService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("post-tag")]
+[Route("[controller]")]
+[Authorize]
 public class PostTagController : ControllerBase
 {
     private readonly IPostTagService _service;
@@ -47,7 +48,7 @@ public class PostTagController : ControllerBase
     }
     
     [HttpPut("update-PostTag")]
-    public async Task<IActionResult> UpdatePostTag([FromQuery]PostTagDto postTag)
+    public async Task<IActionResult> UpdatePostTag([FromQuery]UpdatePostTagDto postTag)
     {
         if (ModelState.IsValid)
         {

@@ -7,6 +7,6 @@ namespace Infrastructure.Services.PostStatService;
 public interface IPostStatService
 {
     Task<PagedResponse<List<PostStatDto>>> GetPostStats(PaginationFilter filter);
-    Task<Response<bool>> AddPostStat(int userId, int id);
-    Task<Response<bool>> DeletePostStat(int userId, int id);
+    Task<Response<bool>> AddPostStat(string userId, int id);
+    Task<Response<bool>> DeletePostStat(string userId, int id);
 }

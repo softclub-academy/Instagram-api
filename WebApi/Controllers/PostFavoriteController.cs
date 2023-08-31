@@ -3,12 +3,13 @@ using Domain.Dtos.PostFavoriteDto;
 using Domain.Filters;
 using Domain.Responses;
 using Infrastructure.Services.PostFavoriteService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("post-favorite")]
+[Route("[controller]")]
+[Authorize]
 public class PostFavoriteController : ControllerBase
 {
     private readonly IPostFavoriteService _service;

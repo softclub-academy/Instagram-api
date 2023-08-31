@@ -3,12 +3,13 @@ using Domain.Dtos.PostCommentDto;
 using Domain.Filters.PostCommentFilter;
 using Domain.Responses;
 using Infrastructure.Services.PostCommentService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("post-comment")]
+[Route("[controller]")]
+[Authorize]
 public class PostCommentController : ControllerBase
 {
     private readonly IPostCommentService _service;

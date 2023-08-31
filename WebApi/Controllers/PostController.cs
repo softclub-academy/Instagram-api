@@ -4,12 +4,13 @@ using Domain.Filters.PostFilter;
 using Domain.Filters.UserFilter;
 using Domain.Responses;
 using Infrastructure.Services.PostService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("post")]
+[Route("[controller]")]
+[Authorize]
 public class PostController : ControllerBase
 {
     private readonly IPostService _service;

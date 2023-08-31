@@ -80,7 +80,7 @@ public class LocationService : ILocationService
         }
     }
 
-    public async Task<Response<GetLocationDto>> UpdateLocation(AddLocationDto addLocation)
+    public async Task<Response<GetLocationDto>> UpdateLocation(UpdateLocationDto addLocation)
     {
         try
         {

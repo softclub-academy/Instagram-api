@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230824104329_init")]
-    partial class init
+    [Migration("20230831082330_addpostview")]
+    partial class addpostview
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -134,8 +134,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("PostId");
 
@@ -185,8 +186,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("PostCommentId");
 
@@ -211,8 +213,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("PostFavoriteId");
 
@@ -262,6 +265,51 @@ namespace Infrastructure.Migrations
                     b.ToTable("PostTags");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Post.PostView", b =>
+                {
+                    b.Property<int>("PostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostId"));
+
+                    b.Property<int>("PostId1")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PostId");
+
+                    b.HasIndex("PostId1");
+
+                    b.ToTable("PostViews");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Post.PostViewUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PostViewId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostViewId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PostViewUsers");
+                });
+
             modelBuilder.Entity("Domain.Entities.Post.StatUserId", b =>
                 {
                     b.Property<int>("Id")
@@ -273,8 +321,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("PostStatId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -309,16 +358,14 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.User.ExternalAccount", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("FacebookEmail")
-                        .IsRequired()
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
 
                     b.Property<string>("TwitterUsername")
-                        .IsRequired()
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
 
@@ -338,11 +385,13 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("DateFollowed")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("FollowingId")
-                        .HasColumnType("integer");
+                    b.Property<string>("FollowingId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("FollowingRelationShipId");
 
@@ -351,54 +400,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("FollowingRelationShips");
-                });
-
-            modelBuilder.Entity("Domain.Entities.User.User", b =>
-                {
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
-
-                    b.Property<string>("AccountStatus")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
-                    b.Property<DateTime>("DateRegistred")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
-                    b.Property<string>("PasswordSalt")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
-                    b.Property<int>("UserType")
-                        .HasMaxLength(45)
-                        .HasColumnType("integer");
-
-                    b.HasKey("UserId");
-
-                    b.HasIndex("UserName")
-                        .IsUnique();
-
-                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Domain.Entities.User.UserProfile", b =>
@@ -444,8 +445,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("UserProfileId");
 
@@ -459,8 +461,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.User.UserSetting", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.Property<int>("NotificationsComments")
                         .HasColumnType("integer");
@@ -479,28 +481,229 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserSettings");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserLog", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
-                    b.Property<int>("LogId")
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("LogId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("LoginDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
 
-                    b.Property<DateTime?>("LogoutDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
 
-                    b.Property<int>("UserId")
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.HasKey("LogId");
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserLogs");
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.User.User", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<string>("AccountStatus")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)");
+
+                    b.Property<DateTime>("DateRegistred")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserType")
+                        .HasMaxLength(45)
+                        .HasColumnType("integer");
+
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
+                    b.HasDiscriminator().HasValue("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.Image", b =>
@@ -616,6 +819,36 @@ namespace Infrastructure.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Post.PostView", b =>
+                {
+                    b.HasOne("Domain.Entities.Post.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Post.PostViewUser", b =>
+                {
+                    b.HasOne("Domain.Entities.Post.PostView", "PostView")
+                        .WithMany("PostViewUsers")
+                        .HasForeignKey("PostViewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PostView");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.Post.StatUserId", b =>
                 {
                     b.HasOne("Domain.Entities.Post.PostStat", "PostStat")
@@ -695,15 +928,55 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserLog", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Domain.Entities.User.User", "User")
-                        .WithMany("UserLogs")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.Navigation("User");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.Location", b =>
@@ -737,9 +1010,19 @@ namespace Infrastructure.Migrations
                     b.Navigation("StatUserIds");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Post.PostView", b =>
+                {
+                    b.Navigation("PostViewUsers");
+                });
+
             modelBuilder.Entity("Domain.Entities.Post.Tag", b =>
                 {
                     b.Navigation("PostTags");
+                });
+
+            modelBuilder.Entity("Domain.Entities.User.UserProfile", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("Domain.Entities.User.User", b =>
@@ -757,17 +1040,10 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("StatUserIds");
 
-                    b.Navigation("UserLogs");
-
                     b.Navigation("UserProfiles");
 
                     b.Navigation("UserSetting")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Entities.User.UserProfile", b =>
-                {
-                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

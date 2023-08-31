@@ -3,12 +3,13 @@ using Domain.Dtos.TagDto;
 using Domain.Filters.TagFilter;
 using Domain.Responses;
 using Infrastructure.Services.TagService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("tag")]
+[Route("[controller]")]
+[Authorize]
 public class TagController : ControllerBase
 {
     private readonly ITagService _service;
@@ -47,7 +48,7 @@ public class TagController : ControllerBase
     }
     
     [HttpPut("update-Tag")]
-    public async Task<IActionResult> UpdateTag([FromQuery]TagDto tag)
+    public async Task<IActionResult> UpdateTag([FromQuery]UpdateTagDto tag)
     {
         if (ModelState.IsValid)
         {

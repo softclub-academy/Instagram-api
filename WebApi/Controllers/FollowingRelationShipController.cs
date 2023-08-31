@@ -3,10 +3,13 @@ using Domain.Dtos.FollowingRelationshipDto;
 using Domain.Filters.FollowingRelationShipFilter;
 using Domain.Responses;
 using Infrastructure.Services.FollowingRelationShipService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
+[Route("[controller]")]
+[Authorize]
 public class FollowingRelationShipController : ControllerBase
 {
     private readonly IFollowingRelationShipService _service;
@@ -45,7 +48,7 @@ public class FollowingRelationShipController : ControllerBase
     }
 
     [HttpDelete("delete-FollowingRelationShip")]
-    public async Task<IActionResult> DeleteFollowingRelationShip(int userId, int followingId)
+    public async Task<IActionResult> DeleteFollowingRelationShip(string userId, string followingId)
     {
         var result = await _service.DeleteFollowingRelationShip(userId, followingId);
         return StatusCode(result.StatusCode, result);

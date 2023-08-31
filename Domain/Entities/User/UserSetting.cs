@@ -6,7 +6,7 @@ namespace Domain.Entities.User;
 public class UserSetting
 {
     [Key]
-    public int UserId { get; set; }
+    public string UserId { get; set; }
     public User User { get; set; }
     public Active NotificationsNewsletter { get; set; }
     public Active NotificationsFollowers { get; set; }
