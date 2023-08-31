@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Data;
+using Infrastructure.Seed;
 using Infrastructure.Services.AccountService;
 using Infrastructure.Services.CategoryService;
 using Infrastructure.Services.ExternalAccountService;
@@ -44,6 +45,7 @@ public static class RegisterService
         services.AddScoped<IUserSettingService, UserSettingService>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<Seeder>();
         
         services.AddIdentity<IdentityUser, IdentityRole>(config =>
             {
