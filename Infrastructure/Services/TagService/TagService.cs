@@ -69,7 +69,7 @@ public class TagService : ITagService
         }
     }
 
-    public async Task<Response<TagDto>> UpdateTag(TagDto addTag)
+    public async Task<Response<TagDto>> UpdateTag(UpdateTagDto addTag)
     {
         try
         {

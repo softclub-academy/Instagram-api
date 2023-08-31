@@ -3,12 +3,13 @@ using Domain.Dtos.ExternalAccountDto;
 using Domain.Filters.ExternalAccountFilter;
 using Domain.Responses;
 using Infrastructure.Services.ExternalAccountService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-[Route("external-account")]
+[Route("[controller]")]
+[Authorize]
 public class ExternalAccountController : ControllerBase
 {
     private readonly IExternalAccountService _service;

@@ -57,8 +57,6 @@ public class PostCommentService : IPostCommentService
     {
         try
         {
-            var user = await _context.UserLogs.FirstOrDefaultAsync(u => u.UserId == addPostComment.UserId && u.LogoutDate == null);
-            if (user == null) return new Response<GetPostCommentDto>(HttpStatusCode.BadRequest, "Login or register first!!!");
             var post = await _context.Posts.FindAsync(addPostComment.PostId);
             if (post == null)
                 return new Response<GetPostCommentDto>(HttpStatusCode.BadRequest, "Post not found");

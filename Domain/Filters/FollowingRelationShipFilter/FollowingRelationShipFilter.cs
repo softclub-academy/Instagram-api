@@ -2,6 +2,5 @@
 
 public class FollowingRelationShipFilter : PaginationFilter
 {
-    public int? UserId { get; set; }
-    public int? FollowingId { get; set; }
+    public string? Username { get; set; }
 }

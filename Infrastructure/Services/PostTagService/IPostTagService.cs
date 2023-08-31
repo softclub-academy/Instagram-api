@@ -9,6 +9,6 @@ public interface IPostTagService
     Task<PagedResponse<List<PostTagDto>>> GetPostTags(PaginationFilter filter);
     Task<Response<PostTagDto>> GetPostTagById(int id);
     Task<Response<PostTagDto>> AddPostTag(PostTagDto addPostTag);
-    Task<Response<PostTagDto>> UpdatePostTag(PostTagDto addPostTag);
+    Task<Response<PostTagDto>> UpdatePostTag(UpdatePostTagDto addPostTag);
     Task<Response<bool>> DeletePostTag(int id);
 }

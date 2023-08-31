@@ -70,7 +70,7 @@ public class CategoryService : ICategoryService
         }
     }
 
-    public async Task<Response<CategoryDto>> UpdateCategory(CategoryDto categoryDto)
+    public async Task<Response<CategoryDto>> UpdateCategory(UpdateCategoryDto categoryDto)
     {
         try
         {

@@ -21,7 +21,7 @@ public class FileService : IFileService
     {
         try
         {
-            var fullPath = Path.Combine(_hostEnvironment.WebRootPath, "img", file.FileName);
+            var fullPath = Path.Combine(_hostEnvironment.WebRootPath, "images", file.FileName);
             using var stream = new FileStream(fullPath, FileMode.Create);
             file.CopyTo(stream);
             return new Response<string>(file.FileName);
@@ -36,7 +36,7 @@ public class FileService : IFileService
     {
         try
         {
-            var fullPath = Path.Combine(_hostEnvironment.WebRootPath, "img", file);
+            var fullPath = Path.Combine(_hostEnvironment.WebRootPath, "images", file);
             File.Delete(fullPath);
             return new Response<bool>(true);
         }

@@ -26,12 +26,9 @@ public class FollowingRelationShipService : IFollowingRelationShipService
         try
         {
             var followingRelationShips = _context.FollowingRelationShips.AsQueryable();
-            if (filter.UserId != null)
+            if (filter.Username != null)
                 followingRelationShips =
-                    followingRelationShips.Where(f => f.FollowingId == filter.FollowingId);
-            if (filter.FollowingId != null)
-                followingRelationShips =
-                    followingRelationShips.Where(f => f.FollowingId == filter.FollowingId);
+                    followingRelationShips.Where(f => f.User.UserName == filter.Username);
             var response = await followingRelationShips
                 .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
             var mapped = _mapper.Map<List<GetFollowingRelationShipDto>>(response);
@@ -62,8 +59,6 @@ public class FollowingRelationShipService : IFollowingRelationShipService
     {
         try
         {
-            var user0 = await _context.UserLogs.FirstOrDefaultAsync(u => u.UserId == followingRelationShip.UserId && u.LogoutDate == null);
-            if (user0 == null) return new Response<bool>(HttpStatusCode.BadRequest, "Login first!!!");
             if (followingRelationShip.FollowingId == followingRelationShip.UserId)
                 return new Response<bool>(HttpStatusCode.BadRequest, "You will not be able to subscribe to yourself");
             var user = await _context.Users.FindAsync(followingRelationShip.UserId);
@@ -81,12 +76,10 @@ public class FollowingRelationShipService : IFollowingRelationShipService
         }
     }
 
-    public async Task<Response<bool>> DeleteFollowingRelationShip(int userId, int followingId)
+    public async Task<Response<bool>> DeleteFollowingRelationShip(string userId, string followingId)
     {
         try
         {
-            var user = await _context.UserLogs.FirstOrDefaultAsync(u => u.UserId == userId && u.LogoutDate == null);
-            if (user == null) return new Response<bool>(HttpStatusCode.BadRequest, "Login first!!!");
             var following =
                 await _context.FollowingRelationShips.FirstOrDefaultAsync(f => f.UserId == userId && f.FollowingId == followingId);
             if (following == null)

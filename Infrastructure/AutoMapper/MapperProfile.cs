@@ -11,7 +11,6 @@ using Domain.Dtos.PostStatDto;
 using Domain.Dtos.PostTagDto;
 using Domain.Dtos.TagDto;
 using Domain.Dtos.UserDto;
-using Domain.Dtos.UserLogDto;
 using Domain.Dtos.UserProfileDto;
 using Domain.Dtos.UserSettingDto;
 using Domain.Entities;
@@ -69,9 +68,5 @@ public class MapperProfile : Profile
         CreateMap<PostCategoryDto, PostCategory>().ReverseMap();
 
         CreateMap<PostTagDto, PostTag>().ReverseMap();
-
-        CreateMap<UserLog, GetUserLogDto>();
-        CreateMap<AddUserLogDto, UserLog>()
-            .ForMember(dest => dest.LoginDate, opt => opt.MapFrom(src => DateTime.UtcNow));
     }
 }

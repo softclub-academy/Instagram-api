@@ -7,7 +7,7 @@ namespace Domain.Entities.User;
 public class UserProfile
 {
     public int UserProfileId { get; set; }
-    public int UserId { get; set; }
+    public string UserId { get; set; }
     public User User { get; set; }
     [MaxLength(45)]
     public string FirstName { get; set; }

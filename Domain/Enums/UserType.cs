@@ -2,7 +2,7 @@
 
 public enum UserType
 {
-    Personal,
+    Personal = 1,
     Creator,
     Business
 }

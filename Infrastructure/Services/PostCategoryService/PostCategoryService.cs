@@ -68,7 +68,7 @@ public class PostCategoryService : IPostCategoryService
         }
     }
 
-    public async Task<Response<PostCategoryDto>> UpdatePostCategory(PostCategoryDto addPostCategory)
+    public async Task<Response<PostCategoryDto>> UpdatePostCategory(UpdatePostCategoryDto addPostCategory)
     {
         try
         {

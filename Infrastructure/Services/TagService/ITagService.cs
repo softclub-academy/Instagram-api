@@ -10,6 +10,6 @@ public interface ITagService
     Task<PagedResponse<List<TagDto>>> GetTags(TagFilter filter);
     Task<Response<TagDto>> GetTagById(int id);
     Task<Response<TagDto>> AddTag(TagDto addTag);
-    Task<Response<TagDto>> UpdateTag(TagDto addTag);
+    Task<Response<TagDto>> UpdateTag(UpdateTagDto addTag);
     Task<Response<bool>> DeleteTag(int id);
 }

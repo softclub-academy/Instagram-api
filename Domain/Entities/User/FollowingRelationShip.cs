@@ -1,11 +1,14 @@
-﻿        namespace Domain.Entities.User;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Domain.Entities.User;
 
 public class FollowingRelationShip
 {
+    [Key]
     public int FollowingRelationShipId { get; set; }
-    public int UserId { get; set; }
+    public string UserId { get; set; }
     public User User { get; set; }
-    public int FollowingId { get; set; }
+    public string FollowingId { get; set; }
     public User Following { get; set; }
     public DateTime DateFollowed { get; set; }
 }

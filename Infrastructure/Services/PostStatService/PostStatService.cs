@@ -37,12 +37,10 @@ public class PostStatService : IPostStatService
         }
     }
 
-    public async Task<Response<bool>> AddPostStat(int userId, int id)
+    public async Task<Response<bool>> AddPostStat(string userId, int id)
     {
         try
         {
-            var user = await _context.UserLogs.FirstOrDefaultAsync(u => u.UserId == userId && u.LogoutDate == null);
-            if (user == null) return new Response<bool>(HttpStatusCode.BadRequest, "Login first!!!");
             var userStat = await _context.StatUserIds.FindAsync(userId);
             if (userStat != null) return new Response<bool>(HttpStatusCode.BadRequest, "You have already set like");
             var postStat = await _context.PostStats.FirstOrDefaultAsync(p => p.PostId == id);
@@ -63,7 +61,7 @@ public class PostStatService : IPostStatService
         }
     }
 
-    public async Task<Response<bool>> DeletePostStat(int userId, int id)
+    public async Task<Response<bool>> DeletePostStat(string userId, int id)
     {
         try
         {

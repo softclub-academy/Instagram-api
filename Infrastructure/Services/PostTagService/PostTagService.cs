@@ -67,7 +67,7 @@ public class PostTagService : IPostTagService
         }
     }
 
-    public async Task<Response<PostTagDto>> UpdatePostTag(PostTagDto addPostTag)
+    public async Task<Response<PostTagDto>> UpdatePostTag(UpdatePostTagDto addPostTag)
     {
         try
         {

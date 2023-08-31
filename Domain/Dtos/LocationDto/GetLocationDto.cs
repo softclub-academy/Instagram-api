@@ -2,5 +2,5 @@
 
 public class GetLocationDto : LocationDto
 {
-    
+    public int LocationId { get; set; }
 }

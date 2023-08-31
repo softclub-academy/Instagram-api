@@ -2,12 +2,13 @@
 using Domain.Entities.Post;
 using Domain.Entities.User;
 using Domain.Enums;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 namespace Infrastructure.Data;
 
-public class DataContext : DbContext
+public class DataContext : IdentityDbContext
 {
     public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
@@ -61,7 +62,6 @@ public class DataContext : DbContext
     public DbSet<UserProfile> UserProfiles { get; set; }
     public DbSet<UserSetting> UserSettings { get; set; }
     public DbSet<Location> Locations { get; set; }
-    public DbSet<UserLog> UserLogs { get; set; }
     public DbSet<Image> Images { get; set; }
     public DbSet<StatUserId> StatUserIds { get; set; }
 }
