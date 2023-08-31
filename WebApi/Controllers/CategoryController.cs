@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using Domain.Dtos.CategoryDto;
 using Domain.Filters.CategoryFilter;
 using Domain.Responses;
@@ -29,7 +30,9 @@ public class CategoryController : ControllerBase
     [HttpGet("get-category-by-id")]
     public async Task<IActionResult> GetCategoryById(int id)
     {
+        var userClaims = User.Claims.FirstOrDefault(e => e.Type == ClaimTypes.NameIdentifier).Value;
         var result = await _service.GetCategoryById(id);
+        
         return StatusCode(result.StatusCode, result);
     }
 
