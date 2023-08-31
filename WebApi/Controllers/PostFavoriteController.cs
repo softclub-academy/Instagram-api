@@ -34,7 +34,7 @@ public class PostFavoriteController : ControllerBase
     }
 
     [HttpPost("add-PostFavorite")]
-    public async Task<IActionResult> AddPostFavorite([FromQuery]AddPostFavoriteDto postFavorite)
+    public async Task<IActionResult> AddPostFavorite([FromBody]AddPostFavoriteDto postFavorite)
     {
         if (ModelState.IsValid)
         {

@@ -34,7 +34,7 @@ public class LocationController : ControllerBase
     }
 
     [HttpPost("add-Location")]
-    public async Task<IActionResult> AddLocation([FromQuery]AddLocationDto location)
+    public async Task<IActionResult> AddLocation([FromBody]AddLocationDto location)
     {
         if (ModelState.IsValid)
         {
@@ -48,7 +48,7 @@ public class LocationController : ControllerBase
     }
     
     [HttpPut("update-Location")]
-    public async Task<IActionResult> UpdateLocation([FromQuery]UpdateLocationDto location)
+    public async Task<IActionResult> UpdateLocation([FromBody]UpdateLocationDto location)
     {
         if (ModelState.IsValid)
         {

@@ -34,7 +34,7 @@ public class ExternalAccountController : ControllerBase
     }
 
     [HttpPost("add-ExternalAccount")]
-    public async Task<IActionResult> AddExternalAccount([FromQuery]ExternalAccountDto externalAccount)
+    public async Task<IActionResult> AddExternalAccount([FromBody]ExternalAccountDto externalAccount)
     {
         if (ModelState.IsValid)
         {
@@ -48,7 +48,7 @@ public class ExternalAccountController : ControllerBase
     }
     
     [HttpPut("update-ExternalAccount")]
-    public async Task<IActionResult> UpdateExternalAccount([FromQuery]ExternalAccountDto externalAccount)
+    public async Task<IActionResult> UpdateExternalAccount([FromBody]ExternalAccountDto externalAccount)
     {
         if (ModelState.IsValid)
         {
