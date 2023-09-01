@@ -19,7 +19,7 @@ public class UserProfileController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("get-UserProfiles")]
+    [HttpGet("get-user-profiles")]
     public async Task<IActionResult> GetUserProfiles([FromQuery]UserProfileFilter filter)
     {
         var result = await _service.GetUserProfiles(filter);

@@ -34,7 +34,7 @@ public class UserController : ControllerBase
     }
     
     [HttpPut("update-User")]
-    public async Task<IActionResult> UpdateUser([FromQuery]AddUserDto user)
+    public async Task<IActionResult> UpdateUser([FromBody]AddUserDto user)
     {
         if (ModelState.IsValid)
         {

@@ -18,21 +18,21 @@ public class PostCommentController : BaseController
         _service = service;
     }
 
-    [HttpGet("get-PostComments")]
+    [HttpGet("get-postcomments")]
     public async Task<IActionResult> GetPostComments([FromQuery]PostCommentFilter filter)
     {
         var result = await _service.GetPostComments(filter);
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpGet("get-PostComment-by-id")]
+    [HttpGet("get-postcomment-by-id")]
     public async Task<IActionResult> GetPostCommentById(int id)
     {
         var result = await _service.GetPostCommentById(id);
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpPost("add-PostComment")]
+    [HttpPost("add-postComment")]
     public async Task<IActionResult> AddPostComment([FromBody]AddPostCommentDto postComment)
     {
         if (ModelState.IsValid)
@@ -46,7 +46,7 @@ public class PostCommentController : BaseController
         return StatusCode(response.StatusCode, response);
     }
 
-    [HttpDelete("delete-PostComment")]
+    [HttpDelete("delete-postComment")]
     public async Task<IActionResult> DeletePostComment(int id)
     {
         var result = await _service.DeletePostComment(id);

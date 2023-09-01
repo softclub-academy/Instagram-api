@@ -6,6 +6,7 @@ using Domain.Dtos.LoginDto;
 using Domain.Dtos.RegisterDto;
 using Domain.Entities.User;
 using Domain.Responses;
+using Infrastructure.Seed;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,12 +17,14 @@ public class AccountService : IAccountService
 {
     private readonly IConfiguration _configuration;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
 
     public AccountService(IConfiguration configuration,
-        UserManager<IdentityUser> userManager)
+        UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
     {
         _configuration = configuration;
         _userManager = userManager;
+        _roleManager = roleManager;
     }
 
     public async Task<Response<string>> Register(RegisterDto model)
@@ -37,7 +40,9 @@ public class AccountService : IAccountService
                 UserType = model.UserType,
                 DateRegistred = DateTime.UtcNow
             };
+            
             await _userManager.CreateAsync(user, model.Password);
+            await _userManager.AddToRoleAsync(user, Roles.User);
             return new Response<string>($"Done.  Your registered by id {user.Id}");
         }
         catch (Exception e)
