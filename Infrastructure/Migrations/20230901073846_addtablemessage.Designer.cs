@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230901073846_addtablemessage")]
+    partial class addtablemessage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -321,12 +324,20 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Post.PostView", b =>
                 {
                     b.Property<int>("PostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostId"));
+
+                    b.Property<int>("PostId1")
                         .HasColumnType("integer");
 
                     b.Property<int>("ViewCount")
                         .HasColumnType("integer");
 
                     b.HasKey("PostId");
+
+                    b.HasIndex("PostId1");
 
                     b.ToTable("PostViews");
                 });
@@ -905,8 +916,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Post.PostView", b =>
                 {
                     b.HasOne("Domain.Entities.Post.Post", "Post")
-                        .WithOne("PostView")
-                        .HasForeignKey("Domain.Entities.Post.PostView", "PostId")
+                        .WithMany()
+                        .HasForeignKey("PostId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1091,9 +1102,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("PostTags");
-
-                    b.Navigation("PostView")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.PostStat", b =>

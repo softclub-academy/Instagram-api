@@ -20,7 +20,7 @@ public class Seeder
         var newroles = new List<IdentityRole>()
         {
             new IdentityRole(Roles.Admin),
-            new IdentityRole(Roles.Student)
+            new IdentityRole(Roles.User)
         };
 
         var existing = _roleManager.Roles.ToList();
@@ -42,7 +42,8 @@ public class Seeder
         {
             UserName = "admin",
             PhoneNumber = "+992005442641",
-            Email = "admin@gmail.com"
+            Email = "admin@gmail.com",
+            DateRegistred = DateTime.UtcNow
         };
 
         var result = await _userManager.CreateAsync(identity, "hello123");
@@ -53,5 +54,5 @@ public class Seeder
 public class Roles
 {
     public const string Admin = "Admin";
-    public const string Student = "User";
+    public const string User = "User";
 }
