@@ -62,7 +62,7 @@ public class AccountService : IAccountService
                 if (result)
                     return new Response<string>(await GenerateJwtToken(user));
             }
-            return new Response<string>("Your username or password is incorrect!!!");
+            return new Response<string>(HttpStatusCode.BadRequest, "Your username or password is incorrect!!!");
         }
         catch (Exception e)
         {
