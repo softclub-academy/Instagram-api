@@ -8,9 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class PostCommentController : ControllerBase
+
+public class PostCommentController : BaseController
 {
     private readonly IPostCommentService _service;
 
@@ -42,8 +41,8 @@ public class PostCommentController : ControllerBase
             return StatusCode(result.StatusCode, result);
         }
 
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<PostCommentDto>(HttpStatusCode.BadRequest, errors);
+        
+        var response = new Response<PostCommentDto>(HttpStatusCode.BadRequest, ModelStateErrors());
         return StatusCode(response.StatusCode, response);
     }
 

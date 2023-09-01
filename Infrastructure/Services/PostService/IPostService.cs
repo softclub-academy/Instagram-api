@@ -13,4 +13,5 @@ public interface IPostService
     Task<Response<GetPostDto>> AddPost(AddPostDto addPost);
     Task<Response<GetPostDto>> UpdatePost(AddPostDto addPost);
     Task<Response<bool>> DeletePost(int id);
+    Task<Response<bool>> LikePost(string? userId,int postId);
 }

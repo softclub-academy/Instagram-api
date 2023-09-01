@@ -18,5 +18,6 @@ public class Post
     public PostStat PostStat { get; set; }
     public List<PostCategory> PostCategories { get; set; }
     public List<PostTag> PostTags { get; set; }
+    public PostView PostView { get; set; }
     public List<Image> Images { get; set; }
 }
