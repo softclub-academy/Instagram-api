@@ -19,7 +19,7 @@ public class PostTagController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("get-PostTags")]
+    [HttpGet("get-posttags")]
     public async Task<IActionResult> GetPostTags([FromQuery]PaginationFilter filter)
     {
         var result = await _service.GetPostTags(filter);
@@ -48,7 +48,7 @@ public class PostTagController : ControllerBase
     }
     
     [HttpPut("update-PostTag")]
-    public async Task<IActionResult> UpdatePostTag([FromQuery]UpdatePostTagDto postTag)
+    public async Task<IActionResult> UpdatePostTag([FromBody]UpdatePostTagDto postTag)
     {
         if (ModelState.IsValid)
         {

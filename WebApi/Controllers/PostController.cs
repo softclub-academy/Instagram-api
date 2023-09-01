@@ -20,14 +20,14 @@ public class PostController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("get-Posts")]
+    [HttpGet("get-posts")]
     public async Task<IActionResult> GetPosts([FromQuery]PostFilter filter)
     {
         var result = await _service.GetPosts(filter);
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpGet("get-Post-by-id")]
+    [HttpGet("get-post-by-id")]
     public async Task<IActionResult> GetPostById(int id)
     {
         var result = await _service.GetPostById(id);
@@ -41,8 +41,8 @@ public class PostController : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpPost("add-Post")]
-    public async Task<IActionResult> AddPost([FromBody]AddPostDto post)
+    [HttpPost("add-post")]
+    public async Task<IActionResult> AddPost([FromForm]AddPostDto post)
     {
         if (ModelState.IsValid)
         {
@@ -54,22 +54,8 @@ public class PostController : ControllerBase
         var response = new Response<PostDto>(HttpStatusCode.BadRequest, errors);
         return StatusCode(response.StatusCode, response);
     }
-    
-    [HttpPut("update-Post")]
-    public async Task<IActionResult> UpdatePost([FromBody]AddPostDto post)
-    {
-        if (ModelState.IsValid)
-        {
-            var result = await _service.UpdatePost(post);
-            return StatusCode(result.StatusCode, result);
-        }
 
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<PostDto>(HttpStatusCode.BadRequest, errors);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("delete-Post")]
+    [HttpDelete("delete-post")]
     public async Task<IActionResult> DeletePost(int id)
     {
         var result = await _service.DeletePost(id);

@@ -2,6 +2,7 @@
 using Infrastructure.Seed;
 using Infrastructure.Services.AccountService;
 using Infrastructure.Services.CategoryService;
+using Infrastructure.Services.ChatService;
 using Infrastructure.Services.ExternalAccountService;
 using Infrastructure.Services.FileService;
 using Infrastructure.Services.FollowingRelationShipService;
@@ -46,6 +47,7 @@ public static class RegisterService
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<Seeder>();
+        services.AddScoped<IChatService, ChatService>();
         
         services.AddIdentity<IdentityUser, IdentityRole>(config =>
             {
