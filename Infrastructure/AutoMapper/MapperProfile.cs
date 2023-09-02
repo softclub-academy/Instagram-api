@@ -9,6 +9,7 @@ using Domain.Dtos.PostDto;
 using Domain.Dtos.PostFavoriteDto;
 using Domain.Dtos.PostStatDto;
 using Domain.Dtos.PostTagDto;
+using Domain.Dtos.StoryDtos;
 using Domain.Dtos.TagDto;
 using Domain.Dtos.UserDto;
 using Domain.Dtos.UserProfileDto;
@@ -26,6 +27,9 @@ public class MapperProfile : Profile
         CreateMap<Category, CategoryDto>().ReverseMap();
 
         CreateMap<ExternalAccount, ExternalAccountDto>().ReverseMap();
+
+        CreateMap<AddStoryDto, Story>();
+        CreateMap<Story, GetStoryDto>();
 
         CreateMap<FollowingRelationShip, GetFollowingRelationShipDto>();
         CreateMap<AddFollowingRelationShipDto, FollowingRelationShip>()

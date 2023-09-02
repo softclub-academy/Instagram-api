@@ -21,10 +21,15 @@ public class FileService : IFileService
     {
         try
         {
-            var fullPath = Path.Combine(_hostEnvironment.WebRootPath, "images", file.FileName);
-            using var stream = new FileStream(fullPath, FileMode.Create);
-            file.CopyTo(stream);
-            return new Response<string>(file.FileName);
+            var fileName =
+                string.Format($"{Guid.NewGuid()+Path.GetExtension(file.FileName)}");
+            var fullpath= Path.Combine(_hostEnvironment.WebRootPath,"images",fileName);
+            using (var stream = new FileStream(fullpath, FileMode.Create))
+            {
+                file.CopyTo(stream);
+            }
+
+            return new Response<string>(fileName);
         }
         catch (Exception e)
         {
