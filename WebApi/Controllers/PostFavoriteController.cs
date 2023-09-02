@@ -38,6 +38,8 @@ public class PostFavoriteController : ControllerBase
     {
         if (ModelState.IsValid)
         {
+             var userTokenId=User.Claims.FirstOrDefault(e=>e.Type=="sid").Value;
+            postFavorite.UserId=userTokenId;
             var result = await _service.AddPostFavorite(postFavorite);
             return StatusCode(result.StatusCode, result);
         }
