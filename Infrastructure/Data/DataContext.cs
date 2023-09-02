@@ -49,6 +49,8 @@ public class DataContext : IdentityDbContext
     }
 
     public DbSet<User> Users { get; set; }
+    public DbSet<Story> Stories { get; set; }
+    public DbSet<StoryStat> StoryStats { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<PostCategory> PostCategories { get; set; }
@@ -66,4 +68,6 @@ public class DataContext : IdentityDbContext
     public DbSet<StatUserId> StatUserIds { get; set; }
     public DbSet<PostView> PostViews { get; set; }
     public DbSet<PostViewUser> PostViewUsers { get; set; }
+    public DbSet<Chat> Chats { get; set; }
+    public DbSet<Message> Messages { get; set; }
 }

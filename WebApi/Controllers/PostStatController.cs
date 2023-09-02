@@ -22,6 +22,7 @@ public class PostStatController : ControllerBase
     [HttpGet("get-PostStats")]
     public async Task<IActionResult> GetPostStats([FromQuery]PaginationFilter filter)
     {
+        
         var result = await _service.GetPostStats(filter);
         return StatusCode(result.StatusCode, result);
     }
@@ -40,7 +41,7 @@ public class PostStatController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
-    [HttpDelete("delete-PostStat")]
+    [HttpDelete("delete-poststat")]
     public async Task<IActionResult> DeletePostStat(string userId, int postId)
     {
         var result = await _service.DeletePostStat(userId, postId);

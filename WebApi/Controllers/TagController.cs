@@ -34,7 +34,7 @@ public class TagController : ControllerBase
     }
 
     [HttpPost("add-Tag")]
-    public async Task<IActionResult> AddTag([FromQuery]TagDto tag)
+    public async Task<IActionResult> AddTag([FromBody]TagDto tag)
     {
         if (ModelState.IsValid)
         {
@@ -48,7 +48,7 @@ public class TagController : ControllerBase
     }
     
     [HttpPut("update-Tag")]
-    public async Task<IActionResult> UpdateTag([FromQuery]UpdateTagDto tag)
+    public async Task<IActionResult> UpdateTag([FromBody]UpdateTagDto tag)
     {
         if (ModelState.IsValid)
         {
