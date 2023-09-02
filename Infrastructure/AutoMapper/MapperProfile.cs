@@ -26,7 +26,6 @@ public class MapperProfile : Profile
         CreateMap<Category, CategoryDto>().ReverseMap();
 
         CreateMap<ExternalAccount, ExternalAccountDto>().ReverseMap();
-
         CreateMap<FollowingRelationShip, GetFollowingRelationShipDto>();
         CreateMap<AddFollowingRelationShipDto, FollowingRelationShip>()
             .ForMember(dest => dest.DateFollowed, opt => opt.MapFrom(src => DateTime.UtcNow));

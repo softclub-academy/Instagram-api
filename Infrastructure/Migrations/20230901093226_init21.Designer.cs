@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230901093226_init21")]
+    partial class init21
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,14 +100,11 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("UserProfileId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("UserProfileUserId")
-                        .HasColumnType("text");
-
                     b.HasKey("ImageId");
 
                     b.HasIndex("PostId");
 
-                    b.HasIndex("UserProfileUserId");
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("Images");
                 });
@@ -404,8 +404,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.User.UserProfile", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<int>("UserProfileId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserProfileId"));
 
                     b.Property<string>("About")
                         .IsRequired()
@@ -414,7 +417,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("DOB")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DateUpdated")
+                    b.Property<DateTime?>("DateUpdated")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FirstName")
@@ -426,6 +429,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Image")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
@@ -441,7 +445,11 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
 
-                    b.HasKey("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UserProfileId");
 
                     b.HasIndex("LocationId");
 
@@ -706,7 +714,7 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("Domain.Entities.User.UserProfile", "UserProfile")
                         .WithMany("Images")
-                        .HasForeignKey("UserProfileUserId");
+                        .HasForeignKey("UserProfileId");
 
                     b.Navigation("Post");
 
