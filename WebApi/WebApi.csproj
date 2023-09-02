@@ -5,6 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <ContainerImageName>nurullo/instagram_clone_api</ContainerImageName>
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:8.0-preview</ContainerBaseImage>
+    <ContainerImageTags>2.0.0;latest</ContainerImageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +38,13 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Include="..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
   </ItemGroup>
 
 </Project>

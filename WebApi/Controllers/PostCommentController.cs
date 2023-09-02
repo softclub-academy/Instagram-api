@@ -3,9 +3,11 @@ using Domain.Dtos.PostCommentDto;
 using Domain.Filters.PostCommentFilter;
 using Domain.Responses;
 using Infrastructure.Services.PostCommentService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
+
 
 public class PostCommentController : BaseController
 {
@@ -39,8 +41,8 @@ public class PostCommentController : BaseController
             return StatusCode(result.StatusCode, result);
         }
 
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<PostCommentDto>(HttpStatusCode.BadRequest, errors);
+        
+        var response = new Response<PostCommentDto>(HttpStatusCode.BadRequest, ModelStateErrors());
         return StatusCode(response.StatusCode, response);
     }
 

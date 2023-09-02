@@ -17,6 +17,7 @@ builder.Services.AddSwaggerGen();
 
 // connection to database && dependency injection
 builder.Services.AddRegisterService(builder.Configuration);
+builder.Services.AddCors();
 
 // register swagger configuration
 builder.Services.SwaggerService();
@@ -31,6 +32,14 @@ builder.Services.AddAutoMapper(typeof(MapperProfile));
 
 var app = builder.Build();
 
+
+app.UseCors(
+    builder => builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000","https://localhost:3000")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+);
+
+// update database
 try
 {
     var serviceProvider = app.Services.CreateScope().ServiceProvider; 
@@ -47,8 +56,9 @@ catch (Exception e)
     // ignored
 }
 
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

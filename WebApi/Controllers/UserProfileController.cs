@@ -24,7 +24,7 @@ public class UserProfileController : BaseController
     }
 
     [HttpGet("get-UserProfile-by-id")]
-    public async Task<IActionResult> GetUserProfileById(int id)
+    public async Task<IActionResult> GetUserProfileById(string id)
     {
         var result = await _service.GetUserProfileById(id);
         return StatusCode(result.StatusCode, result);
@@ -45,7 +45,7 @@ public class UserProfileController : BaseController
     }
     
     [HttpPut("update-UserProfile")]
-    public async Task<IActionResult> UpdateUserProfile([FromForm]AddUserProfileDto userProfile)
+    public async Task<IActionResult> UpdateUserProfile([FromForm]UpdateUserProfileDto userProfile)
     {
         if (ModelState.IsValid)
         {
@@ -58,10 +58,5 @@ public class UserProfileController : BaseController
         return StatusCode(response.StatusCode, response);
     }
 
-    [HttpDelete("delete-UserProfile")]
-    public async Task<IActionResult> DeleteUserProfile(int id)
-    {
-        var result = await _service.DeleteUserProfile(id);
-        return StatusCode(result.StatusCode, result);
-    }
+  
 }

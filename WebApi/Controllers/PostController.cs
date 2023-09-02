@@ -57,4 +57,20 @@ public class PostController : BaseController
         var result = await _service.DeletePost(id);
         return StatusCode(result.StatusCode, result);
     }
+    
+    
+    [HttpPost("like-Post")]
+    public async Task<IActionResult> LikePost(int postId)
+    {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
+        if (userId == null)
+        {
+            var response = new Response<bool>(HttpStatusCode.BadRequest, "UserNotfound");
+            return StatusCode(response.StatusCode, response);
+        }
+        var result = await _service.LikePost(userId,postId);
+        return StatusCode(result.StatusCode, result);
+    }
+    
+    
 }
