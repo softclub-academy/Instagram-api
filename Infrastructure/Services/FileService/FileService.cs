@@ -21,6 +21,7 @@ public class FileService : IFileService
     {
         try
         {
+
             var fileName =
                 string.Format($"{Guid.NewGuid()+Path.GetExtension(file.FileName)}");
             var fullpath= Path.Combine(_hostEnvironment.WebRootPath,"images",fileName);

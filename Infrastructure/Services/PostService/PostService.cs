@@ -100,7 +100,8 @@ public class PostService : IPostService
                     Content = p.Content,
                     Status = p.Status,
                     DatePublished = p.DatePublished.ToShortDateString(),
-                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.Path).ToList()
+                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.Path).ToList(),
+                    
                 }).ToListAsync();
             var totalRecord = posts.Count;
             return new PagedResponse<List<GetPostDto>>(posts, filter.PageNumber, filter.PageSize, totalRecord);
@@ -207,5 +208,32 @@ public class PostService : IPostService
         {
             return new Response<bool>(HttpStatusCode.BadRequest, e.Message);
         }
+    }
+
+    public async Task<Response<bool>> LikePost(string? userId, int postId)
+    {
+        var stats = _context.PostStats.FirstOrDefault(e => e.PostId == postId);
+        var existingStatUser =
+            _context.StatUserIds.FirstOrDefault(st => st.UserId == userId && st.PostStatId == stats.PostId);
+        if (existingStatUser == null)
+        {
+            var newPostUserLike = new StatUserId()
+            {
+                UserId = userId,
+                PostStatId = stats.PostId
+            };
+            await _context.StatUserIds.AddRangeAsync(newPostUserLike);
+            stats.LikeCount++;
+            await _context.SaveChangesAsync();
+            
+
+            return new Response<bool>(true);
+        }
+
+        _context.StatUserIds.Remove(existingStatUser);
+        stats.LikeCount--;
+        await _context.SaveChangesAsync();
+        return new Response<bool>(true);
+        
     }
 }

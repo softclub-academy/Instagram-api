@@ -41,7 +41,7 @@ public class PostStatController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
-    [HttpDelete("delete-PostStat")]
+    [HttpDelete("delete-poststat")]
     public async Task<IActionResult> DeletePostStat(string userId, int postId)
     {
         var result = await _service.DeletePostStat(userId, postId);

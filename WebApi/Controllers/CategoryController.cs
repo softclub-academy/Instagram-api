@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
+
 [Route("[controller]")]
 [Authorize]
 public class CategoryController : ControllerBase

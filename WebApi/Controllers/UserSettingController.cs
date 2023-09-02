@@ -19,22 +19,22 @@ public class UserSettingController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("get-UserSettings")]
+    [HttpGet("get-user-settings")]
     public async Task<IActionResult> GetUserSettings([FromQuery]PaginationFilter filter)
     {
         var result = await _service.GetUserSettings(filter);
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpGet("get-UserSetting-by-id")]
+    [HttpGet("get-user-setting-by-id")]
     public async Task<IActionResult> GetUserSettingById(int id)
     {
         var result = await _service.GetUserSettingById(id);
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpPost("add-UserSetting")]
-    public async Task<IActionResult> AddUserSetting([FromQuery]UserSettingDto userSetting)
+    [HttpPost("add-user-setting")]
+    public async Task<IActionResult> AddUserSetting([FromBody]UserSettingDto userSetting)
     {
         if (ModelState.IsValid)
         {
@@ -47,8 +47,8 @@ public class UserSettingController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
     
-    [HttpPut("update-UserSetting")]
-    public async Task<IActionResult> UpdateUserSetting([FromQuery]UserSettingDto userSetting)
+    [HttpPut("update-user-setting")]
+    public async Task<IActionResult> UpdateUserSetting([FromBody]UserSettingDto userSetting)
     {
         if (ModelState.IsValid)
         {
@@ -61,7 +61,7 @@ public class UserSettingController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
-    [HttpDelete("delete-UserSetting")]
+    [HttpDelete("delete-user-setting")]
     public async Task<IActionResult> DeleteUserSetting(int id)
     {
         var result = await _service.DeleteUserSetting(id);

@@ -68,4 +68,6 @@ public class DataContext : IdentityDbContext
     public DbSet<StatUserId> StatUserIds { get; set; }
     public DbSet<PostView> PostViews { get; set; }
     public DbSet<PostViewUser> PostViewUsers { get; set; }
+    public DbSet<Chat> Chats { get; set; }
+    public DbSet<Message> Messages { get; set; }
 }
