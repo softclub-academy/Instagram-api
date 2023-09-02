@@ -3,14 +3,11 @@ using Domain.Dtos.TagDto;
 using Domain.Filters.TagFilter;
 using Domain.Responses;
 using Infrastructure.Services.TagService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class TagController : ControllerBase
+public class TagController : BaseController
 {
     private readonly ITagService _service;
 

@@ -119,7 +119,7 @@ public class PostService : IPostService
             var post = _mapper.Map<Post>(addPost);  
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
-            var postStat = new PostStat()
+            var postStat = new PostLike()
             {
                 PostId = post.PostId
             };
@@ -160,7 +160,7 @@ public class PostService : IPostService
             var post = _mapper.Map<Post>(addPost);  
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
-            var postStat = new PostStat()
+            var postStat = new PostLike()
             {
                 PostId = post.PostId
             };

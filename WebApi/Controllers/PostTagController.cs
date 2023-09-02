@@ -3,14 +3,11 @@ using Domain.Dtos.PostTagDto;
 using Domain.Filters;
 using Domain.Responses;
 using Infrastructure.Services.PostTagService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class PostTagController : ControllerBase
+public class PostTagController : BaseController
 {
     private readonly IPostTagService _service;
 

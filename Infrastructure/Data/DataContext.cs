@@ -42,7 +42,7 @@ public class DataContext : IdentityDbContext
         modelBuilder.Entity<Category>()
             .HasIndex(u => u.CategoryName)
             .IsUnique();
-        modelBuilder.Entity<StatUserId>()
+        modelBuilder.Entity<PostUserLike>()
             .HasIndex(s => s.UserId)
             .IsUnique();
         base.OnModelCreating(modelBuilder);
@@ -54,7 +54,7 @@ public class DataContext : IdentityDbContext
     public DbSet<PostCategory> PostCategories { get; set; }
     public DbSet<PostComment> PostComments { get; set; }
     public DbSet<PostFavorite> PostFavorites { get; set; }
-    public DbSet<PostStat> PostStats { get; set; }
+    public DbSet<PostLike> PostStats { get; set; }
     public DbSet<PostTag> PostTags { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<ExternalAccount> ExternalAccounts { get; set; }
@@ -63,7 +63,7 @@ public class DataContext : IdentityDbContext
     public DbSet<UserSetting> UserSettings { get; set; }
     public DbSet<Location> Locations { get; set; }
     public DbSet<Image> Images { get; set; }
-    public DbSet<StatUserId> StatUserIds { get; set; }
+    public DbSet<PostUserLike> StatUserIds { get; set; }
     public DbSet<PostView> PostViews { get; set; }
     public DbSet<PostViewUser> PostViewUsers { get; set; }
     public DbSet<Chat> Chats { get; set; }

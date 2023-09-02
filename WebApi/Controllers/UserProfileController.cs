@@ -3,14 +3,11 @@ using Domain.Dtos.UserProfileDto;
 using Domain.Filters.UserProfileFilter;
 using Domain.Responses;
 using Infrastructure.Services.UserProfileService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class UserProfileController : ControllerBase
+public class UserProfileController : BaseController
 {
     private readonly IUserProfileService _service;
 

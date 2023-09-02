@@ -1,17 +1,13 @@
 ﻿using System.Net;
 using Domain.Dtos.PostDto;
 using Domain.Filters.PostFilter;
-using Domain.Filters.UserFilter;
 using Domain.Responses;
 using Infrastructure.Services.PostService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class PostController : ControllerBase
+public class PostController : BaseController
 {
     private readonly IPostService _service;
 

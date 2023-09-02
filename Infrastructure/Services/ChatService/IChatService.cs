@@ -10,4 +10,5 @@ public interface IChatService
     Task<Response<List<GetMessageDto>>> GetChatById(ChatDto chat);
     Task<Response<int>> SendMessage(MessageDto message);
     Task<Response<bool>> DeleteMessage(int massageId);
+    Task<Response<bool>> DeleteChat(int chatId);
 }
