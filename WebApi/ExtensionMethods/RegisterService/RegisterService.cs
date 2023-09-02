@@ -10,9 +10,7 @@ using Infrastructure.Services.LocationService;
 using Infrastructure.Services.PostCommentService;
 using Infrastructure.Services.PostFavoriteService;
 using Infrastructure.Services.PostService;
-using Infrastructure.Services.PostTagService;
 using Infrastructure.Services.StoryServices;
-using Infrastructure.Services.TagService;
 using Infrastructure.Services.UserProfileService;
 using Infrastructure.Services.UserService;
 using Infrastructure.Services.UserSettingService;
@@ -34,8 +32,6 @@ public static class RegisterService
         services.AddScoped<IPostCommentService, PostCommentService>();
         services.AddScoped<IPostService, PostService>();
         services.AddScoped<IPostFavoriteService, PostFavoriteService>();
-        services.AddScoped<IPostTagService, PostTagService>();
-        services.AddScoped<ITagService, TagService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddScoped<IUserSettingService, UserSettingService>();

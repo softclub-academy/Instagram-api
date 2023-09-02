@@ -36,9 +36,6 @@ public class DataContext : IdentityDbContext
         modelBuilder.Entity<UserProfile>()
             .HasIndex(u => u.UserId)
             .IsUnique();
-        modelBuilder.Entity<Tag>()
-            .HasIndex(u => u.TagName)
-            .IsUnique();
         modelBuilder.Entity<Category>()
             .HasIndex(u => u.CategoryName)
             .IsUnique();
@@ -57,8 +54,6 @@ public class DataContext : IdentityDbContext
     public DbSet<PostComment> PostComments { get; set; }
     public DbSet<PostFavorite> PostFavorites { get; set; }
     public DbSet<PostLike> PostStats { get; set; }
-    public DbSet<PostTag> PostTags { get; set; }
-    public DbSet<Tag> Tags { get; set; }
     public DbSet<ExternalAccount> ExternalAccounts { get; set; }
     public DbSet<FollowingRelationShip> FollowingRelationShips { get; set; }
     public DbSet<UserProfile> UserProfiles { get; set; }

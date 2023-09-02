@@ -53,8 +53,6 @@ public class MapperProfile : Profile
 
         CreateMap<PostLike, PostStatDto>().ReverseMap();
 
-        CreateMap<Tag, TagDto>().ReverseMap();
-
         CreateMap<User, GetUserDto>();
         CreateMap<AddUserDto, User>()
             .ForMember(dest => dest.DateRegistred, opt => opt.MapFrom(src => DateTime.UtcNow));
@@ -71,6 +69,5 @@ public class MapperProfile : Profile
 
         CreateMap<PostCategoryDto, PostCategory>().ReverseMap();
 
-        CreateMap<PostTagDto, PostTag>().ReverseMap();
     }
 }
