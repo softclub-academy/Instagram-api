@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-﻿using Microsoft.AspNetCore.Authorization;
-=======
 using Microsoft.AspNetCore.Authorization;
->>>>>>> main
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
