@@ -100,7 +100,8 @@ public class PostService : IPostService
                     Content = p.Content,
                     Status = p.Status,
                     DatePublished = p.DatePublished.ToShortDateString(),
-                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.Path).ToList()
+                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.Path).ToList(),
+                    
                 }).ToListAsync();
             var totalRecord = posts.Count;
             return new PagedResponse<List<GetPostDto>>(posts, filter.PageNumber, filter.PageSize, totalRecord);
