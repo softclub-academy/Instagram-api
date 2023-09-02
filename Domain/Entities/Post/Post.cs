@@ -13,6 +13,7 @@ public class Post
     [MaxLength(45)]
     public string Status { get; set; }
     public DateTime DatePublished { get; set; }
+    public List<Story> Stories { get; set; }
     public List<PostComment> PostComments { get; set; }
     public List<PostFavorite> PostFavorites { get; set; }
     public PostView PostView { get; set; }

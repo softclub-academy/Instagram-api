@@ -21,12 +21,16 @@ public class FileService : IFileService
     {
         try
         {
-            var find = _context.Categories.Find(1,1);
-            var filename = $"{DateTime.Now.ToString("dd-MM-yyyy_hh-mm-ss")}{Path.GetExtension(file.FileName)}";
-            var fullPath = Path.Combine(_hostEnvironment.WebRootPath, "images", filename);
-            using var stream = new FileStream(fullPath, FileMode.Create);
-            file.CopyTo(stream);
-            return new Response<string>(filename);
+
+            var fileName =
+                string.Format($"{Guid.NewGuid()+Path.GetExtension(file.FileName)}");
+            var fullpath= Path.Combine(_hostEnvironment.WebRootPath,"images",fileName);
+            using (var stream = new FileStream(fullpath, FileMode.Create))
+            {
+                file.CopyTo(stream);
+            }
+
+            return new Response<string>(fileName);
         }
         catch (Exception e)
         {

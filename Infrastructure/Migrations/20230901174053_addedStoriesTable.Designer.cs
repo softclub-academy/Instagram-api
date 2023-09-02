@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230901174053_addedStoriesTable")]
+    partial class addedStoriesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,31 +27,6 @@ namespace Infrastructure.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "active", new[] { "of", "on" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "gender", new[] { "female", "male" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Domain.Entities.Chat", b =>
-                {
-                    b.Property<int>("ChatId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ChatId"));
-
-                    b.Property<string>("ReceiveUserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SendUserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("ChatId");
-
-                    b.HasIndex("ReceiveUserId");
-
-                    b.HasIndex("SendUserId");
-
-                    b.ToTable("Chats");
-                });
 
             modelBuilder.Entity("Domain.Entities.Location", b =>
                 {
@@ -81,37 +59,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("LocationId");
 
                     b.ToTable("Locations");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Message", b =>
-                {
-                    b.Property<int>("MessageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageId"));
-
-                    b.Property<int>("ChatId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("MessageText")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("SendMassageDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("MessageId");
-
-                    b.HasIndex("ChatId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.Category", b =>
@@ -322,12 +269,20 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Post.PostView", b =>
                 {
                     b.Property<int>("PostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostId"));
+
+                    b.Property<int>("PostId1")
                         .HasColumnType("integer");
 
                     b.Property<int>("ViewCount")
                         .HasColumnType("integer");
 
                     b.HasKey("PostId");
+
+                    b.HasIndex("PostId1");
 
                     b.ToTable("PostViews");
                 });
@@ -414,7 +369,7 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
-                    b.Property<int?>("PostId")
+                    b.Property<int>("PostId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -799,44 +754,6 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Chat", b =>
-                {
-                    b.HasOne("Domain.Entities.User.User", "ReceiveUser")
-                        .WithMany()
-                        .HasForeignKey("ReceiveUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.User.User", "SendUser")
-                        .WithMany()
-                        .HasForeignKey("SendUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ReceiveUser");
-
-                    b.Navigation("SendUser");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Message", b =>
-                {
-                    b.HasOne("Domain.Entities.Chat", "Chat")
-                        .WithMany("Messages")
-                        .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.User.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chat");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Domain.Entities.Post.Image", b =>
                 {
                     b.HasOne("Domain.Entities.Post.Post", "Post")
@@ -953,8 +870,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Post.PostView", b =>
                 {
                     b.HasOne("Domain.Entities.Post.Post", "Post")
-                        .WithOne("PostView")
-                        .HasForeignKey("Domain.Entities.Post.PostView", "PostId")
+                        .WithMany()
+                        .HasForeignKey("PostId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1003,7 +920,9 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Post.Post", "Post")
                         .WithMany("Stories")
-                        .HasForeignKey("PostId");
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Post");
                 });
@@ -1128,11 +1047,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Chat", b =>
-                {
-                    b.Navigation("Messages");
-                });
-
             modelBuilder.Entity("Domain.Entities.Location", b =>
                 {
                     b.Navigation("UserProfiles");
@@ -1159,10 +1073,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("PostTags");
 
                     b.Navigation("Stories");
-
-                    b.Navigation("PostView")
-                        .IsRequired();
-
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.PostStat", b =>
