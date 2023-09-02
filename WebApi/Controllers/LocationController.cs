@@ -3,14 +3,11 @@ using Domain.Dtos.LocationDto;
 using Domain.Filters.LocationFilter;
 using Domain.Responses;
 using Infrastructure.Services.LocationDto;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class LocationController : ControllerBase
+public class LocationController : BaseController
 {
     private readonly ILocationService _service;
 

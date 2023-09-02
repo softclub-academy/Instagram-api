@@ -3,14 +3,11 @@ using Domain.Dtos.UserDto;
 using Domain.Filters.UserFilter;
 using Domain.Responses;
 using Infrastructure.Services.UserService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class UserController : ControllerBase
+public class UserController : BaseController
 {
     private readonly IUserService _service;
 

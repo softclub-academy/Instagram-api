@@ -119,7 +119,7 @@ public class PostService : IPostService
             var post = _mapper.Map<Post>(addPost);  
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
-            var postStat = new PostStat()
+            var postStat = new PostLike()
             {
                 PostId = post.PostId
             };
@@ -160,7 +160,7 @@ public class PostService : IPostService
             var post = _mapper.Map<Post>(addPost);  
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
-            var postStat = new PostStat()
+            var postStat = new PostLike()
             {
                 PostId = post.PostId
             };
@@ -214,13 +214,13 @@ public class PostService : IPostService
     {
         var stats = _context.PostStats.FirstOrDefault(e => e.PostId == postId);
         var existingStatUser =
-            _context.StatUserIds.FirstOrDefault(st => st.UserId == userId && st.PostStatId == stats.PostId);
+            _context.StatUserIds.FirstOrDefault(st => st.UserId == userId && st.PostLikeId == stats.PostId);
         if (existingStatUser == null)
         {
-            var newPostUserLike = new StatUserId()
+            var newPostUserLike = new PostUserLike()
             {
                 UserId = userId,
-                PostStatId = stats.PostId
+                PostLikeId = stats.PostId
             };
             await _context.StatUserIds.AddRangeAsync(newPostUserLike);
             stats.LikeCount++;

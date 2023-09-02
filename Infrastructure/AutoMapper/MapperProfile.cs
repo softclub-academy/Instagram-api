@@ -51,7 +51,7 @@ public class MapperProfile : Profile
         CreateMap<PostFavorite, GetPostFavoriteDto>();
         CreateMap<AddPostFavoriteDto, PostFavorite>();
 
-        CreateMap<PostStat, PostStatDto>().ReverseMap();
+        CreateMap<PostLike, PostStatDto>().ReverseMap();
 
         CreateMap<Tag, TagDto>().ReverseMap();
 

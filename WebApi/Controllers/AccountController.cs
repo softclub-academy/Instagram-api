@@ -8,9 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class AccountController : ControllerBase
+public class AccountController : BaseController
 {
     private readonly IAccountService _service;
 

@@ -2,12 +2,12 @@
 
 namespace Domain.Entities.Post;
 
-public class StatUserId
+public class PostUserLike
 {
     [Key]
     public int Id { get; set; }
     public string UserId { get; set; }
     public User.User User { get; set; }
-    public int PostStatId { get; set; }
-    public PostStat PostStat { get; set; }
+    public int PostLikeId { get; set; }
+    public PostLike PostLike { get; set; }
 }
