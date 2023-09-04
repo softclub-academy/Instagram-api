@@ -32,5 +32,4 @@ public class ListOfUserCommentLike
     public string UserId { get; set; }
     public User User { get; set; }
     public List<PostUserLike> StatUserIds { get; set; }
-    public List<PostUserLike> StatUserIds { get; set; }
 }

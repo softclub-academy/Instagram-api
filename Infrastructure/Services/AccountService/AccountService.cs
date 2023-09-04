@@ -9,7 +9,6 @@ using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Seed;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -51,7 +50,7 @@ public class AccountService : IAccountService
             };
 
             await _userManager.CreateAsync(user, model.Password);
-            await _userManager.AddToRoleAsync(user, Roles.User);
+            await _userManager.AddToRoleAsync(user,Roles.User);
             await _dbContext.UserProfiles.AddAsync(profile);
             await _dbContext.SaveChangesAsync();
             return new Response<string>($"Done.  Your registered by id {user.Id}");
