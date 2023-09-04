@@ -21,7 +21,6 @@ public class ChatService : IChatService
     {
         try
         {
-            // if (string.IsNullOrEmpty(userId)) return new Response<List<GetChatDto>>(HttpStatusCode.BadRequest, "");
             var chats = await _context.Chats.Where(u => u.SendUserId == userId || u.ReceiveUserId == userId)
                 .Select(c => new GetChatDto()
                 {
@@ -37,32 +36,15 @@ public class ChatService : IChatService
         }
     }
 
-    public async Task<Response<List<GetMessageDto>>> GetChatById(ChatDto chat, string userId)
+    public async Task<Response<List<GetMessageDto>>> GetChatById(int chatId)
     {
         try
         {
-            var result = await _context.Chats.FirstOrDefaultAsync(u =>
-                (u.SendUserId == userId && u.ReceiveUserId == chat.ReceiveUserId) ||
-                (u.ReceiveUserId == userId) && u.SendUserId == chat.ReceiveUserId);
-            if (result == null)
-            {
-                var newChat = new Chat()
-                {
-                    SendUserId = userId,
-                    ReceiveUserId = chat.ReceiveUserId
-                };
-                await _context.Chats.AddAsync(newChat);
-                await _context.SaveChangesAsync();
-                chat.ChatId = newChat.ChatId;
-            }
-            else
-            {
-                chat.ChatId = result.ChatId;
-            }
-          
+            var chat = await _context.Chats.FindAsync(chatId);
+            if (chat == null) return new Response<List<GetMessageDto>>(HttpStatusCode.BadRequest, "Chat not found");
             var response = await (from c in _context.Chats
                 join m in _context.Messages on c.ChatId equals m.ChatId
-                where c.ChatId == chat.ChatId
+                where c.ChatId == chatId
                 select new GetMessageDto()
                 {
                     MessageId = m.MessageId,
@@ -76,6 +58,35 @@ public class ChatService : IChatService
         catch (Exception e)
         {
             return new Response<List<GetMessageDto>>(HttpStatusCode.InternalServerError, e.Message);
+        }
+    }
+
+    public async Task<Response<int>> CreateChat(string sendUserId, string receiveUserId)
+    {
+        try
+        {
+            if (sendUserId == receiveUserId)
+                return new Response<int>(HttpStatusCode.BadRequest, "You can't create a chat with yourself");
+            var result = await _context.Chats.FirstOrDefaultAsync(u =>
+                (u.SendUserId == sendUserId && u.ReceiveUserId == receiveUserId) ||
+                (u.ReceiveUserId == sendUserId) && u.SendUserId == receiveUserId);
+            if (result == null)
+            {
+                var newChat = new Chat()
+                {
+                    SendUserId = sendUserId,
+                    ReceiveUserId = receiveUserId
+                };
+                await _context.Chats.AddAsync(newChat);
+                await _context.SaveChangesAsync();
+                return new Response<int>(newChat.ChatId);
+            }
+
+            return new Response<int>(result.ChatId);
+        }
+        catch (Exception e)
+        {
+            return new Response<int>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 
