@@ -3,6 +3,5 @@
 public class ChatDto
 {
     public int ChatId { get; set; }
-    public string SendUserId { get; set; }
-    public string ReceiveUserId { get; set; }
+    public string? ReceiveUserId { get; set; }
 }

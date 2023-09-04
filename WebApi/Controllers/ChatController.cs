@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Net;
+using System.Security.Claims;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Domain.Dtos.ChatDto;
@@ -19,17 +21,31 @@ public class ChatController : BaseController
     }
 
     [HttpGet("get-chats")]
-    public async Task<IActionResult> GetChats(string? userId)
+    public async Task<IActionResult> GetChats()
     {
-        var result = await _service.GetChats(userId);
-        return StatusCode(result.StatusCode, result);
+        if (ModelState.IsValid)
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid").Value;
+            var result = await _service.GetChats(userId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var response = new Response<List<MessageDto>>(HttpStatusCode.BadRequest, ModelStateErrors());
+        return StatusCode(response.StatusCode, response);
     }
 
     [HttpGet("get-chat-by-id")]
     public async Task<IActionResult> GetChatById(ChatDto chat)
     {
-        var result = await _service.GetChatById(chat);
-        return StatusCode(result.StatusCode, result);
+        if (ModelState.IsValid)
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid").Value;
+            var result = await _service.GetChatById(chat, userId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var response = new Response<List<MessageDto>>(HttpStatusCode.BadRequest, ModelStateErrors());
+        return StatusCode(response.StatusCode, response);
     }
 
     [HttpPost("send-message")]
@@ -37,11 +53,12 @@ public class ChatController : BaseController
     {
         if (ModelState.IsValid)
         {
-            var result = await _service.SendMessage(message);
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid").Value;
+                var result = await _service.SendMessage(message, userId);
             return StatusCode(result.StatusCode, result);
         }
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<List<MessageDto>>(HttpStatusCode.BadRequest, errors);
+        
+        var response = new Response<List<MessageDto>>(HttpStatusCode.BadRequest, ModelStateErrors());
         return StatusCode(response.StatusCode, response);
     }
 
