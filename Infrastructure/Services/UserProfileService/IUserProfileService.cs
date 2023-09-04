@@ -6,8 +6,6 @@ namespace Infrastructure.Services.UserProfileService;
 
 public interface IUserProfileService
 {
-    Task<PagedResponse<List<GetUserProfileDto>>> GetUserProfiles(UserProfileFilter filter);
-    Task<Response<GetUserProfileDto>> GetUserProfileById(string id);
-    Task<Response<GetUserProfileDto>> AddUserProfile(AddUserProfileDto addUserProfile);
-    Task<Response<GetUserProfileDto>> UpdateUserProfile(UpdateUserProfileDto addUserProfile);
+    Task<Response<GetUserProfileDto>> GetUserProfileById(string userid);
+    Task<Response<GetUserProfileDto>> UpdateUserProfile(UpdateUserProfileDto addUserProfile,string userid);
 }

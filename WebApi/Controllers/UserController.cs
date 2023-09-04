@@ -27,7 +27,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("get-User-by-id")]
-    public async Task<IActionResult> GetUserById(int id)
+    public async Task<IActionResult> GetUserById(string id)
     {
         var result = await _service.GetUserById(id);
         return StatusCode(result.StatusCode, result);
@@ -49,7 +49,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("delete-User")]
-    public async Task<IActionResult> DeleteUser(int id)
+    public async Task<IActionResult> DeleteUser(string id)
     {
         var result = await _service.DeleteUser(id);
         return StatusCode(result.StatusCode, result);

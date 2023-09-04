@@ -19,12 +19,7 @@ public class UserProfileController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("get-user-profiles")]
-    public async Task<IActionResult> GetUserProfiles([FromQuery]UserProfileFilter filter)
-    {
-        var result = await _service.GetUserProfiles(filter);
-        return StatusCode(result.StatusCode, result);
-    }
+   
 
     [HttpGet("get-UserProfile-by-id")]
     public async Task<IActionResult> GetUserProfileById(string id)
@@ -33,26 +28,15 @@ public class UserProfileController : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpPost("add-UserProfile")]
-    public async Task<IActionResult> AddUserProfile([FromForm]AddUserProfileDto userProfile)
-    {
-        if (ModelState.IsValid)
-        {
-            var result = await _service.AddUserProfile(userProfile);
-            return StatusCode(result.StatusCode, result);
-        }
-
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<UserProfileDto>(HttpStatusCode.BadRequest, errors);
-        return StatusCode(response.StatusCode, response);
-    }
+   
     
     [HttpPut("update-UserProfile")]
     public async Task<IActionResult> UpdateUserProfile([FromForm]UpdateUserProfileDto userProfile)
     {
         if (ModelState.IsValid)
         {
-            var result = await _service.UpdateUserProfile(userProfile);
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
+            var result = await _service.UpdateUserProfile(userProfile,userId);
             return StatusCode(result.StatusCode, result);
         }
 

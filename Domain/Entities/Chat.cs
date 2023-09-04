@@ -1,5 +1,4 @@
 ﻿namespace Domain.Entities;
-
 public class Chat
 {
     public int ChatId { get; set; }

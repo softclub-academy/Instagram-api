@@ -14,6 +14,7 @@ using Infrastructure.Services.PostFavoriteService;
 using Infrastructure.Services.PostService;
 using Infrastructure.Services.PostStatService;
 using Infrastructure.Services.PostTagService;
+using Infrastructure.Services.StatisticFollowAndPostService;
 using Infrastructure.Services.StoryServices;
 using Infrastructure.Services.TagService;
 using Infrastructure.Services.UserProfileService;
@@ -48,6 +49,7 @@ public static class RegisterService
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<Seeder>();
+        services.AddScoped<IStatisticFollowAndPostService,StatisticFollowAndPostService>();
 
         services.AddScoped<IStoryService, StoryService>();
 

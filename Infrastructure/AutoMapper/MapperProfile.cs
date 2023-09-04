@@ -63,7 +63,7 @@ public class MapperProfile : Profile
             .ForMember(dest => dest.DOB, opt => opt.MapFrom(src => src.DOB.ToShortDateString()))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image));
         CreateMap<AddUserProfileDto, UserProfile>()
-            .ForMember(dest => dest.DOB, opt => opt.MapFrom(src => src.DOB.ToUniversalTime().AddHours(6)))
+            .ForMember(dest => dest.DOB, opt => opt.MapFrom(src => src.DOB.ToShortDateString()))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image.FileName))
             .ForMember(dest => dest.DateUpdated, opt => opt.MapFrom(src => DateTime.UtcNow));
 
