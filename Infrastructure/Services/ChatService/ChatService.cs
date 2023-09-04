@@ -21,7 +21,6 @@ public class ChatService : IChatService
     {
         try
         {
-            // if (string.IsNullOrEmpty(userId)) return new Response<List<GetChatDto>>(HttpStatusCode.BadRequest, "");
             var chats = await _context.Chats.Where(u => u.SendUserId == userId || u.ReceiveUserId == userId)
                 .Select(c => new GetChatDto()
                 {
@@ -53,7 +52,7 @@ public class ChatService : IChatService
                     UserId = m.UserId,
                     MessageText = m.MessageText,
                     SendMassageDate = m.SendMassageDate
-                }).OrderBy(x => x.SendMassageDate).ToListAsync();
+                }).OrderByDescending(x => x.SendMassageDate).ToListAsync();
             return new Response<List<GetMessageDto>>(response);
         }
         catch (Exception e)
