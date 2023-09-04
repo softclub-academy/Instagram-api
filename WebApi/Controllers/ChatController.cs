@@ -35,16 +35,23 @@ public class ChatController : BaseController
     }
 
     [HttpGet("get-chat-by-id")]
-    public async Task<IActionResult> GetChatById(ChatDto chat)
+    public async Task<IActionResult> GetChatById(int chatId)
     {
         if (ModelState.IsValid)
         {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid").Value;
-            var result = await _service.GetChatById(chat, userId);
+            var result = await _service.GetChatById(chatId);
             return StatusCode(result.StatusCode, result);
         }
 
         var response = new Response<List<MessageDto>>(HttpStatusCode.BadRequest, ModelStateErrors());
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpPost("create-chat")]
+    public async Task<IActionResult> CreateChat(string resceiveUserId)
+    {
+        var sendUserId = User.Claims.FirstOrDefault(c => c.Type == "sid").Value;
+        var response = await _service.CreateChat(sendUserId, resceiveUserId);
         return StatusCode(response.StatusCode, response);
     }
 
