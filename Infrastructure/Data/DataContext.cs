@@ -65,6 +65,7 @@ public class DataContext : IdentityDbContext
     public DbSet<PostViewUser> PostViewUsers { get; set; }
     public DbSet<PostCommentLike> PostCommentLikes { get; set; }
     public DbSet<Domain.Entities.User.ListOfUserCommentLike> ListOfUserCommentLikes { get; set; }
+    public DbSet<ListOfUserCommentLike> ListOfUserCommentLikes { get; set; }
     public DbSet<Chat> Chats { get; set; }
     public DbSet<Message> Messages { get; set; }
 }

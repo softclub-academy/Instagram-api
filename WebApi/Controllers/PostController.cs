@@ -37,7 +37,8 @@ public class PostController : BaseController
         var result = await _service.GetPostByFollowing(filter);
         return StatusCode(result.StatusCode, result);
     }
-    
+
+
     [HttpPost("add-post")]
     public async Task<IActionResult> AddPost([FromForm]AddPostDto post)
     {

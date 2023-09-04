@@ -1225,17 +1225,14 @@ namespace Infrastructure.Migrations
                     b.Navigation("Stories");
                 });
 
-<<<<<<< HEAD
+
             modelBuilder.Entity("Domain.Entities.Post.PostComment", b =>
                 {
                     b.Navigation("PostCommentLikes");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Post.PostStat", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Post.PostLike", b =>
->>>>>>> main
-                {
+            {
                     b.Navigation("PostUserLikes");
                 });
 
