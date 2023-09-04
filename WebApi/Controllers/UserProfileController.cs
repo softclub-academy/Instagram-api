@@ -13,7 +13,7 @@ public class UserProfileController : BaseController
     private readonly IUserProfileService _userProfileService;
     private readonly IStatisticFollowAndPostService _statisticFollowAndPostService;
 
-    public UserProfileController(IUserProfileService service, IStatisticFollowAndPostService services, IUserProfileService userProfileService, IStatisticFollowAndPostService statisticFollowAndPostService)
+    public UserProfileController( IUserProfileService userProfileService, IStatisticFollowAndPostService statisticFollowAndPostService)
     {
         _userProfileService = userProfileService;
         _statisticFollowAndPostService = statisticFollowAndPostService;
