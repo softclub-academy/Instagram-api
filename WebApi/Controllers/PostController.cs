@@ -37,12 +37,8 @@ public class PostController : BaseController
         var result = await _service.GetPostByFollowing(filter);
         return StatusCode(result.StatusCode, result);
     }
-
-<<<<<<< HEAD
-    [HttpPost("add-Post")]
-=======
+    
     [HttpPost("add-post")]
->>>>>>> main
     public async Task<IActionResult> AddPost([FromForm]AddPostDto post)
     {
         if (ModelState.IsValid)
