@@ -19,7 +19,7 @@ public class PostCommentService : IPostCommentService
         _context = context;
         _mapper = mapper;
     }
-    
+
     public async Task<PagedResponse<List<GetPostCommentDto>>> GetPostComments(PostCommentFilter filter)
     {
         try
@@ -57,13 +57,18 @@ public class PostCommentService : IPostCommentService
     {
         try
         {
+
             var post = await _context.Posts.FindAsync(addPostComment.PostId);
             if (post == null)
                 return new Response<GetPostCommentDto>(HttpStatusCode.BadRequest, "Post not found");
+            var postCommentLike = new PostCommentLike() { PostCommentId = addPostComment.PostId };
             var comment = _mapper.Map<PostComment>(addPostComment);
             await _context.PostComments.AddAsync(comment);
             await _context.SaveChangesAsync();
+            await _context.PostCommentLikes.AddAsync(postCommentLike);
+            await _context.SaveChangesAsync();
             var mapped = _mapper.Map<GetPostCommentDto>(comment);
+
             return new Response<GetPostCommentDto>(mapped);
         }
         catch (Exception e)
@@ -71,6 +76,29 @@ public class PostCommentService : IPostCommentService
             return new Response<GetPostCommentDto>(HttpStatusCode.BadRequest, e.Message);
         }
     }
+
+    public async Task<Response<bool>> LikeCommentPost(LikeCommentPostDto commentLike)
+    {
+        var countLike = await _context.PostCommentLikes.FindAsync(commentLike.PostId);
+
+        var like = await _context.ListOfUserCommentLikes.FirstOrDefaultAsync(e => e.PostCommentLikeId == commentLike.PostId && e.UserId == commentLike.UserId);
+        if (like != null)
+        {
+             _context.ListOfUserCommentLikes.Remove(like);
+            countLike.LikeCount--;
+            await _context.PostCommentLikes.AddAsync(countLike);
+            await _context.SaveChangesAsync();
+            return new Response<bool>(true);
+        }
+        await _context.ListOfUserCommentLikes.AddAsync(like);
+        countLike.LikeCount++;
+        await _context.PostCommentLikes.AddAsync(countLike);
+        await _context.SaveChangesAsync();
+        return new Response<bool>(true);
+    }
+
+
+
 
     public async Task<Response<bool>> DeletePostComment(int id)
     {

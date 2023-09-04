@@ -3,6 +3,7 @@ using Domain.Entities.Post;
 using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
+
 namespace Domain.Entities.User;
 
 public class User : IdentityUser
@@ -19,5 +20,19 @@ public class User : IdentityUser
     public List<Post.Post> Posts { get; set; }
     public List<PostComment> PostComments { get; set; }
     public List<PostFavorite> PostFavorites { get; set; }
+<<<<<<< HEAD
+    public List<StatUserId> StatUserIds { get; set; }
+    public List<ListOfUserCommentLike> ListOfUserCommentLikes { get; set; }
+}
+
+public class ListOfUserCommentLike
+{
+    public int Id { get; set; }
+    public int PostCommentLikeId { get; set; }
+    public PostCommentLike PostCommentLike { get; set; }
+    public string UserId { get; set; }
+    public User User { get; set; }
+=======
     public List<PostUserLike> StatUserIds { get; set; }
+>>>>>>> main
 }
