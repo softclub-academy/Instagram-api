@@ -64,6 +64,7 @@ public class PostCommentService : IPostCommentService
             var postCommentLike = new PostCommentLike() { PostCommentId = addPostComment.PostId };
             var comment = _mapper.Map<PostComment>(addPostComment);
             await _context.PostComments.AddAsync(comment);
+            await _context.SaveChangesAsync();
             await _context.PostCommentLikes.AddAsync(postCommentLike);
             await _context.SaveChangesAsync();
             var mapped = _mapper.Map<GetPostCommentDto>(comment);
