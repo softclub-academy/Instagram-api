@@ -11,4 +11,5 @@ public class PostComment
     public User.User User { get; set; }
     public string? Comment { get; set; }
     public DateTime DateCommented { get; set; }
+    public List<PostCommentLike> PostCommentLikes { get; set; }
 }

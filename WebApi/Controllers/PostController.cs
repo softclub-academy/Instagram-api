@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using Domain.Dtos.PostDto;
 using Domain.Filters.PostFilter;
 using Domain.Responses;
@@ -37,11 +38,14 @@ public class PostController : BaseController
         return StatusCode(result.StatusCode, result);
     }
 
+
     [HttpPost("add-post")]
     public async Task<IActionResult> AddPost([FromForm]AddPostDto post)
     {
         if (ModelState.IsValid)
         {
+            var userTokenId=User.Claims.FirstOrDefault(e=>e.Type=="sid").Value;
+            post.UserId=userTokenId;
             var result = await _service.AddPost(post);
             return StatusCode(result.StatusCode, result);
         }

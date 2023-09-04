@@ -17,45 +17,52 @@ public class ChatService : IChatService
         _context = context;
     }
 
-    public async Task<Response<List<ChatDto>>> GetChats(string? userId)
+    public async Task<Response<List<GetChatDto>>> GetChats(string? userId)
     {
         try
         {
-            if (string.IsNullOrEmpty(userId)) return null;
+            // if (string.IsNullOrEmpty(userId)) return new Response<List<GetChatDto>>(HttpStatusCode.BadRequest, "");
             var chats = await _context.Chats.Where(u => u.SendUserId == userId || u.ReceiveUserId == userId)
-                .Select(c => new ChatDto()
+                .Select(c => new GetChatDto()
                 {
                     ChatId = c.ChatId,
                     SendUserId = c.SendUserId,
                     ReceiveUserId = c.ReceiveUserId
                 }).ToListAsync();
-            return new Response<List<ChatDto>>(chats);
+            return new Response<List<GetChatDto>>(chats);
         }
         catch (Exception e)
         {
-            return new Response<List<ChatDto>>(HttpStatusCode.InternalServerError, e.Message);
+            return new Response<List<GetChatDto>>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 
-    public async Task<Response<List<GetMessageDto>>> GetChatById(ChatDto chat)
+    public async Task<Response<List<GetMessageDto>>> GetChatById(ChatDto chat, string userId)
     {
         try
         {
-            var result = await _context.Chats.FindAsync(chat.ChatId);
+            var result = await _context.Chats.FirstOrDefaultAsync(u =>
+                (u.SendUserId == userId && u.ReceiveUserId == chat.ReceiveUserId) ||
+                (u.ReceiveUserId == userId) && u.SendUserId == chat.ReceiveUserId);
             if (result == null)
             {
                 var newChat = new Chat()
                 {
-                    SendUserId = chat.SendUserId,
+                    SendUserId = userId,
                     ReceiveUserId = chat.ReceiveUserId
                 };
                 await _context.Chats.AddAsync(newChat);
                 await _context.SaveChangesAsync();
                 chat.ChatId = newChat.ChatId;
             }
-
+            else
+            {
+                chat.ChatId = result.ChatId;
+            }
+          
             var response = await (from c in _context.Chats
                 join m in _context.Messages on c.ChatId equals m.ChatId
+                where c.ChatId == chat.ChatId
                 select new GetMessageDto()
                 {
                     MessageId = m.MessageId,
@@ -63,7 +70,7 @@ public class ChatService : IChatService
                     UserId = m.UserId,
                     MessageText = m.MessageText,
                     SendMassageDate = m.SendMassageDate
-                }).ToListAsync();
+                }).OrderByDescending(x => x.SendMassageDate).ToListAsync();
             return new Response<List<GetMessageDto>>(response);
         }
         catch (Exception e)
@@ -72,14 +79,16 @@ public class ChatService : IChatService
         }
     }
 
-    public async Task<Response<int>> SendMessage(MessageDto message)
+    public async Task<Response<int>> SendMessage(MessageDto message, string userId)
     {
         try
         {
+            var chat = await _context.Chats.FindAsync(message.ChatId);
+            if (chat == null) return new Response<int>(HttpStatusCode.BadRequest, "Chat not found!");
             var newMessage = new Message()
             {
                 ChatId = message.ChatId,
-                UserId = message.UserId,
+                UserId = userId,
                 MessageText = message.MessageText,
                 SendMassageDate = DateTime.UtcNow
             };

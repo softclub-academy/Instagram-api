@@ -20,6 +20,7 @@ public class Post
     public PostLike PostLike { get; set; }
     public List<PostCategory> PostCategories { get; set; }
 
+    public List<PostTag> PostTags { get; set; }
 
     public List<Image> Images { get; set; }
 }
