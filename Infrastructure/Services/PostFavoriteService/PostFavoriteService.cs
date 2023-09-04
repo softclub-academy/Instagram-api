@@ -51,19 +51,25 @@ public class PostFavoriteService : IPostFavoriteService
         }
     }
 
-    public async Task<Response<GetPostFavoriteDto>> AddPostFavorite(AddPostFavoriteDto addPostFavorite)
+    public async Task<Response<bool>> AddPostFavorite(AddPostFavoriteDto addPostFavorite)
     {
         try
         {
+            var favpost=await _context.PostFavorites.FirstOrDefaultAsync(e=>e.PostId==addPostFavorite.PostId && e.UserId==addPostFavorite.UserId);
+            if (favpost==null){
             var post = _mapper.Map<PostFavorite>(addPostFavorite);
             await _context.PostFavorites.AddAsync(post);
             await _context.SaveChangesAsync();
-            var mapped = _mapper.Map<GetPostFavoriteDto>(post);
-            return new Response<GetPostFavoriteDto>(mapped);
+            return new Response<bool>(true);}
+            else{
+             _context.PostFavorites.Remove(favpost);
+            await _context.SaveChangesAsync();
+            return new Response<bool>(true);}
+            
         }
         catch (Exception e)
         {
-            return new Response<GetPostFavoriteDto>(HttpStatusCode.BadRequest, e.Message);
+            return new Response<bool>(HttpStatusCode.BadRequest, e.Message);
         }
     }
 

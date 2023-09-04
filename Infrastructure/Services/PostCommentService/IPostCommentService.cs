@@ -10,4 +10,4 @@ public interface IPostCommentService
     Task<Response<GetPostCommentDto>> GetPostCommentById(int id);
     Task<Response<GetPostCommentDto>> AddPostComment(AddPostCommentDto addPostComment);
     Task<Response<bool>> DeletePostComment(int id);
-}
+} 
