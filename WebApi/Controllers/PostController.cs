@@ -2,17 +2,13 @@
 using System.Security.Claims;
 using Domain.Dtos.PostDto;
 using Domain.Filters.PostFilter;
-using Domain.Filters.UserFilter;
 using Domain.Responses;
 using Infrastructure.Services.PostService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class PostController : ControllerBase
+public class PostController : BaseController
 {
     private readonly IPostService _service;
 
@@ -21,14 +17,14 @@ public class PostController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("get-Posts")]
+    [HttpGet("get-posts")]
     public async Task<IActionResult> GetPosts([FromQuery]PostFilter filter)
     {
         var result = await _service.GetPosts(filter);
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpGet("get-Post-by-id")]
+    [HttpGet("get-post-by-id")]
     public async Task<IActionResult> GetPostById(int id)
     {
         var result = await _service.GetPostById(id);
@@ -42,7 +38,11 @@ public class PostController : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
+<<<<<<< HEAD
     [HttpPost("add-Post")]
+=======
+    [HttpPost("add-post")]
+>>>>>>> main
     public async Task<IActionResult> AddPost([FromForm]AddPostDto post)
     {
         if (ModelState.IsValid)
@@ -57,25 +57,27 @@ public class PostController : ControllerBase
         var response = new Response<PostDto>(HttpStatusCode.BadRequest, errors);
         return StatusCode(response.StatusCode, response);
     }
-    
-    [HttpPut("update-Post")]
-    public async Task<IActionResult> UpdatePost([FromBody]AddPostDto post)
-    {
-        if (ModelState.IsValid)
-        {
-            var result = await _service.UpdatePost(post);
-            return StatusCode(result.StatusCode, result);
-        }
 
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<PostDto>(HttpStatusCode.BadRequest, errors);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [HttpDelete("delete-Post")]
+    [HttpDelete("delete-post")]
     public async Task<IActionResult> DeletePost(int id)
     {
         var result = await _service.DeletePost(id);
         return StatusCode(result.StatusCode, result);
     }
+    
+    
+    [HttpPost("like-Post")]
+    public async Task<IActionResult> LikePost(int postId)
+    {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
+        if (userId == null)
+        {
+            var response = new Response<bool>(HttpStatusCode.BadRequest, "UserNotfound");
+            return StatusCode(response.StatusCode, response);
+        }
+        var result = await _service.LikePost(userId,postId);
+        return StatusCode(result.StatusCode, result);
+    }
+    
+    
 }

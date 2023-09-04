@@ -9,6 +9,7 @@ using Domain.Dtos.PostDto;
 using Domain.Dtos.PostFavoriteDto;
 using Domain.Dtos.PostStatDto;
 using Domain.Dtos.PostTagDto;
+using Domain.Dtos.StoryDtos;
 using Domain.Dtos.TagDto;
 using Domain.Dtos.UserDto;
 using Domain.Dtos.UserProfileDto;
@@ -26,6 +27,9 @@ public class MapperProfile : Profile
         CreateMap<Category, CategoryDto>().ReverseMap();
 
         CreateMap<ExternalAccount, ExternalAccountDto>().ReverseMap();
+
+        CreateMap<AddStoryDto, Story>();
+        CreateMap<Story, GetStoryDto>();
 
         CreateMap<FollowingRelationShip, GetFollowingRelationShipDto>();
         CreateMap<AddFollowingRelationShipDto, FollowingRelationShip>()
@@ -47,9 +51,7 @@ public class MapperProfile : Profile
         CreateMap<PostFavorite, GetPostFavoriteDto>();
         CreateMap<AddPostFavoriteDto, PostFavorite>();
 
-        CreateMap<PostStat, PostStatDto>().ReverseMap();
-
-        CreateMap<Tag, TagDto>().ReverseMap();
+        CreateMap<PostLike, PostStatDto>().ReverseMap();
 
         CreateMap<User, GetUserDto>();
         CreateMap<AddUserDto, User>()
@@ -59,7 +61,7 @@ public class MapperProfile : Profile
             .ForMember(dest => dest.DOB, opt => opt.MapFrom(src => src.DOB.ToShortDateString()))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image));
         CreateMap<AddUserProfileDto, UserProfile>()
-            .ForMember(dest => dest.DOB, opt => opt.MapFrom(src => src.DOB.ToUniversalTime().AddHours(6)))
+            .ForMember(dest => dest.DOB, opt => opt.MapFrom(src => src.DOB.ToShortDateString()))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image.FileName))
             .ForMember(dest => dest.DateUpdated, opt => opt.MapFrom(src => DateTime.UtcNow));
 
@@ -67,6 +69,5 @@ public class MapperProfile : Profile
 
         CreateMap<PostCategoryDto, PostCategory>().ReverseMap();
 
-        CreateMap<PostTagDto, PostTag>().ReverseMap();
     }
 }

@@ -3,14 +3,11 @@ using Domain.Dtos.UserDto;
 using Domain.Filters.UserFilter;
 using Domain.Responses;
 using Infrastructure.Services.UserService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class UserController : ControllerBase
+public class UserController : BaseController
 {
     private readonly IUserService _service;
 
@@ -27,14 +24,14 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("get-User-by-id")]
-    public async Task<IActionResult> GetUserById(int id)
+    public async Task<IActionResult> GetUserById(string id)
     {
         var result = await _service.GetUserById(id);
         return StatusCode(result.StatusCode, result);
     }
     
     [HttpPut("update-User")]
-    public async Task<IActionResult> UpdateUser([FromQuery]AddUserDto user)
+    public async Task<IActionResult> UpdateUser([FromBody]AddUserDto user)
     {
         if (ModelState.IsValid)
         {
@@ -49,7 +46,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("delete-User")]
-    public async Task<IActionResult> DeleteUser(int id)
+    public async Task<IActionResult> DeleteUser(string id)
     {
         var result = await _service.DeleteUser(id);
         return StatusCode(result.StatusCode, result);

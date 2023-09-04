@@ -22,35 +22,23 @@ public class UserProfileService : IUserProfileService
         _mapper = mapper;
         _fileService = fileService;
     }
-    
-    public async Task<PagedResponse<List<GetUserProfileDto>>> GetUserProfiles(UserProfileFilter filter)
-    {
-        try
-        {
-            var userProfiles = _context.UserProfiles.AsQueryable();
-            if (!string.IsNullOrEmpty(filter.Name))
-                userProfiles = userProfiles.Where(u => u.FirstName.ToLower().Contains(filter.Name.ToLower()) ||
-                                                       u.LastName.ToLower().Contains(filter.Name.ToLower()));
-            var response = await userProfiles
-                
-                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
-            var mapped = _mapper.Map<List<GetUserProfileDto>>(response);
-            var totalRecord = userProfiles.Count();
-            return new PagedResponse<List<GetUserProfileDto>>(mapped, filter.PageNumber, filter.PageSize, totalRecord);
-        }
-        catch (Exception e)
-        {
-            return new PagedResponse<List<GetUserProfileDto>>(HttpStatusCode.BadRequest, e.Message);
-        }
-    }
 
-    public async Task<Response<GetUserProfileDto>> GetUserProfileById(int id)
+   
+
+    public async Task<Response<GetUserProfileDto>> GetUserProfileById(string id)
     {
         try
         {
-            var userProfile = await _context.UserProfiles.FindAsync(id);
-            var mapped = _mapper.Map<GetUserProfileDto>(userProfile);
-            return new Response<GetUserProfileDto>(mapped);
+            var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == id);
+            if (userProfile != null)
+            {
+                var mapped = _mapper.Map<GetUserProfileDto>(userProfile);
+                return new Response<GetUserProfileDto>(mapped);
+            }
+            else
+            {
+                return new Response<GetUserProfileDto>(HttpStatusCode.NotFound, "not found");
+            }
         }
         catch (Exception e)
         {
@@ -58,53 +46,89 @@ public class UserProfileService : IUserProfileService
         }
     }
 
-    public async Task<Response<GetUserProfileDto>> AddUserProfile(AddUserProfileDto addUserProfile)
+
+   
+
+    #region UpdateUserProfile
+
+    public async Task<Response<GetUserProfileDto>> UpdateUserProfile(UpdateUserProfileDto addUserProfile,string userId)
     {
         try
         {
-            _fileService.CreateFile(addUserProfile.Image);
-            var userProfile = _mapper.Map<UserProfile>(addUserProfile);
-            await _context.UserProfiles.AddAsync(userProfile);
-            await _context.SaveChangesAsync();
-            var mapped = _mapper.Map<GetUserProfileDto>(userProfile);
-            return new Response<GetUserProfileDto>(mapped);
+            var existing = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
+
+
+            if (existing != null)
+            {
+               
+              
+                if (addUserProfile.FirstName != null) existing.FirstName = addUserProfile.FirstName;
+                existing.FirstName = existing.FirstName;
+                if (addUserProfile.LastName != null) existing.LastName = addUserProfile.LastName;
+                existing.LastName = existing.LastName;
+                if (addUserProfile.About != null) existing.About = addUserProfile.About;
+                existing.About = existing.About;
+                if (addUserProfile.Occupation != null) existing.Occupation = addUserProfile.Occupation;
+                existing.Occupation = existing.Occupation;
+                var loc = await _context.Locations.FirstOrDefaultAsync(x => x.LocationId != addUserProfile.LocationId);
+                if (addUserProfile.LocationId == null) existing.LocationId = null;
+                else if (loc!=null)
+                {
+                    return new Response<GetUserProfileDto>(HttpStatusCode.NotFound, "not found this location");
+                }
+                existing.LocationId = addUserProfile.LocationId;
+
+                if (addUserProfile.DOB!=null)
+                {
+                    existing.DOB = addUserProfile.DOB;
+                }    
+                existing.DOB = existing.DOB;
+                if (existing.DateUpdated != null) existing.DateUpdated = addUserProfile.DateUpdated;
+                existing.DateUpdated = DateTime.UtcNow;
+                if (existing.Image != null)
+                {
+                    if (addUserProfile != null && existing.Image != null)
+                    {
+                        _fileService.DeleteFile(existing.Image);
+                        existing.Image = _fileService.CreateFile(addUserProfile.Image).Data;
+                        await _context.SaveChangesAsync();
+                    }
+                    else if (addUserProfile.Image == null)
+                    {
+                        existing.Image = existing.Image;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                else if (existing.Image == null && addUserProfile.Image != null)
+                {
+                    existing.Image = _fileService.CreateFile(addUserProfile.Image).Data;
+                    await _context.SaveChangesAsync();
+                }
+
+
+                await _context.SaveChangesAsync();
+                var mapped = new GetUserProfileDto()
+                {
+                    About = existing.About,
+                    Image = existing.Image,
+                    Occupation = existing.Occupation,
+                    FirstName = existing.FirstName,
+                    LastName = existing.LastName,
+                    DateUpdated = existing.DateUpdated,
+                    LocationId = existing.LocationId,
+                    DOB = existing.DOB,
+                };
+
+                return new Response<GetUserProfileDto>(mapped);
+            }
+
+            return new Response<GetUserProfileDto>(HttpStatusCode.BadRequest, "mot found");
         }
         catch (Exception e)
         {
-            return new Response<GetUserProfileDto>(HttpStatusCode.BadRequest, e.Message);
+            return new Response<GetUserProfileDto>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 
-    public async Task<Response<GetUserProfileDto>> UpdateUserProfile(AddUserProfileDto addUserProfile)
-    {
-        try
-        {
-            _fileService.CreateFile(addUserProfile.Image);
-            var userProfile = _mapper.Map<UserProfile>(addUserProfile);
-            _context.UserProfiles.Update(userProfile);
-            await _context.SaveChangesAsync();
-            var mapped = _mapper.Map<GetUserProfileDto>(userProfile);
-            return new Response<GetUserProfileDto>(mapped);
-        }
-        catch (Exception e)
-        {
-            return new Response<GetUserProfileDto>(HttpStatusCode.BadRequest, e.Message);
-        }
-    }
-
-    public async Task<Response<bool>> DeleteUserProfile(int id)
-    {
-        try
-        {
-            var userProfile = await _context.UserProfiles.FindAsync(id);
-            if (userProfile == null) return new Response<bool>(HttpStatusCode.BadRequest, "User profile not found");
-            _context.UserProfiles.Remove(userProfile);
-            await _context.SaveChangesAsync();
-            return new Response<bool>(true);
-        }
-        catch (Exception e)
-        {
-            return new Response<bool>(HttpStatusCode.BadRequest, e.Message);
-        }
-    }
+    #endregion
 }

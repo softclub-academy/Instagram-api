@@ -2,5 +2,6 @@
 
 public class UpdateUserProfileDto : UserProfileDto
 {
-    public int UserProfileId { get; set; }
+    public DateTime DateUpdated { get; set; }
+
 }
