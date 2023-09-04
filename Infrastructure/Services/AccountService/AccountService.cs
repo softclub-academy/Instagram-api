@@ -6,8 +6,10 @@ using Domain.Dtos.LoginDto;
 using Domain.Dtos.RegisterDto;
 using Domain.Entities.User;
 using Domain.Responses;
+using Infrastructure.Data;
 using Infrastructure.Seed;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,13 +20,15 @@ public class AccountService : IAccountService
     private readonly IConfiguration _configuration;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly  DataContext _dbContext;
 
     public AccountService(IConfiguration configuration,
-        UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, DataContext dbContext)
     {
         _configuration = configuration;
         _userManager = userManager;
         _roleManager = roleManager;
+        _dbContext = dbContext;
     }
 
     public async Task<Response<string>> Register(RegisterDto model)
@@ -40,9 +44,16 @@ public class AccountService : IAccountService
                 UserType = model.UserType,
                 DateRegistred = DateTime.UtcNow
             };
-            
+            var profile = new UserProfile()
+            {
+                UserId = user.Id
+
+            };
+
             await _userManager.CreateAsync(user, model.Password);
             await _userManager.AddToRoleAsync(user, Roles.User);
+            await _dbContext.UserProfiles.AddAsync(profile);
+            await _dbContext.SaveChangesAsync();
             return new Response<string>($"Done.  Your registered by id {user.Id}");
         }
         catch (Exception e)

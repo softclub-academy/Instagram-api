@@ -45,7 +45,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<Response<GetUserDto>> GetUserById(int id)
+    public async Task<Response<GetUserDto>> GetUserById(string id)
     {
         try
         {
@@ -74,7 +74,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<Response<bool>> DeleteUser(int id)
+    public async Task<Response<bool>> DeleteUser(string id)
     {
         try
         {
