@@ -14,6 +14,7 @@ public class Response<T>
         StatusCode = 200;
     }
 
+    
     public Response(HttpStatusCode code, string message)
     {
         StatusCode = (int)code;

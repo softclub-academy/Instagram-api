@@ -2,6 +2,7 @@
 using Domain.Dtos.UserProfileDto;
 using Domain.Filters.UserProfileFilter;
 using Domain.Responses;
+using Infrastructure.Services.StatisticFollowAndPostService;
 using Infrastructure.Services.UserProfileService;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +10,13 @@ namespace WebApi.Controllers;
 
 public class UserProfileController : BaseController
 {
-    private readonly IUserProfileService _service;
+    private readonly IUserProfileService _userProfileService;
+    private readonly IStatisticFollowAndPostService _statisticFollowAndPostService;
 
-    public UserProfileController(IUserProfileService service)
+    public UserProfileController(IUserProfileService service, IStatisticFollowAndPostService services, IUserProfileService userProfileService, IStatisticFollowAndPostService statisticFollowAndPostService)
     {
-        _service = service;
+        _userProfileService = userProfileService;
+        _statisticFollowAndPostService = statisticFollowAndPostService;
     }
 
    
@@ -21,7 +24,7 @@ public class UserProfileController : BaseController
     [HttpGet("get-UserProfile-by-id")]
     public async Task<IActionResult> GetUserProfileById(string id)
     {
-        var result = await _service.GetUserProfileById(id);
+        var result = await _userProfileService.GetUserProfileById(id);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -33,7 +36,7 @@ public class UserProfileController : BaseController
         if (ModelState.IsValid)
         {
             var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
-            var result = await _service.UpdateUserProfile(userProfile,userId);
+            var result = await _userProfileService.UpdateUserProfile(userProfile,userId);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -42,5 +45,28 @@ public class UserProfileController : BaseController
         return StatusCode(response.StatusCode, response);
     }
 
+    
+    // statistic profile
+    
+    
+
+    
+
+    [HttpGet("CounterProfile")]
+    public async Task<Response<GetStatistic>> GetCountPost()
+    {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
+        var post = await _statisticFollowAndPostService.GetUserPost(userId);
+        var following = await _statisticFollowAndPostService.GetFollowing(userId);
+        var follower = await _statisticFollowAndPostService.GetFollowers(userId);
+        var test = new GetStatistic()
+        {
+            Post = post.Data,
+            Follower = follower.Data,
+            Following = following.Data
+        };
+        return new Response<GetStatistic>(test);
+    }
+   
   
 }

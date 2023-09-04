@@ -30,6 +30,9 @@ public class DataContext : IdentityDbContext
             .HasOne<User>(u => u.User)
             .WithMany(f => f.FollowingRelationShips)
             .HasForeignKey(u => u.UserId);
+
+          
+            
         modelBuilder.Entity<User>()
             .HasIndex(u => u.UserName)
             .IsUnique();

@@ -11,8 +11,6 @@ using Infrastructure.Services.PostCommentService;
 using Infrastructure.Services.PostFavoriteService;
 using Infrastructure.Services.PostService;
 
-using Infrastructure.Services.PostStatService;
-using Infrastructure.Services.PostTagService;
 using Infrastructure.Services.StatisticFollowAndPostService;
 
 using Infrastructure.Services.StoryServices;
