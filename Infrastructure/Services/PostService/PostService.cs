@@ -89,8 +89,7 @@ public class PostService : IPostService
         try
         {
             var posts = await (from p in _context.Posts
-<<<<<<< HEAD
-                               join u in _context.Users on p.UserId equals u.Id
+                join u in _context.Users on p.UserId equals u.Id
                                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
                                join s in _context.PostStats on p.PostId equals s.PostId
                                join v in _context.PostViews on p.PostId equals v.PostId
@@ -113,23 +112,6 @@ public class PostService : IPostService
                                }).ToListAsync();
 
             var totalRecord = posts.Count();
-=======
-                join u in _context.Users on p.UserId equals u.Id
-                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
-                where f.UserId == filter.UserId
-                select new GetPostDto()
-                {
-                    PostId = p.PostId,
-                    UserId = p.UserId,
-                    Title = p.Title,
-                    Content = p.Content,
-                    Status = p.Status,
-                    DatePublished = p.DatePublished.ToShortDateString(),
-                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.Path).ToList(),
-                    
-                }).ToListAsync();
-            var totalRecord = posts.Count;
->>>>>>> main
             return new PagedResponse<List<GetPostDto>>(posts, filter.PageNumber, filter.PageSize, totalRecord);
         }
         catch (Exception e)

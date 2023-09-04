@@ -38,11 +38,8 @@ public class PostController : BaseController
         return StatusCode(result.StatusCode, result);
     }
 
-<<<<<<< HEAD
-    [HttpPost("add-Post")]
-=======
+
     [HttpPost("add-post")]
->>>>>>> main
     public async Task<IActionResult> AddPost([FromForm]AddPostDto post)
     {
         if (ModelState.IsValid)
