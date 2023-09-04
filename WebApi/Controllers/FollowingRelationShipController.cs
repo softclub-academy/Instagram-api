@@ -3,14 +3,11 @@ using Domain.Dtos.FollowingRelationshipDto;
 using Domain.Filters.FollowingRelationShipFilter;
 using Domain.Responses;
 using Infrastructure.Services.FollowingRelationShipService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class FollowingRelationShipController : ControllerBase
+public class FollowingRelationShipController : BaseController
 {
     private readonly IFollowingRelationShipService _service;
 

@@ -3,14 +3,11 @@ using Domain.Dtos.ChatDto;
 using Domain.Dtos.MessageDto;
 using Domain.Responses;
 using Infrastructure.Services.ChatService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("[controller]")]
-[Authorize]
-public class ChatController : ControllerBase
+public class ChatController : BaseController
 {
     private readonly IChatService _service;
 
@@ -50,6 +47,13 @@ public class ChatController : ControllerBase
     public async Task<IActionResult> DeleteMessage(int massageId)
     {
         var result = await _service.DeleteMessage(massageId);
+        return StatusCode(result.StatusCode, result);
+    }
+    
+    [HttpDelete("delete-chat")]
+    public async Task<IActionResult> DeleteChat(int chatId)
+    {
+        var result = await _service.DeleteChat(chatId);
         return StatusCode(result.StatusCode, result);
     }
 }

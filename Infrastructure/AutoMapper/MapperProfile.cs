@@ -51,9 +51,7 @@ public class MapperProfile : Profile
         CreateMap<PostFavorite, GetPostFavoriteDto>();
         CreateMap<AddPostFavoriteDto, PostFavorite>();
 
-        CreateMap<PostStat, PostStatDto>().ReverseMap();
-
-        CreateMap<Tag, TagDto>().ReverseMap();
+        CreateMap<PostLike, PostStatDto>().ReverseMap();
 
         CreateMap<User, GetUserDto>();
         CreateMap<AddUserDto, User>()
@@ -71,6 +69,5 @@ public class MapperProfile : Profile
 
         CreateMap<PostCategoryDto, PostCategory>().ReverseMap();
 
-        CreateMap<PostTagDto, PostTag>().ReverseMap();
     }
 }

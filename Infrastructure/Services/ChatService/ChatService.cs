@@ -108,4 +108,13 @@ public class ChatService : IChatService
             return new Response<bool>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
+
+    public async Task<Response<bool>> DeleteChat(int chatId)
+    {
+        var chat = await _context.Chats.FindAsync(chatId);
+        if (chat == null) return new Response<bool>(false);
+        _context.Chats.Remove(chat);
+        await _context.SaveChangesAsync();
+        return new Response<bool>(true);
+    }
 }

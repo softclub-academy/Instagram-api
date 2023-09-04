@@ -19,5 +19,5 @@ public class User : IdentityUser
     public List<Post.Post> Posts { get; set; }
     public List<PostComment> PostComments { get; set; }
     public List<PostFavorite> PostFavorites { get; set; }
-    public List<StatUserId> StatUserIds { get; set; }
+    public List<PostUserLike> StatUserIds { get; set; }
 }
