@@ -10,8 +10,6 @@ public class Post
     [MaxLength(45)]
     public string Title { get; set; }
     public string Content { get; set; }
-    [MaxLength(45)]
-    public string Status { get; set; }
     public DateTime DatePublished { get; set; }
     public List<Story> Stories { get; set; }
     public List<PostComment> PostComments { get; set; }

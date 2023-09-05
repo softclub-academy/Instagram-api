@@ -2,6 +2,5 @@
 
 public class FollowingRelationShipDto
 {
-    public string UserId { get; set; }
-    public string FollowingId { get; set; }
+    public string FollowingUserId { get; set; }
 }

@@ -12,7 +12,6 @@ public class User : IdentityUser
     [MaxLength(45)]
     public UserType UserType { get; set; }
     [MaxLength(45)]
-    public string? AccountStatus { get; set; }
     public UserSetting UserSetting { get; set; }
     public List<UserProfile> UserProfiles { get; set; }
     public ExternalAccount ExternalAccount { get; set; }
@@ -31,5 +30,4 @@ public class ListOfUserCommentLike
     public PostCommentLike PostCommentLike { get; set; }
     public string UserId { get; set; }
     public User User { get; set; }
-    public List<PostUserLike> PostUserLikes { get; set; }
 }

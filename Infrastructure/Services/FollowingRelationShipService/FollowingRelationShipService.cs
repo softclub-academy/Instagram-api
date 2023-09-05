@@ -55,17 +55,22 @@ public class FollowingRelationShipService : IFollowingRelationShipService
         }
     }
 
-    public async Task<Response<bool>> AddFollowingRelationShip(AddFollowingRelationShipDto followingRelationShip)
+    public async Task<Response<bool>> AddFollowingRelationShip(string followingUserId, string userId)
     {
         try
         {
-            if (followingRelationShip.FollowingId == followingRelationShip.UserId)
+            if (followingUserId == userId)
                 return new Response<bool>(HttpStatusCode.BadRequest, "You will not be able to subscribe to yourself");
-            var user = await _context.Users.FindAsync(followingRelationShip.UserId);
-            var followingUser = await _context.Users.FindAsync(followingRelationShip.FollowingId);
+            var user = await _context.Users.FindAsync(userId);
+            var followingUser = await _context.Users.FindAsync(followingUserId);
             if (user == null || followingUser == null)
                 return new Response<bool>(HttpStatusCode.BadRequest, "User not found");
-            var following = _mapper.Map<FollowingRelationShip>(followingRelationShip);
+            var following = new FollowingRelationShip()
+            {
+                UserId = userId,
+                FollowingId = followingUserId,
+                DateFollowed = DateTime.UtcNow
+            };
             await _context.FollowingRelationShips.AddAsync(following);
             await _context.SaveChangesAsync();
             return new Response<bool>(true);
@@ -76,12 +81,12 @@ public class FollowingRelationShipService : IFollowingRelationShipService
         }
     }
 
-    public async Task<Response<bool>> DeleteFollowingRelationShip(string userId, string followingId)
+    public async Task<Response<bool>> DeleteFollowingRelationShip(string userId, string followingUserId)
     {
         try
         {
             var following =
-                await _context.FollowingRelationShips.FirstOrDefaultAsync(f => f.UserId == userId && f.FollowingId == followingId);
+                await _context.FollowingRelationShips.FirstOrDefaultAsync(f => f.UserId == userId && f.FollowingId == followingUserId);
             if (following == null)
                 return new Response<bool>(HttpStatusCode.BadRequest, "Following relation ship not found");
             _context.FollowingRelationShips.Remove(following);

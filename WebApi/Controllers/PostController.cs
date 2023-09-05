@@ -44,9 +44,8 @@ public class PostController : BaseController
     {
         if (ModelState.IsValid)
         {
-            var userTokenId=User.Claims.FirstOrDefault(e=>e.Type=="sid").Value;
-            post.UserId=userTokenId;
-            var result = await _service.AddPost(post);
+            var userId=User.Claims.FirstOrDefault(e=>e.Type=="sid").Value;
+            var result = await _service.AddPost(post, userId);
             return StatusCode(result.StatusCode, result);
         }
 
