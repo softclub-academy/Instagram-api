@@ -17,7 +17,6 @@ public class PostService : IPostService
     private readonly IMapper _mapper;
     private readonly IFileService _fileService;
     private readonly UserManager<IdentityUser> _userManager;
-    private readonly IFileService _service;
 
     public PostService(DataContext context, IMapper mapper,
         IFileService fileService,
@@ -239,7 +238,7 @@ public class PostService : IPostService
         }
 
         _context.StatUserIds.Remove(existingStatUser);
-        stats.LikeCount--;
+        stats!.LikeCount--;
         await _context.SaveChangesAsync();
         return new Response<bool>(true);
         
