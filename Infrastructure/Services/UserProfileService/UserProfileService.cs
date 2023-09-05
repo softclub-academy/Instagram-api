@@ -2,6 +2,7 @@
 using AutoMapper;
 using Domain.Dtos.UserProfileDto;
 using Domain.Entities.User;
+using Domain.Enums;
 using Domain.Filters.UserProfileFilter;
 using Domain.Responses;
 using Infrastructure.Data;
@@ -29,10 +30,23 @@ public class UserProfileService : IUserProfileService
     {
         try
         {
-            var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == id);
+            var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == id.Trim());
             if (userProfile != null)
             {
-                var mapped = _mapper.Map<GetUserProfileDto>(userProfile);
+                //var mapped = _mapper.Map<GetUserProfileDto>(userProfile);
+             
+                var mapped = new GetUserProfileDto()
+                {
+                    Gender = (string)userProfile.Gender.ToString(),
+                    Occupation = userProfile.Occupation,
+                    FirstName = userProfile.FirstName,
+                    LastName = userProfile.LastName,
+                    DateUpdated = userProfile.DateUpdated,
+                    LocationId = userProfile.LocationId,
+                    DOB = userProfile.DOB,
+                    About = userProfile.About,
+                    Image = userProfile.Image
+                };
                 return new Response<GetUserProfileDto>(mapped);
             }
             else
@@ -67,7 +81,7 @@ public class UserProfileService : IUserProfileService
                 if (addUserProfile.Occupation != null) existing.Occupation = addUserProfile.Occupation;
                 existing.Occupation = existing.Occupation;
                 var loc = await _context.Locations.FirstOrDefaultAsync(x => x.LocationId == addUserProfile.LocationId);
-                if (loc == null) 
+                if (loc == null)
                 {
                     return new Response<GetUserProfileDto>(HttpStatusCode.NotFound, "not found this location");
                 }
@@ -76,10 +90,14 @@ public class UserProfileService : IUserProfileService
                     existing.LocationId = addUserProfile.LocationId;
                 }
 
-                if (addUserProfile.DOB != null)
-                {
-                    existing.DOB = addUserProfile.DOB;
-                }
+                if (addUserProfile.Gender != null) existing.Gender = addUserProfile.Gender;
+                existing.Gender = existing.Gender;
+
+
+                    if (addUserProfile.DOB != null)
+                    {
+                        existing.DOB = addUserProfile.DOB;
+                    }
 
                 existing.DOB = existing.DOB;
                 if (existing.DateUpdated != null) existing.DateUpdated = addUserProfile.DateUpdated;
@@ -116,6 +134,8 @@ public class UserProfileService : IUserProfileService
                     DateUpdated = existing.DateUpdated,
                     LocationId = existing.LocationId,
                     DOB = existing.DOB,
+                    Gender = (string)existing.Gender.ToString()
+                    
                 };
 
                 return new Response<GetUserProfileDto>(mapped);
