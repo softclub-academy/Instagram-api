@@ -5,6 +5,7 @@ using System.Text;
 using Domain.Dtos.LoginDto;
 using Domain.Dtos.RegisterDto;
 using Domain.Entities.User;
+using Domain.Enums;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Seed;
@@ -47,8 +48,16 @@ public class AccountService : IAccountService
             {
                 UserId = user.Id,
                 FirstName = string.Empty,
-                LastName = string.Empty
-
+                LastName = string.Empty,
+                Occupation = string.Empty,
+                DateUpdated = DateTime.UtcNow,
+                LocationId = 1,
+                DOB = DateTime.UtcNow,
+                Image = string.Empty,
+                About = string.Empty,
+                Gender = Gender.Female,
+                
+                
             };
 
             await _userManager.CreateAsync(user, model.Password);
@@ -111,3 +120,4 @@ public class AccountService : IAccountService
         return tokenString;
     }
 }
+
