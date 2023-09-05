@@ -17,6 +17,7 @@ public class PostService : IPostService
     private readonly IMapper _mapper;
     private readonly IFileService _fileService;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly IFileService _service;
 
     public PostService(DataContext context, IMapper mapper,
         IFileService fileService,
@@ -41,17 +42,25 @@ public class PostService : IPostService
                 posts = posts.Where(p => p.Title.ToLower().Contains(filter.Title.ToLower()));
             var response = await posts
                 .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
-            var result = await (from p in posts
-                                select new GetPostDto()
-                                {
-                                    PostId = p.PostId,
-                                    UserId = p.UserId,
-                                    Title = p.Title,
-                                    Content = p.Content,
-                                    Status = p.Status,
-                                    DatePublished = p.DatePublished.ToShortDateString(),
-                                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.Path).ToList()
-                                }).ToListAsync();
+            var result = await (from p in _context.Posts
+                join u in _context.Users on p.UserId equals u.Id
+                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
+                join s in _context.PostLikes on p.PostId equals s.PostId
+                join v in _context.PostViews on p.PostId equals v.PostId
+                where f.UserId == filter.UserId
+                select new GetPostDto()
+                {
+                    PostId = p.PostId,
+                    UserId = p.UserId,
+                    Title = p.Title,
+                    Content = p.Content,
+                    DatePublished = p.DatePublished.ToShortDateString(),
+                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
+                    PostLikeCount = s.LikeCount,
+                    PostView = v.ViewCount,
+                    CommentCount = p.PostComments.Count(),
+                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == u.Id) != null
+                }).ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
         }
@@ -65,16 +74,25 @@ public class PostService : IPostService
     {
         try
         {
-            var post = await _context.Posts.Select(p => new GetPostDto()
-            {
-                PostId = p.PostId,
-                UserId = p.UserId,
-                Title = p.Title,
-                Content = p.Content,
-                Status = p.Status,
-                DatePublished = p.DatePublished.ToShortDateString(),
-                Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.Path).ToList()
-            }).FirstOrDefaultAsync(p => p.PostId == id);
+            var post = await (from p in _context.Posts
+                join u in _context.Users on p.UserId equals u.Id
+                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
+                join s in _context.PostLikes on p.PostId equals s.PostId
+                join v in _context.PostViews on p.PostId equals v.PostId
+                where p.PostId == id
+                select new GetPostDto()
+                {
+                    PostId = p.PostId,
+                    UserId = p.UserId,
+                    Title = p.Title,
+                    Content = p.Content,
+                    DatePublished = p.DatePublished.ToShortDateString(),
+                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
+                    PostLikeCount = s.LikeCount,
+                    PostView = v.ViewCount,
+                    CommentCount = p.PostComments.Count(),
+                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == u.Id) != null
+                }).FirstOrDefaultAsync(p => p.PostId == id);
             return new Response<GetPostDto>(post);
         }
         catch (Exception e)
@@ -89,26 +107,23 @@ public class PostService : IPostService
         {
             var posts = await (from p in _context.Posts
                 join u in _context.Users on p.UserId equals u.Id
-                               join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
-                               join s in _context.PostStats on p.PostId equals s.PostId
-                               join v in _context.PostViews on p.PostId equals v.PostId
-                               join c in _context.PostComments on p.PostId equals c.PostId
-                               where f.UserId == filter.UserId
-                               select new GetPostDto()
-                               {
-                                   PostId = p.PostId,
-                                   UserId = p.UserId,
-                                   Title = p.Title,
-                                   Content = p.Content,
-                                   Status = p.Status,
-                                   DatePublished = p.DatePublished.ToShortDateString(),
-                                   Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.Path).ToList(),
-                                   PostLikeCount = s.LikeCount,
-                                   PostView = v.ViewCount,
-                                   CommentCount = p.PostComments.Count(),
-                                   PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == u.Id)== null ? false : true
-
-                               }).ToListAsync();
+                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
+                join s in _context.PostLikes on p.PostId equals s.PostId
+                join v in _context.PostViews on p.PostId equals v.PostId
+                where f.UserId == filter.UserId
+                select new GetPostDto()
+                {
+                    PostId = p.PostId,
+                    UserId = p.UserId,
+                    Title = p.Title,
+                    Content = p.Content,
+                    DatePublished = p.DatePublished.ToShortDateString(),
+                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
+                    PostLikeCount = s.LikeCount,
+                    PostView = v.ViewCount,
+                    CommentCount = p.PostComments.Count(),
+                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == u.Id) != null
+                }).ToListAsync();
 
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(posts, filter.PageNumber, filter.PageSize, totalRecord);
@@ -119,11 +134,12 @@ public class PostService : IPostService
         }
     }
 
-    public async Task<Response<GetPostDto>> AddPost(AddPostDto addPost)
+    public async Task<Response<GetPostDto>> AddPost(AddPostDto addPost, string userId)
     {
         try
         {
             var post = _mapper.Map<Post>(addPost);
+            post.UserId = userId;
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
             var postStat = new PostLike()
@@ -137,63 +153,23 @@ public class PostService : IPostService
             var list = new List<string>();
             foreach (var image in addPost.Images)
             {
-                var path = _fileService.CreateFile(image);
+                var imageName = _fileService.CreateFile(image);
                 var images = new Image()
                 {
                     PostId = post.PostId,
-                    Path = path.Data
+                    ImageName = imageName.Data
                 };
-                list.Add(images.Path);
+                list.Add(images.ImageName);
                 await _context.Images.AddAsync(images);
                 await _context.SaveChangesAsync();
             }
-            await _context.PostViews.AddAsync(postView);
-            await _context.PostStats.AddAsync(postStat);
-            await _context.SaveChangesAsync();
-            var mapped = _mapper.Map<GetPostDto>(post);
-            mapped.Images = list;
-            return new Response<GetPostDto>(mapped);
-        }
-        catch (Exception e)
-        {
-            return new Response<GetPostDto>(HttpStatusCode.BadRequest, e.Message);
-        }
-    }
 
-    public async Task<Response<GetPostDto>> UpdatePost(AddPostDto addPost)
-    {
-        try
-        {
-            var post = _mapper.Map<Post>(addPost);
-            await _context.Posts.AddAsync(post);
-            await _context.SaveChangesAsync();
-            var postStat = new PostLike()
-            {
-                PostId = post.PostId
-            };
-            var list = new List<string>();
-            foreach (var image in addPost.Images)
-            {
-                var path = _fileService.CreateFile(image);
-                var images = new Image()
-                {
-                    PostId = post.PostId,
-                    Path = path.Data
-                };
-                list.Add(images.Path);
-                _context.Images.Update(images);
-                await _context.SaveChangesAsync();
-            }
-            await _context.PostStats.AddAsync(postStat);
+            await _context.PostViews.AddAsync(postView);
+            await _context.PostLikes.AddAsync(postStat);
             await _context.SaveChangesAsync();
             var mapped = _mapper.Map<GetPostDto>(post);
             mapped.Images = list;
             return new Response<GetPostDto>(mapped);
-            /*var post = _mapper.Map<Post>(addPost);
-            _context.Posts.Update(post);
-            await _context.SaveChangesAsync();
-            var mapped = _mapper.Map<GetPostDto>(post);
-            return new Response<GetPostDto>(mapped);*/
         }
         catch (Exception e)
         {
@@ -217,11 +193,11 @@ public class PostService : IPostService
         }
     }
 
-    public async Task<Response<bool>> LikePost(string? userId, int postId)
+    public async Task<Response<bool>> LikePost(string userId, int postId)
     {
-        var stats = _context.PostStats.FirstOrDefault(e => e.PostId == postId);
+        var stats = await _context.PostLikes.FirstOrDefaultAsync(e => e.PostId == postId);
         var existingStatUser =
-            _context.StatUserIds.FirstOrDefault(st => st.UserId == userId && st.PostLikeId == stats.PostId);
+            _context.PostUserLikes.FirstOrDefault(st => st.UserId == userId && st.PostLikeId == stats.PostId);
         if (existingStatUser == null)
         {
             var newPostUserLike = new PostUserLike()
@@ -229,18 +205,15 @@ public class PostService : IPostService
                 UserId = userId,
                 PostLikeId = stats.PostId
             };
-            await _context.StatUserIds.AddRangeAsync(newPostUserLike);
+            await _context.PostUserLikes.AddAsync(newPostUserLike);
             stats.LikeCount++;
             await _context.SaveChangesAsync();
-            
-
             return new Response<bool>(true);
         }
 
-        _context.StatUserIds.Remove(existingStatUser);
-        stats!.LikeCount--;
+        _context.PostUserLikes.Remove(existingStatUser);
+        stats.LikeCount--;
         await _context.SaveChangesAsync();
         return new Response<bool>(true);
-        
     }
 }

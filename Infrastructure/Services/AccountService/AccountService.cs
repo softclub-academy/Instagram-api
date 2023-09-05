@@ -56,8 +56,6 @@ public class AccountService : IAccountService
                 Image = string.Empty,
                 About = string.Empty,
                 Gender = Gender.Female,
-                
-                
             };
 
             await _userManager.CreateAsync(user, model.Password);
@@ -120,4 +118,3 @@ public class AccountService : IAccountService
         return tokenString;
     }
 }
-

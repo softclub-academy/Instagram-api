@@ -137,31 +137,23 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Post.Image", b =>
                 {
-                    b.Property<int?>("ImageId")
+                    b.Property<int>("ImageId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("ImageId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ImageId"));
 
-                    b.Property<string>("Path")
+                    b.Property<string>("ImageName")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
-                    b.Property<int?>("PostId")
+                    b.Property<int>("PostId")
                         .HasColumnType("integer");
-
-                    b.Property<int?>("UserProfileId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserProfileUserId")
-                        .HasColumnType("text");
 
                     b.HasKey("ImageId");
 
                     b.HasIndex("PostId");
-
-                    b.HasIndex("UserProfileUserId");
 
                     b.ToTable("Images");
                 });
@@ -180,11 +172,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime>("DatePublished")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -305,7 +292,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("PostId");
 
-                    b.ToTable("PostStats");
+                    b.ToTable("PostLikes");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.PostUserLike", b =>
@@ -335,7 +322,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("StatUserIds");
+                    b.ToTable("PostUserLikes");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.PostView", b =>
@@ -764,10 +751,6 @@ namespace Infrastructure.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<string>("AccountStatus")
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
                     b.Property<DateTime>("DateRegistred")
                         .HasColumnType("timestamp with time zone");
 
@@ -823,15 +806,11 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Post.Post", "Post")
                         .WithMany("Images")
-                        .HasForeignKey("PostId");
-
-                    b.HasOne("Domain.Entities.User.UserProfile", "UserProfile")
-                        .WithMany("Images")
-                        .HasForeignKey("UserProfileUserId");
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Post");
-
-                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.Post", b =>
@@ -1181,11 +1160,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.User.ListOfUserCommentLike", b =>
                 {
                     b.Navigation("PostUserLikes");
-                });
-
-            modelBuilder.Entity("Domain.Entities.User.UserProfile", b =>
-                {
-                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("Domain.Entities.User.User", b =>
