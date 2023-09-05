@@ -45,7 +45,9 @@ public class AccountService : IAccountService
             };
             var profile = new UserProfile()
             {
-                UserId = user.Id
+                UserId = user.Id,
+                FirstName = string.Empty,
+                LastName = string.Empty
 
             };
 
