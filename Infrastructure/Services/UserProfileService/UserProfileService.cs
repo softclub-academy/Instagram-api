@@ -6,6 +6,7 @@ using Domain.Filters.UserProfileFilter;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Services.FileService;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.UserProfileService;
@@ -23,7 +24,6 @@ public class UserProfileService : IUserProfileService
         _fileService = fileService;
     }
 
-   
 
     public async Task<Response<GetUserProfileDto>> GetUserProfileById(string id)
     {
@@ -47,11 +47,9 @@ public class UserProfileService : IUserProfileService
     }
 
 
-   
-
     #region UpdateUserProfile
 
-    public async Task<Response<GetUserProfileDto>> UpdateUserProfile(UpdateUserProfileDto addUserProfile,string userId)
+    public async Task<Response<GetUserProfileDto>> UpdateUserProfile(UpdateUserProfileDto addUserProfile, string userId)
     {
         try
         {
@@ -60,8 +58,6 @@ public class UserProfileService : IUserProfileService
 
             if (existing != null)
             {
-               
-              
                 if (addUserProfile.FirstName != null) existing.FirstName = addUserProfile.FirstName;
                 existing.FirstName = existing.FirstName;
                 if (addUserProfile.LastName != null) existing.LastName = addUserProfile.LastName;
@@ -70,18 +66,21 @@ public class UserProfileService : IUserProfileService
                 existing.About = existing.About;
                 if (addUserProfile.Occupation != null) existing.Occupation = addUserProfile.Occupation;
                 existing.Occupation = existing.Occupation;
-                var loc = await _context.Locations.FirstOrDefaultAsync(x => x.LocationId != addUserProfile.LocationId);
-                if (addUserProfile.LocationId == null) existing.LocationId = null;
-                else if (loc!=null)
+                var loc = await _context.Locations.FirstOrDefaultAsync(x => x.LocationId == addUserProfile.LocationId);
+                if (loc == null) 
                 {
                     return new Response<GetUserProfileDto>(HttpStatusCode.NotFound, "not found this location");
                 }
-                existing.LocationId = addUserProfile.LocationId;
+                else
+                {
+                    existing.LocationId = addUserProfile.LocationId;
+                }
 
-                if (addUserProfile.DOB!=null)
+                if (addUserProfile.DOB != null)
                 {
                     existing.DOB = addUserProfile.DOB;
-                }    
+                }
+
                 existing.DOB = existing.DOB;
                 if (existing.DateUpdated != null) existing.DateUpdated = addUserProfile.DateUpdated;
                 existing.DateUpdated = DateTime.UtcNow;
