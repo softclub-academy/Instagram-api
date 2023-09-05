@@ -6,7 +6,6 @@ using Domain.Filters.PostFilter;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Services.FileService;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.PostService;
@@ -16,17 +15,13 @@ public class PostService : IPostService
     private readonly DataContext _context;
     private readonly IMapper _mapper;
     private readonly IFileService _fileService;
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly IFileService _service;
 
     public PostService(DataContext context, IMapper mapper,
-        IFileService fileService,
-        UserManager<IdentityUser> userManager)
+        IFileService fileService)
     {
         _context = context;
         _mapper = mapper;
         _fileService = fileService;
-        _userManager = userManager;
     }
 
     public async Task<PagedResponse<List<GetPostDto>>> GetPosts(PostFilter filter)
@@ -40,8 +35,6 @@ public class PostService : IPostService
                 posts = posts.Where(p => p.Content.ToLower().Contains(filter.Content.ToLower()));
             if (!string.IsNullOrEmpty(filter.Title))
                 posts = posts.Where(p => p.Title.ToLower().Contains(filter.Title.ToLower()));
-            var response = await posts
-                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
             var result = await (from p in _context.Posts
                 join u in _context.Users on p.UserId equals u.Id
                 join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
@@ -196,6 +189,8 @@ public class PostService : IPostService
     public async Task<Response<bool>> LikePost(string userId, int postId)
     {
         var stats = await _context.PostLikes.FirstOrDefaultAsync(e => e.PostId == postId);
+        if (stats == null) return new Response<bool>(HttpStatusCode.BadRequest, "stats not found");
+        
         var existingStatUser =
             _context.PostUserLikes.FirstOrDefault(st => st.UserId == userId && st.PostLikeId == stats.PostId);
         if (existingStatUser == null)
@@ -203,7 +198,7 @@ public class PostService : IPostService
             var newPostUserLike = new PostUserLike()
             {
                 UserId = userId,
-                PostLikeId = stats.PostId
+                PostLikeId = stats!.PostId
             };
             await _context.PostUserLikes.AddAsync(newPostUserLike);
             stats.LikeCount++;
