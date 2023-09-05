@@ -17,5 +17,7 @@ public class Post
     public PostView PostView { get; set; }
     public PostLike PostLike { get; set; }
     public List<PostCategory> PostCategories { get; set; }
+
+
     public List<Image> Images { get; set; }
 }

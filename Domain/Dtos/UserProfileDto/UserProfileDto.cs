@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Domain.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace Domain.Dtos.UserProfileDto;
 

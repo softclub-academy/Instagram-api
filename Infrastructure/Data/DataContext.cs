@@ -17,6 +17,15 @@ public class DataContext : IdentityDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        
+        modelBuilder.Entity<PostLike>()
+            .HasMany(e => e.PostUserLikes)
+            .WithOne(e => e.PostLike)
+            .HasForeignKey(e => e.PostLikeId)
+            .HasPrincipalKey(e => e.PostId);
+        
+        modelBuilder.HasPostgresEnum<Gender>();
+        modelBuilder.HasPostgresEnum<Active>();
         modelBuilder.Entity<FollowingRelationShip>()
             .HasOne<User>(u => u.User)
             .WithMany(f => f.FollowingRelationShips)
