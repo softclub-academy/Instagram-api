@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230905081151_deletecolumnlistofuserlike")]
-    partial class deletecolumnlistofuserlike
+    [Migration("20230905121752_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,8 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "7.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "active", new[] { "of", "on" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "gender", new[] { "female", "male" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Domain.Entities.Chat", b =>
@@ -222,7 +224,6 @@ namespace Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostCommentId"));
 
                     b.Property<string>("Comment")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("DateCommented")
@@ -305,6 +306,9 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ListOfUserCommentLikeId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PostLikeId")
                         .HasColumnType("integer");
 
@@ -313,6 +317,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ListOfUserCommentLikeId");
 
                     b.HasIndex("PostLikeId");
 
@@ -902,6 +908,10 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Post.PostUserLike", b =>
                 {
+                    b.HasOne("Domain.Entities.User.ListOfUserCommentLike", null)
+                        .WithMany("PostUserLikes")
+                        .HasForeignKey("ListOfUserCommentLikeId");
+
                     b.HasOne("Domain.Entities.Post.PostLike", "PostLike")
                         .WithMany("PostUserLikes")
                         .HasForeignKey("PostLikeId")
@@ -1148,6 +1158,11 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("StoryStat")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.User.ListOfUserCommentLike", b =>
+                {
+                    b.Navigation("PostUserLikes");
                 });
 
             modelBuilder.Entity("Domain.Entities.User.User", b =>
