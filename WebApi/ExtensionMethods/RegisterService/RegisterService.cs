@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Data;
 using Infrastructure.Seed;
+using Infrastructure.Services;
 using Infrastructure.Services.AccountService;
 using Infrastructure.Services.ChatService;
 using Infrastructure.Services.ExternalAccountService;
@@ -46,6 +47,8 @@ public static class RegisterService
         services.AddScoped<IStoryService, StoryService>();
 
         services.AddScoped<IChatService, ChatService>();
+
+        services.AddScoped<IEmailService,EmailService>();
         
         services.AddIdentity<IdentityUser, IdentityRole>(config =>
             {
