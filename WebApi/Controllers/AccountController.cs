@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Domain.Dtos;
 using Domain.Dtos.LoginDto;
 using Domain.Dtos.RegisterDto;
 using Domain.Responses;
@@ -51,5 +52,20 @@ public class AccountController : BaseController
             var response = new Response<string>(HttpStatusCode.BadRequest, errorMessage);
             return StatusCode(response.StatusCode, response);
         }
+    }
+    
+    [HttpDelete("ForgotPassword")]
+    [AllowAnonymous]
+    public async Task<Response<string>> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+    {
+        return await _service.ForgotPasswordTokenGenerator(forgotPasswordDto);
+    }
+    
+      
+    [HttpDelete("ResetPassword")]
+    [AllowAnonymous]
+    public async Task<Response<string>> ResetPassword(ResetPasswordDto resetPasswordDto)
+    {
+        return await _service.ResetPassword(resetPasswordDto);
     }
 }

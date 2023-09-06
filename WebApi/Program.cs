@@ -1,3 +1,4 @@
+using Domain.Dtos;
 using Infrastructure.AutoMapper;
 using Infrastructure.Data;
 using Infrastructure.Seed;
@@ -9,6 +10,10 @@ using WebApi.ExtensionMethods.SwaggerConfiguration;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var emailConfig = builder.Configuration
+    .GetSection("EmailConfiguration")
+    .Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
