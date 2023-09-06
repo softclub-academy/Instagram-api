@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230906060625_v8")]
+    partial class v8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -361,28 +364,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("PostViewUsers");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Post.StoryView", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("StoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ViewUserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StoryId");
-
-                    b.ToTable("StoryViews");
-                });
-
             modelBuilder.Entity("Domain.Entities.Story", b =>
                 {
                     b.Property<int>("Id")
@@ -422,7 +403,10 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("StoryId")
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("StoryId")
                         .HasColumnType("integer");
 
                     b.Property<int>("ViewCount")
@@ -983,17 +967,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Post.StoryView", b =>
-                {
-                    b.HasOne("Domain.Entities.Story", "Story")
-                        .WithMany("StoryViews")
-                        .HasForeignKey("StoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Story");
-                });
-
             modelBuilder.Entity("Domain.Entities.Story", b =>
                 {
                     b.HasOne("Domain.Entities.Post.Post", "Post")
@@ -1015,9 +988,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Story", "Story")
                         .WithOne("StoryStat")
-                        .HasForeignKey("Domain.Entities.StoryStat", "StoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Domain.Entities.StoryStat", "StoryId");
 
                     b.Navigation("Story");
                 });
@@ -1203,8 +1174,6 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("StoryStat")
                         .IsRequired();
-
-                    b.Navigation("StoryViews");
                 });
 
             modelBuilder.Entity("Domain.Entities.User.ListOfUserCommentLike", b =>

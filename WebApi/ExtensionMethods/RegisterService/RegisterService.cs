@@ -15,6 +15,7 @@ using Infrastructure.Services.PostService;
 using Infrastructure.Services.StatisticFollowAndPostService;
 
 using Infrastructure.Services.StoryServices;
+using Infrastructure.Services.StoryViewServices;
 using Infrastructure.Services.UserProfileService;
 using Infrastructure.Services.UserService;
 using Infrastructure.Services.UserSettingService;
@@ -42,13 +43,11 @@ public static class RegisterService
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<Seeder>();
-        services.AddScoped<IStatisticFollowAndPostService,StatisticFollowAndPostService>();
-
+        services.AddScoped<IStatisticFollowAndPostService,StatisticFollowAndPostService>();    
         services.AddScoped<IStoryService, StoryService>();
-
         services.AddScoped<IChatService, ChatService>();
-
         services.AddScoped<IEmailService,EmailService>();
+        services.AddScoped<IStoryViewService, StoryViewService>();
         
         services.AddIdentity<IdentityUser, IdentityRole>(config =>
             {

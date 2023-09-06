@@ -1,9 +1,10 @@
-﻿namespace Domain.Entities;
+﻿namespace Domain.Entities.Post;
 
-public class StoryStat
+public class StoryView
 {
     public int Id { get; set; }
-    public int ViewCount { get; set; } = 0;
+    public string ViewUserId { get; set; }
     public int StoryId { get; set; }
+
     public Story Story { get; set; }
 }
