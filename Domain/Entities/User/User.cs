@@ -15,6 +15,8 @@ public class User : IdentityUser
     public UserSetting UserSetting { get; set; }
     public List<UserProfile> UserProfiles { get; set; }
     public ExternalAccount ExternalAccount { get; set; }
+
+    public List<Story> Stories { get; set; }
     public List<FollowingRelationShip> FollowingRelationShips { get; set; }
     public List<Post.Post> Posts { get; set; }
     public List<PostComment> PostComments { get; set; }

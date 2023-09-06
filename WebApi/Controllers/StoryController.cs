@@ -17,6 +17,13 @@ public class StoryController : ControllerBase
     [HttpPost("AddStories")]
     public async Task<Response<GetStoryDto>> AddStories(AddStoryDto add)
     {
-        return await _storyService.AddStory(add);
+        var token = User.Claims.FirstOrDefault(e => e.Type == "sid").Value;
+        return await _storyService.AddStory(add,token);
+    }
+
+    [HttpDelete("DeleteStory")]
+    public async Task<Response<bool>> DeleteStory(int id)
+    {
+        return await _storyService.DeleteStory(id);
     }
 }
