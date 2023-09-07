@@ -7,5 +7,6 @@ namespace Infrastructure.Services.StoryServices;
 
 public interface IStoryService
 {
-   Task<Response<GetStoryDto>> AddStory(AddStoryDto file);
+   Task<Response<GetStoryDto>> AddStory(AddStoryDto file,string token);
+   Task<Response<bool>> DeleteStory(int id);
 }
