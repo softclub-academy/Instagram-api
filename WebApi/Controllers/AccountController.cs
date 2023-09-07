@@ -68,4 +68,12 @@ public class AccountController : BaseController
     {
         return await _service.ResetPassword(resetPasswordDto);
     }
+    
+    [HttpPut("ChangePassword")]
+    [AllowAnonymous]
+    public async Task<Response<string>> ChangePassword(ChangePasswordDto changePasswordDto)
+    {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
+        return await _service.ChangePassword(changePasswordDto,userId!);
+    }
 }
