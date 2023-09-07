@@ -18,6 +18,7 @@ using Infrastructure.Services.StoryViewServices;
 using Infrastructure.Services.UserProfileService;
 using Infrastructure.Services.UserService;
 using Infrastructure.Services.UserSettingService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,6 +49,7 @@ public static class RegisterService
 
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IStoryViewService, StoryViewService>();
+        
         
         services.AddIdentity<IdentityUser, IdentityRole>(config =>
             {

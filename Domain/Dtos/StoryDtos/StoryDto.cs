@@ -12,6 +12,4 @@ public class StoryDto
     public int? PostId { get; set; }
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     public string UserId { get; set; }
-    public int? ViewCount { get; set; } 
-    public List<ViewerDtos.ViewerDto>? ViewerDtos { get; set; }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using AutoMapper;
 using Domain.Dtos.StoryDtos;
-
+using Domain.Dtos.ViewerDtos;
 using Domain.Entities;
 using Domain.Entities.Post;
 using Domain.Responses;
@@ -21,7 +21,8 @@ public class StoryService : IStoryService
     private readonly DataContext _context;
     private readonly IWebHostEnvironment _hostEnvironment;
 
-    public StoryService(IFileService fileService,IMapper mapper,DataContext context,IWebHostEnvironment hostEnvironment)
+    public StoryService(IFileService fileService, IMapper mapper, DataContext context,
+        IWebHostEnvironment hostEnvironment)
     {
         _fileService = fileService;
         _mapper = mapper;
@@ -30,83 +31,69 @@ public class StoryService : IStoryService
     }
 
 
-    public async Task<Response<GetStoryDto>> GetStoryById(int id,string token,string userName)
+    public async Task<Response<GetStoryDto>> GetStoryById(int id, string userId, string userName)
     {
         try
-        { 
-            var story = await _context.Stories.FirstOrDefaultAsync(e => e.Id == id);
-        if (story != null)
         {
-            if (story.UserId == token)
+            var story = await _context.Stories.FirstOrDefaultAsync(e => e.Id == id);
+            if (story != null)
             {
-                var vCount = await _context.StoryStats.FirstOrDefaultAsync(e=>e.StoryId == id);
-                var viewCount = vCount.ViewCount;
-                var name = (from st in _context.Stories
-                    join user in _context.Users on st.UserId equals user.Id
-                    join prof in _context.UserProfiles on st.UserId equals prof.UserId
-                    select new
+                // if (story.UserId == userId)
+                // {
+                var story2 = await (from st in _context.Stories
+                    join pf in _context.UserProfiles on st.UserId equals pf.UserId
+                    where st.Id == id
+                    select new GetStoryDto()
                     {
-                        Name = prof.FirstName
-                    }).ToList();
-                var storyView = new Viewer()
-                {
-                UserId = token,
-                UserName = userName,
-                Name = name[0].Name,
-                };
-                var story2 = new Story()
-                {
-                    Id = story.Id,
-                    FileName = story.FileName,
-                    CreateAt = story.CreateAt,
-                    UserId = token,
-                    ViewCount = viewCount,
-                };
-                story2.Viewers!.Add(storyView);
-                 _context.Viewers.Update(storyView);
-                 await _context.SaveChangesAsync();
-              
-                var mapped = _mapper.Map<GetStoryDto>(story2);
-                return new Response<GetStoryDto>(mapped);
+                        Id = st.Id,
+                        FileName = st.FileName,
+                        CreateAt = st.CreateAt,
+                        UserId = st.UserId,
+                        ViewerDtos = story.UserId == userId
+                            ? new ViewerDto()
+                            {
+                                Name = pf.FirstName, 
+                                UserName = st.User.UserName, 
+                                ViewCount = st.StoryStat.ViewCount
+                            } : null
+                    }).FirstAsync();
+                return new Response<GetStoryDto>(story2);
+                // }
+                // else
+                // {
+                // var story2 = new Story()
+                // {
+                // Id = story.Id,
+                // FileName = story.FileName,
+                // CreateAt = story.CreateAt,
+                // UserId = userId,
+                // };
+                // var mapped = _mapper.Map<GetStoryDto>(story2);
+                // return new Response<GetStoryDto>(mapped);
+                // }
             }
             else
             {
-                var story2 = new Story()
-                {
-                    Id = story.Id,
-                    FileName = story.FileName,
-                    CreateAt = story.CreateAt,
-                    UserId = token,
-                 
-                };
-                var mapped = _mapper.Map<GetStoryDto>(story2);
-                return new Response<GetStoryDto>(mapped);
+                return new Response<GetStoryDto>(HttpStatusCode.BadRequest, "Story not found");
             }
-        }
-        else
-        {
-            return new Response<GetStoryDto>(HttpStatusCode.BadRequest, "Story not found");
-        }
         }
         catch (Exception e)
         {
             return new Response<GetStoryDto>(HttpStatusCode.InternalServerError, e.Message);
         }
-     
-        
     }
 
-    public async Task<Response<GetStoryDto>> AddStory(AddStoryDto file,string userId)
+    public async Task<Response<GetStoryDto>> AddStory(AddStoryDto file, string userId)
     {
         try
         {
             var file1 = new Story()
             {
-            UserId = userId
+                UserId = userId
             };
-                var fileName = _fileService.CreateFile(file.Image).Data;
-                file1.FileName = fileName;
-                await _context.Stories.AddAsync(file1);
+            var fileName = _fileService.CreateFile(file.Image).Data;
+            file1.FileName = fileName;
+            await _context.Stories.AddAsync(file1);
             await _context.SaveChangesAsync();
             var stat = new StoryStat()
             {
@@ -114,12 +101,7 @@ public class StoryService : IStoryService
             };
             await _context.StoryStats.AddAsync(stat);
             await _context.SaveChangesAsync();
-            var viewer = new Viewer()
-            {
-            StoryId = file1.Id,
-            };
-            await _context.Viewers.AddAsync(viewer);
-            await _context.SaveChangesAsync();
+
             var mapped = _mapper.Map<GetStoryDto>(file1);
             return new Response<GetStoryDto>(mapped);
         }
@@ -144,6 +126,5 @@ public class StoryService : IStoryService
         {
             return new Response<bool>(false);
         }
-        
     }
 }
