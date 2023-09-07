@@ -1,12 +1,14 @@
 ﻿using System.Net;
 using AutoMapper;
 using Domain.Dtos.StoryDtos;
+using Domain.Dtos.ViewerDtos;
 using Domain.Entities;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Services.FileService;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.Services.StoryServices;
@@ -25,7 +27,62 @@ public class StoryService : IStoryService
         _context = context;
         _hostEnvironment = hostEnvironment;
     }
-   
+
+
+    public async Task<Response<GetStoryDto>> GetStoryById(int id,string token,string userName)
+    {
+        var story = await _context.Stories.FirstOrDefaultAsync(e => e.Id == id);
+        if (story != null)
+        {
+            if (story.UserId == token)
+            {
+                var viewCount = story.StoryStat.ViewCount;
+                var name = (from st in _context.Stories
+                    join user in _context.Users on st.UserId equals user.Id
+                    join prof in _context.UserProfiles on st.UserId equals prof.UserId
+                    select new
+                    {
+                        Name = prof.FirstName
+                    }).ToList();
+                var storyView = new ViewerDto()
+                {
+                UserId = token,
+                UserName = userName,
+                Name = name[0].Name
+                };
+                var story2 = new Story()
+                {
+                    Id = story.Id,
+                    FileName = story.FileName,
+                    CreateAt = story.CreateAt,
+                    UserId = token,
+                    ViewCount = viewCount,
+                };
+                
+                story2.ViewerDtos.Add(storyView);
+                var mapped = _mapper.Map<GetStoryDto>(story2);
+                return new Response<GetStoryDto>(mapped);
+            }
+            else
+            {
+                var story2 = new Story()
+                {
+                    Id = story.Id,
+                    FileName = story.FileName,
+                    CreateAt = story.CreateAt,
+                    UserId = token,
+                 
+                };
+                var mapped = _mapper.Map<GetStoryDto>(story2);
+                return new Response<GetStoryDto>(mapped);
+            }
+        }
+        else
+        {
+            return new Response<GetStoryDto>(HttpStatusCode.BadRequest, "Story not found");
+        }
+        
+    }
 
     public async Task<Response<GetStoryDto>> AddStory(AddStoryDto file,string token)
     {

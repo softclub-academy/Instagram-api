@@ -30,10 +30,21 @@ public class StoryViewService : IStoryViewService
                     ViewUserId = token,
                     StoryId = model.StoryId,
                 };
-                await _context.StoryViews.AddAsync(storyView);
-                await _context.SaveChangesAsync();
-                var mapped = _mapper.Map<GetStoryViewDto>(storyView);
-                return new Response<GetStoryViewDto>(mapped);
+                if (story.UserId != token)
+                {
+
+                    story.StoryStat.ViewCount++;
+                   
+                    await _context.StoryViews.AddAsync(storyView);
+                    await _context.SaveChangesAsync();
+                    var mapped = _mapper.Map<GetStoryViewDto>(storyView);
+                    return new Response<GetStoryViewDto>(mapped);
+                }
+                else
+                {
+                    var mapped = _mapper.Map<GetStoryViewDto>(storyView);
+                    return new Response<GetStoryViewDto>(mapped);
+                }
             }
             else
             {
