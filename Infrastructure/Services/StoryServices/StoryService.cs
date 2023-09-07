@@ -1,8 +1,9 @@
 ﻿using System.Net;
 using AutoMapper;
 using Domain.Dtos.StoryDtos;
-using Domain.Dtos.ViewerDtos;
+
 using Domain.Entities;
+using Domain.Entities.Post;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Services.FileService;
@@ -31,12 +32,15 @@ public class StoryService : IStoryService
 
     public async Task<Response<GetStoryDto>> GetStoryById(int id,string token,string userName)
     {
-        var story = await _context.Stories.FirstOrDefaultAsync(e => e.Id == id);
+        try
+        { 
+            var story = await _context.Stories.FirstOrDefaultAsync(e => e.Id == id);
         if (story != null)
         {
             if (story.UserId == token)
             {
-                var viewCount = story.StoryStat.ViewCount;
+                var vCount = await _context.StoryStats.FirstOrDefaultAsync(e=>e.StoryId == id);
+                var viewCount = vCount.ViewCount;
                 var name = (from st in _context.Stories
                     join user in _context.Users on st.UserId equals user.Id
                     join prof in _context.UserProfiles on st.UserId equals prof.UserId
@@ -44,11 +48,11 @@ public class StoryService : IStoryService
                     {
                         Name = prof.FirstName
                     }).ToList();
-                var storyView = new ViewerDto()
+                var storyView = new Viewer()
                 {
                 UserId = token,
                 UserName = userName,
-                Name = name[0].Name
+                Name = name[0].Name,
                 };
                 var story2 = new Story()
                 {
@@ -58,8 +62,10 @@ public class StoryService : IStoryService
                     UserId = token,
                     ViewCount = viewCount,
                 };
-                
-                story2.ViewerDtos.Add(storyView);
+                story2.Viewers!.Add(storyView);
+                 _context.Viewers.Update(storyView);
+                 await _context.SaveChangesAsync();
+              
                 var mapped = _mapper.Map<GetStoryDto>(story2);
                 return new Response<GetStoryDto>(mapped);
             }
@@ -81,16 +87,22 @@ public class StoryService : IStoryService
         {
             return new Response<GetStoryDto>(HttpStatusCode.BadRequest, "Story not found");
         }
+        }
+        catch (Exception e)
+        {
+            return new Response<GetStoryDto>(HttpStatusCode.InternalServerError, e.Message);
+        }
+     
         
     }
 
-    public async Task<Response<GetStoryDto>> AddStory(AddStoryDto file,string token)
+    public async Task<Response<GetStoryDto>> AddStory(AddStoryDto file,string userId)
     {
         try
         {
             var file1 = new Story()
             {
-            UserId = token
+            UserId = userId
             };
                 var fileName = _fileService.CreateFile(file.Image).Data;
                 file1.FileName = fileName;
@@ -101,6 +113,12 @@ public class StoryService : IStoryService
                 StoryId = file1.Id,
             };
             await _context.StoryStats.AddAsync(stat);
+            await _context.SaveChangesAsync();
+            var viewer = new Viewer()
+            {
+            StoryId = file1.Id,
+            };
+            await _context.Viewers.AddAsync(viewer);
             await _context.SaveChangesAsync();
             var mapped = _mapper.Map<GetStoryDto>(file1);
             return new Response<GetStoryDto>(mapped);

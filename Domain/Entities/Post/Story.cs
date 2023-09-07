@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Domain.Dtos.ViewerDtos;
+using Domain.Dtos;
 using Domain.Entities.Post;
 using Microsoft.AspNetCore.Http;
 
@@ -13,7 +13,7 @@ public class Story
     public int? PostId { get; set; }
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     public int? ViewCount { get; set; }
-    public List<ViewerDto>? ViewerDtos { get; set; }
+    public List<Viewer>? Viewers { get; set; }
     public string UserId { get; set; }
 
     public List<StoryView> StoryViews { get; set; }

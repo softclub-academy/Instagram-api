@@ -1,6 +1,6 @@
-﻿namespace Domain.Dtos.ViewerDtos;
+﻿namespace Domain.Entities.Post;
 
-public class ViewerDto
+public class Viewer
 {
     public int Id { get; set; }
     public string? UserId { get; set; }
@@ -8,4 +8,5 @@ public class ViewerDto
     public string? Name { get; set; }
     
     public int StoryId { get; set; }
+    public Story Story { get; set; }
 }

@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230907101322_v13")]
+    partial class v13
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,6 +26,33 @@ namespace Infrastructure.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "active", new[] { "of", "on" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "gender", new[] { "female", "male" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.Dtos.ViewerDtos.ViewerDto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("StoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoryId");
+
+                    b.ToTable("ViewerDto");
+                });
 
             modelBuilder.Entity("Domain.Entities.Chat", b =>
                 {
@@ -394,9 +424,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<int>("StoryId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("UserId")
                         .HasColumnType("text");
 
@@ -404,8 +431,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StoryId");
 
                     b.ToTable("Viewers");
                 });
@@ -821,6 +846,13 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("User");
                 });
 
+            modelBuilder.Entity("Domain.Dtos.ViewerDtos.ViewerDto", b =>
+                {
+                    b.HasOne("Domain.Entities.Story", null)
+                        .WithMany("ViewerDtos")
+                        .HasForeignKey("StoryId");
+                });
+
             modelBuilder.Entity("Domain.Entities.Chat", b =>
                 {
                     b.HasOne("Domain.Entities.User.User", "ReceiveUser")
@@ -1017,17 +1049,6 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Story", "Story")
                         .WithMany("StoryViews")
-                        .HasForeignKey("StoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Story");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Post.Viewer", b =>
-                {
-                    b.HasOne("Domain.Entities.Story", "Story")
-                        .WithMany("Viewers")
                         .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1247,7 +1268,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("StoryViews");
 
-                    b.Navigation("Viewers");
+                    b.Navigation("ViewerDtos");
                 });
 
             modelBuilder.Entity("Domain.Entities.User.ListOfUserCommentLike", b =>

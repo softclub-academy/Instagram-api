@@ -1,5 +1,4 @@
-﻿using Domain.Dtos.ViewerDtos;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Domain.Entities.Post;
 using Microsoft.AspNetCore.Http;
 
@@ -13,6 +12,6 @@ public class StoryDto
     public int? PostId { get; set; }
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     public string UserId { get; set; }
-    public int? ViewCount { get; set; }
-    public List<ViewerDto>? ViewerDtos { get; set; }
+    public int? ViewCount { get; set; } 
+    public List<ViewerDtos.ViewerDto>? ViewerDtos { get; set; }
 }
