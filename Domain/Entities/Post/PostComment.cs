@@ -9,7 +9,7 @@ public class PostComment
     public Post Post { get; set; }
     public string UserId { get; set; }
     public User.User User { get; set; }
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
     public DateTime DateCommented { get; set; }
     public List<PostCommentLike> PostCommentLikes { get; set; }
 }

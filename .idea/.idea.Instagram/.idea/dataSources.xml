@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="@localhost" uuid="39b9fc2f-15df-4299-b587-8f11b2971e8e">
+    <data-source source="LOCAL" name="instagram@localhost" uuid="d7af3f16-debd-442f-b730-c0418f55d134">
+    <data-source source="LOCAL" name="@localhost" uuid="c8240bd9-2350-42de-b06e-1a151434139e">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5432/</jdbc-url>
+    <data-source source="LOCAL" name="instagram@localhost" uuid="6f852356-8a98-4043-9995-02fce15cb12a">
+    <data-source source="LOCAL" name="postgres@localhost" uuid="38df0982-f635-4b70-9915-b358b535d86f">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/instagram</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/instagram?password=12345&amp;user=postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

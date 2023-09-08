@@ -10,6 +10,7 @@ using Domain.Dtos.PostFavoriteDto;
 using Domain.Dtos.PostStatDto;
 using Domain.Dtos.PostTagDto;
 using Domain.Dtos.StoryDtos;
+using Domain.Dtos.StoryViewDtos;
 using Domain.Dtos.TagDto;
 using Domain.Dtos.UserDto;
 using Domain.Dtos.UserProfileDto;
@@ -28,6 +29,8 @@ public class MapperProfile : Profile
 
         CreateMap<ExternalAccount, ExternalAccountDto>().ReverseMap();
 
+        CreateMap<StoryView,GetStoryViewDto>();
+
         CreateMap<AddStoryDto, Story>();
         CreateMap<Story, GetStoryDto>();
 
@@ -42,8 +45,8 @@ public class MapperProfile : Profile
         CreateMap<AddPostCommentDto, PostComment>()
             .ForMember(dest => dest.DateCommented, opt => opt.MapFrom(src => DateTime.UtcNow));
 
-        CreateMap<Post, GetPostDto>()
-            .ForMember(dest => dest.Images, opt => opt.Ignore());
+        // CreateMap<Post, GetPostDto>()
+        //     .ForMember(dest => dest.Images, opt => opt.Ignore());
         CreateMap<AddPostDto, Post>()
             .ForMember(dest => dest.DatePublished, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.Images, opt => opt.Ignore());
