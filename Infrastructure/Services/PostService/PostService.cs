@@ -124,7 +124,7 @@ public class PostService : IPostService
     {
         try
         {
-            var post = _mapper.Map<Post>(addPost);`
+            var post = _mapper.Map<Post>(addPost);
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
             var postStat = new PostLike()
