@@ -127,7 +127,7 @@ public class PostService : IPostService
         }
     }
 
-    public async Task<Response<GetPostDto>> AddPost(AddPostDto addPost, string userId)
+    public async Task<Response<string>> AddPost(AddPostDto addPost, string userId)
     {
         try
         {
@@ -160,13 +160,11 @@ public class PostService : IPostService
             await _context.PostViews.AddAsync(postView);
             await _context.PostLikes.AddAsync(postStat);
             await _context.SaveChangesAsync();
-            var mapped = _mapper.Map<GetPostDto>(post);
-            mapped.Images = list;
-            return new Response<GetPostDto>(mapped);
+            return new Response<string>("success");
         }
         catch (Exception e)
         {
-            return new Response<GetPostDto>(HttpStatusCode.BadRequest, e.Message);
+            return new Response<string>(HttpStatusCode.BadRequest, e.Message);
         }
     }
 
