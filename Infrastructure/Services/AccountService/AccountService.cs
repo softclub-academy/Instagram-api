@@ -25,7 +25,9 @@ public class AccountService : IAccountService
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly  DataContext _dbContext;
+
     private readonly IEmailService _emailService;
+
 
     public AccountService(IConfiguration configuration,
         UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, DataContext dbContext, IEmailService emailService)
