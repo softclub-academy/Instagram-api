@@ -2,8 +2,8 @@
 
 namespace Domain.Dtos.StoryDtos;
 
-public class AddStoryDto : StoryDto
+public class AddStoryDto
 {
-    
-    public List<IFormFile> Images { get; set; }
+    public int? PostId { get; set; }
+    public IFormFile Image { get; set; }
 }

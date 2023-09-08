@@ -37,15 +37,15 @@ public class PostController : BaseController
         var result = await _service.GetPostByFollowing(filter);
         return StatusCode(result.StatusCode, result);
     }
-    
+
+
     [HttpPost("add-post")]
     public async Task<IActionResult> AddPost([FromForm]AddPostDto post)
     {
         if (ModelState.IsValid)
         {
-            var userTokenId=User.Claims.FirstOrDefault(e=>e.Type=="sid").Value;
-            post.UserId=userTokenId;
-            var result = await _service.AddPost(post);
+            var userId=User.Claims.FirstOrDefault(e=>e.Type=="sid").Value;
+            var result = await _service.AddPost(post, userId);
             return StatusCode(result.StatusCode, result);
         }
 

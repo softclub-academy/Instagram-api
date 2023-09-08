@@ -15,15 +15,15 @@ public class DataContext : IdentityDbContext
 
     }
 
-    [Obsolete("Obsolete")]
-    public DataContext()
-    {
-        NpgsqlConnection.GlobalTypeMapper.MapEnum<Gender>();
-        NpgsqlConnection.GlobalTypeMapper.MapEnum<Active>();
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        
+        modelBuilder.Entity<PostLike>()
+            .HasMany(e => e.PostUserLikes)
+            .WithOne(e => e.PostLike)
+            .HasForeignKey(e => e.PostLikeId)
+            .HasPrincipalKey(e => e.PostId);
+        
         modelBuilder.HasPostgresEnum<Gender>();
         modelBuilder.HasPostgresEnum<Active>();
         modelBuilder.Entity<FollowingRelationShip>()
@@ -47,24 +47,26 @@ public class DataContext : IdentityDbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<Story> Stories { get; set; }
+    public DbSet<StoryUser> StoryUsers { get; set; }
+    public DbSet<StoryView> StoryViews { get; set; }
     public DbSet<StoryStat> StoryStats { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<PostCategory> PostCategories { get; set; }
     public DbSet<PostComment> PostComments { get; set; }
     public DbSet<PostFavorite> PostFavorites { get; set; }
-    public DbSet<PostLike> PostStats { get; set; }
+    public DbSet<PostLike> PostLikes { get; set; }
     public DbSet<ExternalAccount> ExternalAccounts { get; set; }
     public DbSet<FollowingRelationShip> FollowingRelationShips { get; set; }
     public DbSet<UserProfile> UserProfiles { get; set; }
     public DbSet<UserSetting> UserSettings { get; set; }
     public DbSet<Location> Locations { get; set; }
     public DbSet<Image> Images { get; set; }
-    public DbSet<PostUserLike> StatUserIds { get; set; }
+    public DbSet<PostUserLike> PostUserLikes { get; set; }
     public DbSet<PostView> PostViews { get; set; }
     public DbSet<PostViewUser> PostViewUsers { get; set; }
     public DbSet<PostCommentLike> PostCommentLikes { get; set; }
-    public DbSet<Domain.Entities.User.ListOfUserCommentLike> ListOfUserCommentLikes { get; set; }
+    public DbSet<ListOfUserCommentLike> ListOfUserCommentLikes { get; set; }
     public DbSet<Chat> Chats { get; set; }
     public DbSet<Message> Messages { get; set; }
 }

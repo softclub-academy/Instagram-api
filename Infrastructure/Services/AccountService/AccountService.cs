@@ -2,16 +2,20 @@
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using Domain.Dtos;
 using Domain.Dtos.LoginDto;
+using Domain.Dtos.MessageDto;
+using Domain.Dtos.MessagesDto;
 using Domain.Dtos.RegisterDto;
 using Domain.Entities.User;
+using Domain.Enums;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Seed;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using MimeKit.Text;
 
 namespace Infrastructure.Services.AccountService;
 
@@ -21,14 +25,16 @@ public class AccountService : IAccountService
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly  DataContext _dbContext;
+    private readonly IEmailService _emailService;
 
     public AccountService(IConfiguration configuration,
-        UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, DataContext dbContext)
+        UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, DataContext dbContext, IEmailService emailService)
     {
         _configuration = configuration;
         _userManager = userManager;
         _roleManager = roleManager;
         _dbContext = dbContext;
+        _emailService = emailService;
     }
 
     public async Task<Response<string>> Register(RegisterDto model)
@@ -46,12 +52,20 @@ public class AccountService : IAccountService
             };
             var profile = new UserProfile()
             {
-                UserId = user.Id
-
+                UserId = user.Id,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                Occupation = string.Empty,
+                DateUpdated = DateTime.UtcNow,
+                LocationId = 1,
+                DOB = DateTime.UtcNow,
+                Image = string.Empty,
+                About = string.Empty,
+                Gender = Gender.Female,
             };
 
             await _userManager.CreateAsync(user, model.Password);
-            await _userManager.AddToRoleAsync(user, Roles.User);
+            await _userManager.AddToRoleAsync(user,Roles.User);
             await _dbContext.UserProfiles.AddAsync(profile);
             await _dbContext.SaveChangesAsync();
             return new Response<string>($"Done.  Your registered by id {user.Id}");
@@ -109,4 +123,49 @@ public class AccountService : IAccountService
         var tokenString = securityTokenHandler.WriteToken(token);
         return tokenString;
     }
+    
+    
+    
+    
+     public async Task<Response<string>> ChangePassword(ChangePasswordDto passwordDto, string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);    
+
+        var checkPassword = await _userManager.CheckPasswordAsync(user!, passwordDto.OldPassword);
+        if (checkPassword == false)
+        {
+            return new Response<string>(HttpStatusCode.BadRequest, "password is incorrect");
+        }
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user!);
+        var result = await _userManager.ResetPasswordAsync(user!, token, passwordDto.Password);
+        if (result.Succeeded == true)
+            return new Response<string>(HttpStatusCode.OK, "success");
+        else return new Response<string>(HttpStatusCode.BadRequest, "could not reset your password");
+    }
+
+    public async Task<Response<string>> ForgotPasswordTokenGenerator(ForgotPasswordDto forgotPasswordDto)
+    {
+        var existing = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+        if (existing == null) return new Response<string>(HttpStatusCode.BadRequest, "not found");
+        var token = await _userManager.GeneratePasswordResetTokenAsync(existing);
+        var url =$"http://localhost:5271/account/resetpassword?token={token}&email={forgotPasswordDto.Email}";
+        _emailService.SendEmail(new MessagesDto(new []{forgotPasswordDto.Email},"reset password",$"<h1><a href=\"{url}\">reset password</a></h1>"),TextFormat.Html);
+
+        return new Response<string>(HttpStatusCode.OK, "reset password has been sent");
+    }
+
+    public async Task<Response<string>> ResetPassword(ResetPasswordDto resetPasswordDto)
+    {
+        var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+        if (user == null)
+            return new Response<string>(HttpStatusCode.BadRequest, "user not found");
+
+        var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
+        if(resetPassResult.Succeeded)  
+            return new Response<string>(HttpStatusCode.OK, "success");
+        
+        return new Response<string>(HttpStatusCode.BadRequest, "please try again");
+
+    }
+
 }
