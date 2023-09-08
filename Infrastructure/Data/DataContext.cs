@@ -47,6 +47,7 @@ public class DataContext : IdentityDbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<Story> Stories { get; set; }
+    public DbSet<StoryUser> StoryUsers { get; set; }
     public DbSet<StoryView> StoryViews { get; set; }
     public DbSet<StoryStat> StoryStats { get; set; }
     public DbSet<Category> Categories { get; set; }

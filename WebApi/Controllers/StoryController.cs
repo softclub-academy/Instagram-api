@@ -14,11 +14,19 @@ public class StoryController : ControllerBase
         _storyService = storyService;
     }
 
+    [HttpGet("GetStoryById")]
+    public async Task<Response<GetStoryDto>> GetStoryById(int id)
+    {
+        var token = User.Claims.FirstOrDefault(e => e.Type == "sid")!.Value;
+        var userName = User.Claims.FirstOrDefault(e => e.Type == "name").Value;
+        return await _storyService.GetStoryById(id, token,userName);
+    }
+
     [HttpPost("AddStories")]
     public async Task<Response<GetStoryDto>> AddStories(AddStoryDto add)
     {
-        var token = User.Claims.FirstOrDefault(e => e.Type == "sid").Value;
-        return await _storyService.AddStory(add,token);
+        var token = User.Claims.FirstOrDefault(e => e.Type == "sid")!.Value;
+        return await _storyService.AddStory(add, token);
     }
 
     [HttpDelete("DeleteStory")]

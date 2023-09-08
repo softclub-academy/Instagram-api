@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230907112244_v18")]
+    partial class v18
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -361,30 +364,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("PostViewUsers");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Post.StoryUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("StoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StoryId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("StoryUsers");
-                });
-
             modelBuilder.Entity("Domain.Entities.Post.StoryView", b =>
                 {
                     b.Property<int>("Id")
@@ -405,6 +384,33 @@ namespace Infrastructure.Migrations
                     b.HasIndex("StoryId");
 
                     b.ToTable("StoryViews");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Post.Viewer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<int>("StoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoryId");
+
+                    b.ToTable("Viewers");
                 });
 
             modelBuilder.Entity("Domain.Entities.Story", b =>
@@ -429,9 +435,14 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Stories");
                 });
@@ -1005,29 +1016,21 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Post.StoryUser", b =>
-                {
-                    b.HasOne("Domain.Entities.Story", "Story")
-                        .WithMany("StoryUsers")
-                        .HasForeignKey("StoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.User.User", "User")
-                        .WithMany("StoryUsers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Story");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Domain.Entities.Post.StoryView", b =>
                 {
                     b.HasOne("Domain.Entities.Story", "Story")
                         .WithMany("StoryViews")
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Story");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Post.Viewer", b =>
+                {
+                    b.HasOne("Domain.Entities.Story", "Story")
+                        .WithMany("Viewers")
                         .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1041,7 +1044,15 @@ namespace Infrastructure.Migrations
                         .WithMany("Stories")
                         .HasForeignKey("PostId");
 
+                    b.HasOne("Domain.Entities.User.User", "User")
+                        .WithMany("Stories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.StoryStat", b =>
@@ -1237,9 +1248,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("StoryStat")
                         .IsRequired();
 
-                    b.Navigation("StoryUsers");
-
                     b.Navigation("StoryViews");
+
+                    b.Navigation("Viewers");
                 });
 
             modelBuilder.Entity("Domain.Entities.User.ListOfUserCommentLike", b =>
@@ -1264,7 +1275,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Posts");
 
-                    b.Navigation("StoryUsers");
+                    b.Navigation("Stories");
 
                     b.Navigation("UserProfiles");
 
