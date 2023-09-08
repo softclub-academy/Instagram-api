@@ -36,11 +36,6 @@ public class PostService : IPostService
             if (!string.IsNullOrEmpty(filter.Title))
                 posts = posts.Where(p => p.Title.ToLower().Contains(filter.Title.ToLower()));
             var result = await (from p in _context.Posts
-                join u in _context.Users on p.UserId equals u.Id
-                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
-                join s in _context.PostLikes on p.PostId equals s.PostId
-                join v in _context.PostViews on p.PostId equals v.PostId
-                where f.UserId == filter.UserId
                 select new GetPostDto()
                 {
                     PostId = p.PostId,
@@ -49,10 +44,10 @@ public class PostService : IPostService
                     Content = p.Content,
                     DatePublished = p.DatePublished.ToShortDateString(),
                     Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
-                    PostLikeCount = s.LikeCount,
-                    PostView = v.ViewCount,
+                    PostLikeCount = p.PostLike.LikeCount,
+                    PostView = p.PostView.ViewCount,
                     CommentCount = p.PostComments.Count(),
-                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == u.Id) != null
+                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == p.UserId) != null
                 }).ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
@@ -68,10 +63,6 @@ public class PostService : IPostService
         try
         {
             var post = await (from p in _context.Posts
-                join u in _context.Users on p.UserId equals u.Id
-                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
-                join s in _context.PostLikes on p.PostId equals s.PostId
-                join v in _context.PostViews on p.PostId equals v.PostId
                 where p.PostId == id
                 select new GetPostDto()
                 {
@@ -81,10 +72,10 @@ public class PostService : IPostService
                     Content = p.Content,
                     DatePublished = p.DatePublished.ToShortDateString(),
                     Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
-                    PostLikeCount = s.LikeCount,
-                    PostView = v.ViewCount,
+                    PostLikeCount = p.PostLike.LikeCount,
+                    PostView = p.PostView.ViewCount,
                     CommentCount = p.PostComments.Count(),
-                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == u.Id) != null
+                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == p.UserId) != null
                 }).FirstOrDefaultAsync(p => p.PostId == id);
             return new Response<GetPostDto>(post);
         }
@@ -99,11 +90,7 @@ public class PostService : IPostService
         try
         {
             var posts = await (from p in _context.Posts
-                               join u in _context.Users on p.UserId equals u.Id
-                               join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
-                               join s in _context.PostStats on p.PostId equals s.PostId
-                               join v in _context.PostViews on p.PostId equals v.PostId
-                               join c in _context.PostComments on p.PostId equals c.PostId
+                               join f in _context.FollowingRelationShips on p.UserId equals f.FollowingId
                                where f.UserId == filter.UserId
                                select new GetPostDto()
                                {
@@ -111,34 +98,14 @@ public class PostService : IPostService
                                    UserId = p.UserId,
                                    Title = p.Title,
                                    Content = p.Content,
-                                   Status = p.Status,
                                    DatePublished = p.DatePublished.ToShortDateString(),
-                                   Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.Path).ToList(),
-                                   PostLikeCount = s.LikeCount,
-                                   PostView = v.ViewCount,
+                                   Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
+                                   PostLikeCount = p.PostLike.LikeCount,
+                                   PostView = p.PostView.ViewCount,
                                    CommentCount = p.PostComments.Count(),
-                                   PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == u.Id)== null ? false : true
+                                   PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == p.UserId) == null ? false : true
 
                                }).ToListAsync();
-//                 join u in _context.Users on p.UserId equals u.Id
-//                 join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
-//                 join s in _context.PostLikes on p.PostId equals s.PostId
-//                 join v in _context.PostViews on p.PostId equals v.PostId
-//                 where f.UserId == filter.UserId
-//                 select new GetPostDto()
-//                 {
-//                     PostId = p.PostId,
-//                     UserId = p.UserId,
-//                     Title = p.Title,
-//                     Content = p.Content,
-//                     DatePublished = p.DatePublished.ToShortDateString(),
-//                     Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
-//                     PostLikeCount = s.LikeCount,
-//                     PostView = v.ViewCount,
-//                     CommentCount = p.PostComments.Count(),
-//                     PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == u.Id) != null
-//                 }).ToListAsync();
-
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(posts, filter.PageNumber, filter.PageSize, totalRecord);
         }
