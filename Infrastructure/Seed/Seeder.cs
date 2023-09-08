@@ -40,7 +40,6 @@ public class Seeder
 
         var identity = new User()
         {
-            
             UserName = "admin",
             PhoneNumber = "+992005442641",
             Email = "admin@gmail.com",
