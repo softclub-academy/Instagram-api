@@ -13,13 +13,13 @@ public class StoryViewService : IStoryViewService
     private readonly DataContext _context;
     private readonly IMapper _mapper;
 
-    public StoryViewService(DataContext context,IMapper mapper)
+    public StoryViewService(DataContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
     }
 
-    public async Task<Response<GetStoryViewDto>> AddStoryView(AddStoryViewDto model, string token)
+    public async Task<Response<GetStoryViewDto>> AddStoryView(AddStoryViewDto model, string userId)
     {
         try
         {
@@ -28,18 +28,24 @@ public class StoryViewService : IStoryViewService
             {
                 var storyView = new StoryView()
                 {
-                    ViewUserId = token,
+                    ViewUserId = userId,
                     StoryId = model.StoryId,
                 };
-                var view = await _context.StoryViews.FirstOrDefaultAsync(e=>e.ViewUserId == story.UserId);
-                var stat = _context.StoryStats.FirstOrDefault(e=>e.StoryId == story.Id);
-                if (story.UserId == token && view == null )
+                var existView =
+                    await _context.StoryUsers.FirstOrDefaultAsync(e =>
+                        e.StoryId == model.StoryId && e.UserId == userId);
+                var stat = _context.StoryStats.FirstOrDefault(e => e.StoryId == story.Id);
+                if (existView == null)
                 {
-
                     stat.ViewCount++;
-                   
+                    var view = new StoryUser()
+                    {
+                      StoryId = model.StoryId,
+                      UserId = userId
+                    };
                     await _context.StoryViews.AddAsync(storyView);
                     _context.StoryStats.Update(stat);
+                    await _context.StoryUsers.AddAsync(view);
                     await _context.SaveChangesAsync();
                     var mapped = _mapper.Map<GetStoryViewDto>(storyView);
                     return new Response<GetStoryViewDto>(mapped);
@@ -52,7 +58,7 @@ public class StoryViewService : IStoryViewService
             }
             else
             {
-                return new Response<GetStoryViewDto>(HttpStatusCode.BadRequest,"Story not found");
+                return new Response<GetStoryViewDto>(HttpStatusCode.BadRequest, "Story not found");
             }
         }
         catch (Exception e)

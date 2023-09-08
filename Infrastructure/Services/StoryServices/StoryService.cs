@@ -38,8 +38,6 @@ public class StoryService : IStoryService
             var story = await _context.Stories.FirstOrDefaultAsync(e => e.Id == id);
             if (story != null)
             {
-                // if (story.UserId == userId)
-                // {
                 var story2 = await (from st in _context.Stories
                     join pf in _context.UserProfiles on st.UserId equals pf.UserId
                     where st.Id == id
@@ -53,24 +51,12 @@ public class StoryService : IStoryService
                             ? new ViewerDto()
                             {
                                 Name = pf.FirstName, 
-                                UserName = st.User.UserName, 
+                                UserName = userName, 
                                 ViewCount = st.StoryStat.ViewCount
                             } : null
                     }).FirstAsync();
                 return new Response<GetStoryDto>(story2);
-                // }
-                // else
-                // {
-                // var story2 = new Story()
-                // {
-                // Id = story.Id,
-                // FileName = story.FileName,
-                // CreateAt = story.CreateAt,
-                // UserId = userId,
-                // };
-                // var mapped = _mapper.Map<GetStoryDto>(story2);
-                // return new Response<GetStoryDto>(mapped);
-                // }
+            
             }
             else
             {

@@ -18,5 +18,5 @@ public class Story
     public List<StoryView> StoryViews { get; set; }
     public Post.Post Post{ get; set; }
     public StoryStat StoryStat{ get; set; }
-    public User.User User { get; set; }
+    public List<StoryUser> StoryUsers { get; set; }
 }
