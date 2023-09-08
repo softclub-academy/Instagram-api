@@ -141,7 +141,7 @@ public class UserProfileService : IUserProfileService
                 return new Response<GetUserProfileDto>(mapped);
             }
 
-            return new Response<GetUserProfileDto>(HttpStatusCode.BadRequest, "mot found");
+            return new Response<GetUserProfileDto>(HttpStatusCode.BadRequest, "not found");
         }
         catch (Exception e)
         {
