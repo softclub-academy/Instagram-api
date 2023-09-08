@@ -259,20 +259,12 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Post.PostCommentLike", b =>
                 {
                     b.Property<int?>("PostCommentId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("PostCommentId"));
 
                     b.Property<int?>("LikeCount")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PostCommentId1")
-                        .HasColumnType("integer");
-
                     b.HasKey("PostCommentId");
-
-                    b.HasIndex("PostCommentId1");
 
                     b.ToTable("PostCommentLikes");
                 });
@@ -317,32 +309,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("PostStats");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Post.PostTag", b =>
-                {
-                    b.Property<int>("PostTagId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostTagId"));
-
-                    b.Property<int>("PodtId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("PostTagId");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("PostTags");
-                });
-
             modelBuilder.Entity("Domain.Entities.Post.PostUserLike", b =>
                 {
                     b.Property<int>("Id")
@@ -350,6 +316,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ListOfUserCommentLikeId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("PostLikeId")
                         .HasColumnType("integer");
@@ -359,6 +328,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ListOfUserCommentLikeId");
 
                     b.HasIndex("PostLikeId");
 
@@ -403,27 +374,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("PostViewUsers");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Post.Tag", b =>
-                {
-                    b.Property<int>("TagId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TagId"));
-
-                    b.Property<string>("TagName")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
-                    b.HasKey("TagId");
-
-                    b.HasIndex("TagName")
-                        .IsUnique();
-
-                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Domain.Entities.Story", b =>
@@ -938,7 +888,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Post.PostComment", "PostComment")
                         .WithMany("PostCommentLikes")
-                        .HasForeignKey("PostCommentId1")
+                        .HasForeignKey("PostCommentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -975,27 +925,12 @@ namespace Infrastructure.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Post.PostTag", b =>
-                {
-                    b.HasOne("Domain.Entities.Post.Post", "Post")
-                        .WithMany("PostTags")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Post.Tag", "Tag")
-                        .WithMany("PostTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("Tag");
-                });
-
             modelBuilder.Entity("Domain.Entities.Post.PostUserLike", b =>
                 {
+                    b.HasOne("Domain.Entities.User.ListOfUserCommentLike", null)
+                        .WithMany("StatUserIds")
+                        .HasForeignKey("ListOfUserCommentLikeId");
+
                     b.HasOne("Domain.Entities.Post.PostLike", "PostLike")
                         .WithMany("PostUserLikes")
                         .HasForeignKey("PostLikeId")
@@ -1003,7 +938,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.User.User", "User")
-                        .WithMany("StatUserIds")
+                        .WithMany("PostUserLikes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1217,24 +1152,18 @@ namespace Infrastructure.Migrations
                     b.Navigation("PostLike")
                         .IsRequired();
 
-                    b.Navigation("PostTags");
-
                     b.Navigation("PostView")
                         .IsRequired();
 
                     b.Navigation("Stories");
                 });
 
-<<<<<<< HEAD
             modelBuilder.Entity("Domain.Entities.Post.PostComment", b =>
                 {
                     b.Navigation("PostCommentLikes");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Post.PostStat", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Post.PostLike", b =>
->>>>>>> main
                 {
                     b.Navigation("PostUserLikes");
                 });
@@ -1244,15 +1173,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("PostViewUsers");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Post.Tag", b =>
-                {
-                    b.Navigation("PostTags");
-                });
-
             modelBuilder.Entity("Domain.Entities.Story", b =>
                 {
                     b.Navigation("StoryStat")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.User.ListOfUserCommentLike", b =>
+                {
+                    b.Navigation("StatUserIds");
                 });
 
             modelBuilder.Entity("Domain.Entities.User.UserProfile", b =>
@@ -1273,9 +1202,9 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("PostFavorites");
 
-                    b.Navigation("Posts");
+                    b.Navigation("PostUserLikes");
 
-                    b.Navigation("StatUserIds");
+                    b.Navigation("Posts");
 
                     b.Navigation("UserProfiles");
 
