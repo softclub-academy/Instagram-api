@@ -164,7 +164,7 @@ public class PostService : IPostService
         }
         catch (Exception e)
         {
-            return new Response<string>(HttpStatusCode.BadRequest, e.Message);
+            return new Response<string>(HttpStatusCode.BadRequest, e.Message); 
         }
     }
 
