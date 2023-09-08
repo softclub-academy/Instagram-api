@@ -160,11 +160,13 @@ public class PostService : IPostService
             await _context.PostViews.AddAsync(postView);
             await _context.PostLikes.AddAsync(postStat);
             await _context.SaveChangesAsync();
-            return new Response<string>("success");
+
+           
+            return new Response<string>("ok");
         }
         catch (Exception e)
         {
-            return new Response<string>(HttpStatusCode.BadRequest, e.Message); 
+            return new Response<string>(HttpStatusCode.BadRequest, e.Message);
         }
     }
 
