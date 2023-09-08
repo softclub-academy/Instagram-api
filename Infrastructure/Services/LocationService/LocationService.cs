@@ -57,6 +57,7 @@ public class LocationService : ILocationService
             var location = await _context.Locations.FindAsync(id);
             var mapped = _mapper.Map<GetLocationDto>(location);
             return new Response<GetLocationDto>(mapped);
+            
         }
         catch (Exception e)
         {
