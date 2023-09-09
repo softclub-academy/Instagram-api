@@ -53,7 +53,8 @@ public class StoryService : IStoryService
                             {
                                 Name = pf.FirstName, 
                                 UserName = userName, 
-                                ViewCount = st.StoryStat.ViewCount
+                                ViewCount = st.StoryStat.ViewCount,
+                                ViewLike = st.StoryStat.ViewLike
                             } : null
                     }).FirstAsync();
                 return new Response<GetStoryDto>(story2);
@@ -78,6 +79,7 @@ public class StoryService : IStoryService
             {
                 UserId = userId,
                 PostId = file.PostId,
+
             };
             if (file1.PostId == null)
             {
@@ -106,7 +108,7 @@ public class StoryService : IStoryService
             await _context.SaveChangesAsync();
             var stat = new StoryStat()
             {
-                StoryId = file1.Id,
+                StoryId = file1.Id
             };
             await _context.StoryStats.AddAsync(stat);
             await _context.SaveChangesAsync();
@@ -120,37 +122,37 @@ public class StoryService : IStoryService
         }
     }
 
-    public async Task<Response<bool>> StoryLike(AddLikeDto like,string userId)
+    public async Task<Response<string>> StoryLike(int StoryId,string userId)
     {
         try
         {
-            var story = await _context.Stories.FindAsync(like.StoryId);
-            if (story == null) return new Response<bool>(HttpStatusCode.BadRequest, "Story not found");
-            var user = await _context.StoryLikes.FirstOrDefaultAsync(e=>e.UserId == userId && e.StoryId == like.StoryId);
+            var story = await _context.Stories.FindAsync(StoryId);
+            if (story == null) return new Response<string>(HttpStatusCode.BadRequest, "Story not found");
+            var user = await _context.StoryLikes.FirstOrDefaultAsync(e=>e.UserId == userId && e.StoryId == StoryId);
             var stat = await _context.StoryStats.FindAsync(story.Id);
             if (user == null) 
             {
                 stat.ViewLike++;
                 var storyLike = new StoryLike()
                 {
-                    StoryId = like.StoryId,
+                    StoryId = StoryId,
                     UserId = userId,
                 };
                await _context.StoryLikes.AddAsync(storyLike);
                await _context.SaveChangesAsync();
-               return new Response<bool>(true);
+               return new Response<string>("Liked");
             }
             else
             {
                 stat.ViewLike--;
                 _context.StoryLikes.Remove(user);  
                 await _context.SaveChangesAsync();
-                return new Response<bool>(false);
+                return new Response<string>("Disliked");
             }
         }
         catch (Exception e)
         {
-            return new Response<bool>(HttpStatusCode.InternalServerError, e.Message);
+            return new Response<string>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 

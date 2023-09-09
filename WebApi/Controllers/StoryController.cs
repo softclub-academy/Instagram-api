@@ -1,4 +1,5 @@
 ﻿using Domain.Dtos.StoryDtos;
+using Domain.Entities.Post;
 using Domain.Responses;
 using Infrastructure.Services.StoryServices;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,12 @@ public class StoryController : ControllerBase
         _storyService = storyService;
     }
 
+    [HttpPost("LikeStory")]
+    public async Task<Response<string>> LikeStory(int storyID)
+    {
+        var userId =User.Claims.FirstOrDefault(e => e.Type == "sid").Value;
+        return await _storyService.StoryLike(storyID,userId);
+    }
     [HttpGet("GetStoryById")]
     public async Task<Response<GetStoryDto>> GetStoryById(int id)
     {
