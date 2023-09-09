@@ -115,7 +115,7 @@ public class PostService : IPostService
         }
     }
 
-    public async Task<Response<string>> AddPost(AddPostDto addPost, string userId)
+    public async Task<Response<int>> AddPost(AddPostDto addPost, string userId)
     {
         try
         {
@@ -148,12 +148,12 @@ public class PostService : IPostService
             await _context.PostViews.AddAsync(postView);
             await _context.PostLikes.AddAsync(postStat);
             await _context.SaveChangesAsync();
-            
-            return new Response<string>("ok");
+                
+            return new Response<int>(post.PostId);
         }
         catch (Exception e)
         {
-            return new Response<string>(HttpStatusCode.BadRequest, e.Message);
+            return new Response<int>(HttpStatusCode.BadRequest, e.Message);
         }
     }
 
