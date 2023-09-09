@@ -131,18 +131,26 @@ public class AccountService : IAccountService
     
      public async Task<Response<string>> ChangePassword(ChangePasswordDto passwordDto, string userId)
     {
-        var user = await _userManager.FindByIdAsync(userId);    
-
-        var checkPassword = await _userManager.CheckPasswordAsync(user!, passwordDto.OldPassword);
-        if (checkPassword == false)
+        try
         {
-            return new Response<string>(HttpStatusCode.BadRequest, "password is incorrect");
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var checkPassword = await _userManager.CheckPasswordAsync(user!, passwordDto.OldPassword);
+            if (checkPassword == false)
+            {
+                return new Response<string>(HttpStatusCode.BadRequest, "password is incorrect");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user!);
+            var result = await _userManager.ResetPasswordAsync(user!, token, passwordDto.Password);
+            if (result.Succeeded == true)
+                return new Response<string>(HttpStatusCode.OK, "success");
+            else return new Response<string>(HttpStatusCode.BadRequest, "could not reset your password");
         }
-        var token = await _userManager.GeneratePasswordResetTokenAsync(user!);
-        var result = await _userManager.ResetPasswordAsync(user!, token, passwordDto.Password);
-        if (result.Succeeded == true)
-            return new Response<string>(HttpStatusCode.OK, "success");
-        else return new Response<string>(HttpStatusCode.BadRequest, "could not reset your password");
+        catch (Exception e)
+        {
+            return new Response<string>(HttpStatusCode.InternalServerError, e.Message);
+        }
     }
 
     public async Task<Response<string>> ForgotPasswordTokenGenerator(ForgotPasswordDto forgotPasswordDto)
@@ -167,15 +175,23 @@ public class AccountService : IAccountService
 
     public async Task<Response<string>> ResetPassword(ResetPasswordDto resetPasswordDto)
     {
-        var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
-        if (user == null)
-            return new Response<string>(HttpStatusCode.BadRequest, "user not found");
+        try
+        {
+            var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+            if (user == null)
+                return new Response<string>(HttpStatusCode.BadRequest, "user not found");
 
-        var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
-        if(resetPassResult.Succeeded)  
-            return new Response<string>(HttpStatusCode.OK, "success");
-        
-        return new Response<string>(HttpStatusCode.BadRequest, "please try again");
+            var resetPassResult =
+                await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
+            if (resetPassResult.Succeeded)
+                return new Response<string>(HttpStatusCode.OK, "success");
+
+            return new Response<string>(HttpStatusCode.BadRequest, "please try again");
+        }
+        catch (Exception e)
+        {
+            return new Response<string>(HttpStatusCode.BadRequest, e.Message);
+        }
 
     }
 
