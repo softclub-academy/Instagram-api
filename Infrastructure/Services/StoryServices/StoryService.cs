@@ -120,6 +120,40 @@ public class StoryService : IStoryService
         }
     }
 
+    public async Task<Response<bool>> StoryLike(AddLikeDto like,string userId)
+    {
+        try
+        {
+            var story = await _context.Stories.FindAsync(like.StoryId);
+            if (story == null) return new Response<bool>(HttpStatusCode.BadRequest, "Story not found");
+            var user = await _context.StoryLikes.FirstOrDefaultAsync(e=>e.UserId == userId && e.StoryId == like.StoryId);
+            var stat = await _context.StoryStats.FindAsync(story.Id);
+            if (user == null) 
+            {
+                stat.ViewLike++;
+                var storyLike = new StoryLike()
+                {
+                    StoryId = like.StoryId,
+                    UserId = userId,
+                };
+               await _context.StoryLikes.AddAsync(storyLike);
+               await _context.SaveChangesAsync();
+               return new Response<bool>(true);
+            }
+            else
+            {
+                stat.ViewLike--;
+                _context.StoryLikes.Remove(user);  
+                await _context.SaveChangesAsync();
+                return new Response<bool>(false);
+            }
+        }
+        catch (Exception e)
+        {
+            return new Response<bool>(HttpStatusCode.InternalServerError, e.Message);
+        }
+    }
+
     public async Task<Response<bool>> DeleteStory(int id)
     {
         var story = _context.Stories.FirstOrDefault(e => e.Id == id);

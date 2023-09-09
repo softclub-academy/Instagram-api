@@ -361,6 +361,30 @@ namespace Infrastructure.Migrations
                     b.ToTable("PostViewUsers");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Post.StoryLike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("StoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("StoryLikes");
+                });
+
             modelBuilder.Entity("Domain.Entities.Post.StoryUser", b =>
                 {
                     b.Property<int>("Id")
@@ -448,6 +472,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ViewLike")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -1005,6 +1032,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Post.StoryLike", b =>
+                {
+                    b.HasOne("Domain.Entities.Story", "Story")
+                        .WithMany("StoryLikes")
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User.User", "User")
+                        .WithMany("StoryLikes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Story");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.Post.StoryUser", b =>
                 {
                     b.HasOne("Domain.Entities.Story", "Story")
@@ -1234,6 +1280,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Story", b =>
                 {
+                    b.Navigation("StoryLikes");
+
                     b.Navigation("StoryStat")
                         .IsRequired();
 
@@ -1263,6 +1311,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("PostUserLikes");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("StoryLikes");
 
                     b.Navigation("StoryUsers");
 
