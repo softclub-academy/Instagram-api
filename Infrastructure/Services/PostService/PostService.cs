@@ -81,10 +81,10 @@ public class PostService : IPostService
                     Content = p.Content,
                     DatePublished = p.DatePublished.ToShortDateString(),
                     Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
-                    PostLikeCount = s.LikeCount,
-                    PostView = v.ViewCount,
+                    PostLikeCount = p.PostLike.LikeCount,
+                    PostView = p.PostView.ViewCount,
                     CommentCount = p.PostComments.Count(),
-                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == u.Id) != null
+                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == p.UserId) != null
                 }).FirstOrDefaultAsync(p => p.PostId == id);
             return new Response<GetPostDto>(post);
         }
