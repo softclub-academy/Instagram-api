@@ -145,13 +145,22 @@ public class AccountService : IAccountService
 
     public async Task<Response<string>> ForgotPasswordTokenGenerator(ForgotPasswordDto forgotPasswordDto)
     {
-        var existing = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
-        if (existing == null) return new Response<string>(HttpStatusCode.BadRequest, "not found");
-        var token = await _userManager.GeneratePasswordResetTokenAsync(existing);
-        var url =$"http://localhost:5271/account/resetpassword?token={token}&email={forgotPasswordDto.Email}";
-        _emailService.SendEmail(new MessagesDto(new []{forgotPasswordDto.Email},"reset password",$"<h1><a href=\"{url}\">reset password</a></h1>"),TextFormat.Html);
+        try
+        {
+            var existing = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+            if (existing == null) return new Response<string>(HttpStatusCode.BadRequest, "email  not found");
+            var token = await _userManager.GeneratePasswordResetTokenAsync(existing);
+            var url = $"http://localhost:5271/account/resetpassword?token={token}&email={forgotPasswordDto.Email}";
+            _emailService.SendEmail(
+                new MessagesDto(new[] { forgotPasswordDto.Email }, "reset password",
+                    $"<h1><a href=\"{url}\">reset password</a></h1>"), TextFormat.Html);
 
-        return new Response<string>(HttpStatusCode.OK, "reset password has been sent");
+            return new Response<string>(HttpStatusCode.OK, "reset password has been sent");
+        }
+        catch (Exception e)
+        {
+            return new Response<string>(HttpStatusCode.BadRequest, e.Message);
+        }
     }
 
     public async Task<Response<string>> ResetPassword(ResetPasswordDto resetPasswordDto)
