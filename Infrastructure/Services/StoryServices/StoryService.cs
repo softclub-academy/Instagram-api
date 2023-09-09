@@ -47,6 +47,7 @@ public class StoryService : IStoryService
                         FileName = st.FileName,
                         CreateAt = st.CreateAt,
                         UserId = st.UserId,
+                        PostId = st.PostId,
                         ViewerDtos = story.UserId == userId
                             ? new ViewerDto()
                             {
@@ -75,10 +76,32 @@ public class StoryService : IStoryService
         {
             var file1 = new Story()
             {
-                UserId = userId
+                UserId = userId,
+                PostId = file.PostId,
             };
-            var fileName = _fileService.CreateFile(file.Image).Data;
-            file1.FileName = fileName;
+            if (file1.PostId == null)
+            {
+                var fileName = _fileService.CreateFile(file.Image).Data;
+                file1.FileName = fileName;
+            }
+            else
+            {
+                var post = (from p in _context.Posts
+                    join image in _context.Images on p.PostId equals image.PostId
+                    select new
+                    {
+                        Image = image.ImageName
+                    }).ToList();
+                if (post != null)
+                {
+                        var img = post[0];
+                        file1.FileName = img.Image;
+                }
+                else
+                {
+                    new Response<GetStoryDto>(HttpStatusCode.BadRequest,"Post not found");
+                }
+            }
             await _context.Stories.AddAsync(file1);
             await _context.SaveChangesAsync();
             var stat = new StoryStat()

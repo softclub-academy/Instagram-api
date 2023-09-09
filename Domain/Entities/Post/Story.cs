@@ -10,7 +10,7 @@ public class Story
 {
     [Key]
     public int Id { get; set; }
-    public string FileName { get; set; }
+    public string? FileName { get; set; }
     public int? PostId { get; set; }
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     public string UserId { get; set; }
