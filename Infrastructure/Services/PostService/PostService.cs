@@ -90,22 +90,22 @@ public class PostService : IPostService
         try
         {
             var posts = await (from p in _context.Posts
-                               join f in _context.FollowingRelationShips on p.UserId equals f.FollowingId
-                               where f.UserId == filter.UserId
-                               select new GetPostDto()
-                               {
-                                   PostId = p.PostId,
-                                   UserId = p.UserId,
-                                   Title = p.Title,
-                                   Content = p.Content,
-                                   DatePublished = p.DatePublished.ToShortDateString(),
-                                   Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
-                                   PostLikeCount = p.PostLike.LikeCount,
-                                   PostView = p.PostView.ViewCount,
-                                   CommentCount = p.PostComments.Count(),
-                                   PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == p.UserId) == null ? false : true
+                join f in _context.FollowingRelationShips on p.UserId equals f.FollowingId
+                where f.UserId == filter.UserId
+                select new GetPostDto()
+                {
+                    PostId = p.PostId,
+                    UserId = p.UserId,
+                    Title = p.Title,
+                    Content = p.Content,
+                    DatePublished = p.DatePublished.ToShortDateString(),
+                    Images = _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
+                    PostLikeCount = p.PostLike.LikeCount,
+                    PostView = p.PostView.ViewCount,
+                    CommentCount = p.PostComments.Count(),
+                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == p.UserId) != null
+                }).ToListAsync();
 
-                               }).ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(posts, filter.PageNumber, filter.PageSize, totalRecord);
         }
