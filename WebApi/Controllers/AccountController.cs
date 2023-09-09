@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 using Domain.Dtos;
 using Domain.Dtos.LoginDto;
 using Domain.Dtos.RegisterDto;
