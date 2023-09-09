@@ -291,7 +291,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("PostId");
 
-                    b.ToTable("PostLikes");
+                    b.ToTable("PostStats");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.PostUserLike", b =>
@@ -361,6 +361,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("PostViewUsers");
                 });
 
+
             modelBuilder.Entity("Domain.Entities.Post.StoryUser", b =>
                 {
                     b.Property<int>("Id")
@@ -406,7 +407,6 @@ namespace Infrastructure.Migrations
 
                     b.ToTable("StoryViews");
                 });
-
             modelBuilder.Entity("Domain.Entities.Story", b =>
                 {
                     b.Property<int>("Id")
@@ -956,6 +956,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.User.ListOfUserCommentLike", null)
                         .WithMany("PostUserLikes")
+
                         .HasForeignKey("ListOfUserCommentLikeId");
 
                     b.HasOne("Domain.Entities.Post.PostLike", "PostLike")
@@ -1265,6 +1266,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("Posts");
 
                     b.Navigation("StoryUsers");
+
 
                     b.Navigation("UserProfiles");
 

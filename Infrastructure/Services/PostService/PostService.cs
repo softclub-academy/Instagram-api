@@ -36,11 +36,6 @@ public class PostService : IPostService
             if (!string.IsNullOrEmpty(filter.Title))
                 posts = posts.Where(p => p.Title.ToLower().Contains(filter.Title.ToLower()));
             var result = await (from p in _context.Posts
-                join u in _context.Users on p.UserId equals u.Id
-                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
-                join s in _context.PostLikes on p.PostId equals s.PostId
-                join v in _context.PostViews on p.PostId equals v.PostId
-                where f.UserId == filter.UserId
                 select new GetPostDto()
                 {
                     PostId = p.PostId,
@@ -68,10 +63,6 @@ public class PostService : IPostService
         try
         {
             var post = await (from p in _context.Posts
-                join u in _context.Users on p.UserId equals u.Id
-                join f in _context.FollowingRelationShips on u.Id equals f.FollowingId
-                join s in _context.PostLikes on p.PostId equals s.PostId
-                join v in _context.PostViews on p.PostId equals v.PostId
                 where p.PostId == id
                 select new GetPostDto()
                 {
@@ -157,8 +148,7 @@ public class PostService : IPostService
             await _context.PostViews.AddAsync(postView);
             await _context.PostLikes.AddAsync(postStat);
             await _context.SaveChangesAsync();
-
-           
+            
             return new Response<string>("ok");
         }
         catch (Exception e)
