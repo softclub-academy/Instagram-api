@@ -35,7 +35,7 @@ public class PostService : IPostService
                 posts = posts.Where(p => p.Content.ToLower().Contains(filter.Content.ToLower()));
             if (!string.IsNullOrEmpty(filter.Title))
                 posts = posts.Where(p => p.Title.ToLower().Contains(filter.Title.ToLower()));
-            var result = await (from p in _context.Posts
+            var result = await (from p in posts
                 select new GetPostDto()
                 {
                     PostId = p.PostId,
