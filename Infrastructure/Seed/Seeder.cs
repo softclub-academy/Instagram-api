@@ -43,7 +43,8 @@ public class Seeder
             UserName = "admin",
             PhoneNumber = "+992005442641",
             Email = "admin@gmail.com",
-            DateRegistred = DateTime.UtcNow
+            DateRegistred = DateTime.UtcNow,
+            
         };
 
         var result = await _userManager.CreateAsync(identity, "hello123");
