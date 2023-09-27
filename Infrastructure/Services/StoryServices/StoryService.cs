@@ -121,13 +121,17 @@ public class StoryService : IStoryService
             return new Response<GetStoryDto>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
-
+    
     public async Task<Response<string>> StoryLike(int StoryId,string userId)
+
     {
         try
         {
             var story = await _context.Stories.FindAsync(StoryId);
             if (story == null) return new Response<string>(HttpStatusCode.BadRequest, "Story not found");
+
+            if (story == null) return new Response<string>(HttpStatusCode.BadRequest, "Story not found");
+
             var user = await _context.StoryLikes.FirstOrDefaultAsync(e=>e.UserId == userId && e.StoryId == StoryId);
             var stat = await _context.StoryStats.FindAsync(story.Id);
             if (user == null) 
