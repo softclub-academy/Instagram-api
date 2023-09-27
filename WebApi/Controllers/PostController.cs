@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using System.Security.Claims;
+using Domain.Dtos.PostCommentDto;
 using Domain.Dtos.PostDto;
 using Domain.Filters.PostFilter;
 using Domain.Responses;
@@ -20,7 +20,8 @@ public class PostController : BaseController
     [HttpGet("get-posts")]
     public async Task<IActionResult> GetPosts([FromQuery]PostFilter filter)
     {
-        var result = await _service.GetPosts(filter);
+        var userId = User.Claims.FirstOrDefault(u => u.Type == "sid")!.Value;
+        var result = await _service.GetPosts(filter, userId);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -44,7 +45,7 @@ public class PostController : BaseController
     {
         if (ModelState.IsValid)
         {
-            var userId=User.Claims.FirstOrDefault(e=>e.Type=="sid").Value;
+            var userId = User.Claims.FirstOrDefault(e=>e.Type=="sid")!.Value;
             var result = await _service.AddPost(post, userId);
             return StatusCode(result.StatusCode, result);
         }
@@ -74,6 +75,33 @@ public class PostController : BaseController
         var result = await _service.LikePost(userId,postId);
         return StatusCode(result.StatusCode, result);
     }
-    
-    
+
+    [HttpPost("view_post")]
+    public async Task<IActionResult> ViewPost(int postId)
+    {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+        var result = await _service.ViewPost(userId, postId);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("add_comment")]
+    public async Task<IActionResult> AddComment([FromBody]AddPostCommentDto comment)
+    {
+        if (ModelState.IsValid)
+        {
+            var userId = User.Claims.FirstOrDefault(u => u.Type == "sid").Value;
+            var result = await _service.AddComment(comment, userId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var respone = new Response<bool>(HttpStatusCode.BadRequest, ModelStateErrors());
+        return StatusCode(respone.StatusCode, respone);
+    }
+
+    [HttpDelete("delete_comment")]
+    public async Task<IActionResult> DeleteComment(int commentId)
+    {
+        var result = await _service.DeleteComment(commentId);
+        return StatusCode(result.StatusCode, result);
+    }
 }

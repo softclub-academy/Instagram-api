@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230927190333_upadtepostservice")]
+    partial class upadtepostservice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -245,12 +248,20 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Post.PostCommentLike", b =>
                 {
                     b.Property<int>("PostCommentId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<int>("LikeCount")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostCommentId"));
+
+                    b.Property<int?>("LikeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PostCommentId1")
                         .HasColumnType("integer");
 
                     b.HasKey("PostCommentId");
+
+                    b.HasIndex("PostCommentId1");
 
                     b.ToTable("PostCommentLikes");
                 });
@@ -915,8 +926,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Post.PostCommentLike", b =>
                 {
                     b.HasOne("Domain.Entities.Post.PostComment", "PostComment")
-                        .WithOne("PostCommentLike")
-                        .HasForeignKey("Domain.Entities.Post.PostCommentLike", "PostCommentId")
+                        .WithMany("PostCommentLikes")
+                        .HasForeignKey("PostCommentId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1220,8 +1231,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Post.PostComment", b =>
                 {
-                    b.Navigation("PostCommentLike")
-                        .IsRequired();
+                    b.Navigation("PostCommentLikes");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.PostLike", b =>
