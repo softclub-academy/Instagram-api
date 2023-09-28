@@ -73,7 +73,7 @@ public class PostService : IPostService
         }
     }
 
-    public async Task<Response<GetPostDto>> GetPostById(int id)
+    public async Task<Response<GetPostDto>> GetPostById(int id, string userId)
     {
         try
         {
@@ -87,11 +87,21 @@ public class PostService : IPostService
                     Content = p.Content,
                     DatePublished = p.DatePublished,
                     Images = p.Images.Select(i => i.ImageName).ToList(),
-                    // _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
+                    PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
                     PostLikeCount = p.PostLike.LikeCount,
+                    UserLikes = p.PostLike.PostUserLikes.Select(u => u.UserId).ToList(),
                     PostView = p.PostView.ViewCount,
+                    UserViews = p.PostView.PostViewUsers.Select(u => u.UserId).ToList(),
                     CommentCount = p.PostComments.Count(),
-                    
+                    PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
+                    UserFavorite = p.PostFavorite.PostFavoriteUsers.Select(u => u.UserId).ToList(),
+                    Comments = p.PostComments.Select(s => new GetPostCommentDto()
+                    {
+                        PostCommentId = s.PostCommentId,
+                        UserId = s.UserId,
+                        Comment = s.Comment,
+                        DateCommented = s.DateCommented
+                    }).OrderByDescending(c => c.DateCommented).ToList(),
                 }).FirstOrDefaultAsync(p => p.PostId == id);
             return new Response<GetPostDto>(post);
         }
@@ -101,7 +111,7 @@ public class PostService : IPostService
         }
     }
 
-    public async Task<PagedResponse<List<GetPostDto>>> GetPostByFollowing(PostFollowingFilter filter)
+    public async Task<PagedResponse<List<GetPostDto>>> GetPostByFollowing(PostFollowingFilter filter, string userId)
     {
         try
         {
@@ -116,11 +126,21 @@ public class PostService : IPostService
                     Content = p.Content,
                     DatePublished = p.DatePublished,
                     Images = p.Images.Select(i => i.ImageName).ToList(),
-                    // _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
+                    PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
                     PostLikeCount = p.PostLike.LikeCount,
+                    UserLikes = p.PostLike.PostUserLikes.Select(u => u.UserId).ToList(),
                     PostView = p.PostView.ViewCount,
+                    UserViews = p.PostView.PostViewUsers.Select(u => u.UserId).ToList(),
                     CommentCount = p.PostComments.Count(),
-                    
+                    PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
+                    UserFavorite = p.PostFavorite.PostFavoriteUsers.Select(u => u.UserId).ToList(),
+                    Comments = p.PostComments.Select(s => new GetPostCommentDto()
+                    {
+                        PostCommentId = s.PostCommentId,
+                        UserId = s.UserId,
+                        Comment = s.Comment,
+                        DateCommented = s.DateCommented
+                    }).OrderByDescending(c => c.DateCommented).ToList(),
                 }).ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(posts, filter.PageNumber, filter.PageSize, totalRecord);
