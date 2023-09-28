@@ -47,12 +47,14 @@ public class StoryService : IStoryService
                         FileName = st.FileName,
                         CreateAt = st.CreateAt,
                         UserId = st.UserId,
+                        PostId = st.PostId,
                         ViewerDtos = story.UserId == userId
                             ? new ViewerDto()
                             {
                                 Name = pf.FirstName, 
                                 UserName = userName, 
-                                ViewCount = st.StoryStat.ViewCount
+                                ViewCount = st.StoryStat.ViewCount,
+                                ViewLike = st.StoryStat.ViewLike
                             } : null
                     }).FirstAsync();
                 return new Response<GetStoryDto>(story2);
@@ -75,15 +77,38 @@ public class StoryService : IStoryService
         {
             var file1 = new Story()
             {
-                UserId = userId
+                UserId = userId,
+                PostId = file.PostId,
+
             };
-            var fileName = _fileService.CreateFile(file.Image).Data;
-            file1.FileName = fileName;
+            if (file1.PostId == null)
+            {
+                var fileName = _fileService.CreateFile(file.Image).Data;
+                file1.FileName = fileName;
+            }
+            else
+            {
+                var post = (from p in _context.Posts
+                    join image in _context.Images on p.PostId equals image.PostId
+                    select new
+                    {
+                        Image = image.ImageName
+                    }).ToList();
+                if (post != null)
+                {
+                        var img = post[0];
+                        file1.FileName = img.Image;
+                }
+                else
+                {
+                    new Response<GetStoryDto>(HttpStatusCode.BadRequest,"Post not found");
+                }
+            }
             await _context.Stories.AddAsync(file1);
             await _context.SaveChangesAsync();
             var stat = new StoryStat()
             {
-                StoryId = file1.Id,
+                StoryId = file1.Id
             };
             await _context.StoryStats.AddAsync(stat);
             await _context.SaveChangesAsync();
@@ -94,6 +119,44 @@ public class StoryService : IStoryService
         catch (Exception e)
         {
             return new Response<GetStoryDto>(HttpStatusCode.InternalServerError, e.Message);
+        }
+    }
+    
+    public async Task<Response<string>> StoryLike(int StoryId,string userId)
+
+    {
+        try
+        {
+            var story = await _context.Stories.FindAsync(StoryId);
+            if (story == null) return new Response<string>(HttpStatusCode.BadRequest, "Story not found");
+
+            if (story == null) return new Response<string>(HttpStatusCode.BadRequest, "Story not found");
+
+            var user = await _context.StoryLikes.FirstOrDefaultAsync(e=>e.UserId == userId && e.StoryId == StoryId);
+            var stat = await _context.StoryStats.FindAsync(story.Id);
+            if (user == null) 
+            {
+                stat.ViewLike++;
+                var storyLike = new StoryLike()
+                {
+                    StoryId = StoryId,
+                    UserId = userId,
+                };
+               await _context.StoryLikes.AddAsync(storyLike);
+               await _context.SaveChangesAsync();
+               return new Response<string>("Liked");
+            }
+            else
+            {
+                stat.ViewLike--;
+                _context.StoryLikes.Remove(user);  
+                await _context.SaveChangesAsync();
+                return new Response<string>("Disliked");
+            }
+        }
+        catch (Exception e)
+        {
+            return new Response<string>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 

@@ -20,7 +20,12 @@ public class Response<T>
         StatusCode = (int)code;
         Errors.Add(message);
     }
-    
+    public Response(T data, string message)
+    {
+        Data = data;
+        Errors.Add(message);
+    }
+
     public Response(HttpStatusCode code, List<string> message)
     {
         StatusCode = (int)code;

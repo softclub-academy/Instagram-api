@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230928065531_upadtepostservice4")]
+    partial class upadtepostservice4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,29 +260,52 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Post.PostFavorite", b =>
                 {
-                    b.Property<int>("PostFavoriteId")
+                    b.Property<int>("PostId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostFavoriteId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostId"));
 
-                    b.Property<DateTime>("DateFavorited")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int>("FavoriteCount")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("PostId")
+                    b.Property<int>("PostId1")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("PostId");
+
+                    b.HasIndex("PostId1");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PostFavorites");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Post.PostFavoriteUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PostFavoriteId")
                         .HasColumnType("integer");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("PostFavoriteId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("PostFavoriteId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PostFavorites");
+                    b.ToTable("PostFavoriteUsers");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.PostLike", b =>
@@ -360,30 +386,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("PostViewUsers");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Post.StoryLike", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("StoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StoryId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("StoryLikes");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post.StoryUser", b =>
@@ -473,9 +475,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("ViewCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ViewLike")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -954,17 +953,32 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Post.Post", "Post")
                         .WithMany("PostFavorites")
-                        .HasForeignKey("PostId")
+                        .HasForeignKey("PostId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User.User", null)
+                        .WithMany("PostFavorites")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Post.PostFavoriteUser", b =>
+                {
+                    b.HasOne("Domain.Entities.Post.PostFavorite", "PostFavorite")
+                        .WithMany("PostFavoriteUsers")
+                        .HasForeignKey("PostFavoriteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.User.User", "User")
-                        .WithMany("PostFavorites")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Post");
+                    b.Navigation("PostFavorite");
 
                     b.Navigation("User");
                 });
@@ -1029,25 +1043,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("PostView");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Post.StoryLike", b =>
-                {
-                    b.HasOne("Domain.Entities.Story", "Story")
-                        .WithMany("StoryLikes")
-                        .HasForeignKey("StoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.User.User", "User")
-                        .WithMany("StoryLikes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Story");
 
                     b.Navigation("User");
                 });
@@ -1270,6 +1265,11 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.Post.PostFavorite", b =>
+                {
+                    b.Navigation("PostFavoriteUsers");
+                });
+
             modelBuilder.Entity("Domain.Entities.Post.PostLike", b =>
                 {
                     b.Navigation("PostUserLikes");
@@ -1282,8 +1282,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Story", b =>
                 {
-                    b.Navigation("StoryLikes");
-
                     b.Navigation("StoryStat")
                         .IsRequired();
 
@@ -1313,8 +1311,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("PostUserLikes");
 
                     b.Navigation("Posts");
-
-                    b.Navigation("StoryLikes");
 
                     b.Navigation("StoryUsers");
 
