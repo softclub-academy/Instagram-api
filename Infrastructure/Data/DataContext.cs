@@ -70,4 +70,5 @@ public class DataContext : IdentityDbContext
     public DbSet<ListOfUserCommentLike> ListOfUserCommentLikes { get; set; }
     public DbSet<Chat> Chats { get; set; }
     public DbSet<Message> Messages { get; set; }
+    public DbSet<PostFavoriteUser> PostFavoriteUsers { get; set; }
 }

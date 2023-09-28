@@ -61,10 +61,10 @@ public class PostCommentService : IPostCommentService
             var post = await _context.Posts.FindAsync(addPostComment.PostId);
             if (post == null)
                 return new Response<GetPostCommentDto>(HttpStatusCode.BadRequest, "Post not found");
-            var postCommentLike = new PostCommentLike() { PostCommentId = addPostComment.PostId };
             var comment = _mapper.Map<PostComment>(addPostComment);
             await _context.PostComments.AddAsync(comment);
             await _context.SaveChangesAsync();
+            var postCommentLike = new PostCommentLike() { PostCommentId = comment.PostCommentId };
             await _context.PostCommentLikes.AddAsync(postCommentLike);
             await _context.SaveChangesAsync();
             var mapped = _mapper.Map<GetPostCommentDto>(comment);

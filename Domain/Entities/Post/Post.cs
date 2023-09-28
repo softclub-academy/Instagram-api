@@ -13,11 +13,9 @@ public class Post
     public DateTime DatePublished { get; set; }
     public List<Story> Stories { get; set; }
     public List<PostComment> PostComments { get; set; }
-    public List<PostFavorite> PostFavorites { get; set; }
+    public PostFavorite PostFavorite { get; set; }
     public PostView PostView { get; set; }
     public PostLike PostLike { get; set; }
     public List<PostCategory> PostCategories { get; set; }
-
-
     public List<Image> Images { get; set; }
 }

@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using Domain.Dtos.PostCommentDto;
 using Domain.Dtos.PostDto;
+using Domain.Dtos.PostFavoriteDto;
+using Domain.Filters.PostCommentFilter;
 using Domain.Filters.PostFilter;
 using Domain.Responses;
 using Infrastructure.Services.PostService;
@@ -83,6 +85,20 @@ public class PostController : BaseController
         var result = await _service.ViewPost(userId, postId);
         return StatusCode(result.StatusCode, result);
     }
+    
+    [HttpGet("get-postcomments")]
+    public async Task<IActionResult> GetPostComments([FromQuery]PostCommentFilter filter)
+    {
+        var result = await _service.GetPostComments(filter);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpGet("get-postcomment-by-id")]
+    public async Task<IActionResult> GetPostCommentById(int id)
+    {
+        var result = await _service.GetPostCommentById(id);
+        return StatusCode(result.StatusCode, result);
+    }
 
     [HttpPost("add_comment")]
     public async Task<IActionResult> AddComment([FromBody]AddPostCommentDto comment)
@@ -103,5 +119,20 @@ public class PostController : BaseController
     {
         var result = await _service.DeleteComment(commentId);
         return StatusCode(result.StatusCode, result);
+    }
+    
+    [HttpPost("add-PostFavorite")]
+    public async Task<IActionResult> AddPostFavorite([FromBody]AddPostFavoriteDto postFavorite)
+    {
+        if (ModelState.IsValid)
+        {
+            var userId=User.Claims.FirstOrDefault(e=>e.Type=="sid").Value;
+            var result = await _service.AddPostFavorite(postFavorite, userId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
+        var response = new Response<PostFavoriteDto>(HttpStatusCode.BadRequest, errors);
+        return StatusCode(response.StatusCode, response);
     }
 }

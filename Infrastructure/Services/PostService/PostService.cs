@@ -2,7 +2,10 @@
 using AutoMapper;
 using Domain.Dtos.PostCommentDto;
 using Domain.Dtos.PostDto;
+using Domain.Dtos.PostFavoriteDto;
 using Domain.Entities.Post;
+using Domain.Filters;
+using Domain.Filters.PostCommentFilter;
 using Domain.Filters.PostFilter;
 using Domain.Responses;
 using Infrastructure.Data;
@@ -53,13 +56,12 @@ public class PostService : IPostService
                     CommentCount = p.PostComments.Count(),
                     Comments = p.PostComments.Select(s => new GetPostCommentDto()
                     {
-                        CommentId = s.PostCommentId,
+                        PostCommentId = s.PostCommentId,
                         UserId = s.UserId,
                         Comment = s.Comment,
                         DateCommented = s.DateCommented
                     }).OrderByDescending(c => c.DateCommented).ToList(),
-                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == p.UserId) !=
-                                   null
+                    
                 }).ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
@@ -88,8 +90,7 @@ public class PostService : IPostService
                     PostLikeCount = p.PostLike.LikeCount,
                     PostView = p.PostView.ViewCount,
                     CommentCount = p.PostComments.Count(),
-                    PostFavorite = p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == p.UserId) !=
-                                   null
+                    
                 }).FirstOrDefaultAsync(p => p.PostId == id);
             return new Response<GetPostDto>(post);
         }
@@ -118,10 +119,7 @@ public class PostService : IPostService
                     PostLikeCount = p.PostLike.LikeCount,
                     PostView = p.PostView.ViewCount,
                     CommentCount = p.PostComments.Count(),
-                    PostFavorite =
-                        p.PostFavorites.FirstOrDefault(k => k.PostId == p.PostId && k.UserId == p.UserId) == null
-                            ? false
-                            : true
+                    
                 }).ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(posts, filter.PageNumber, filter.PageSize, totalRecord);
@@ -148,6 +146,10 @@ public class PostService : IPostService
             {
                 PostId = post.PostId
             };
+            var postFavorite = new PostFavorite()
+            {
+                PostId = post.PostId
+            };
             var list = new List<string>();
             foreach (var image in addPost.Images)
             {
@@ -164,6 +166,7 @@ public class PostService : IPostService
 
             await _context.PostViews.AddAsync(postView);
             await _context.PostLikes.AddAsync(postLike);
+            await _context.PostFavorites.AddAsync(postFavorite);
             await _context.SaveChangesAsync();
 
             return new Response<int>(post.PostId);
@@ -192,8 +195,6 @@ public class PostService : IPostService
 
     public async Task<Response<bool>> LikePost(string userId, int postId)
     {
-        if (userId == null) throw new ArgumentNullException(nameof(userId));
-        if (userId == null) throw new ArgumentNullException(nameof(userId));
         var stats = await _context.PostLikes.FirstOrDefaultAsync(e => e.PostId == postId);
         if (stats == null) return new Response<bool>(HttpStatusCode.BadRequest, "stats not found");
 
@@ -204,7 +205,7 @@ public class PostService : IPostService
             var newPostUserLike = new PostUserLike()
             {
                 UserId = userId,
-                PostLikeId = stats!.PostId
+                PostLikeId = stats.PostId
             };
             await _context.PostUserLikes.AddAsync(newPostUserLike);
             stats.LikeCount++;
@@ -240,6 +241,39 @@ public class PostService : IPostService
         catch (Exception e)
         {
             return new Response<bool>(HttpStatusCode.InternalServerError, e.Message);
+        }
+    }
+
+    public async Task<PagedResponse<List<GetPostCommentDto>>> GetPostComments(PostCommentFilter filter)
+    {
+        try
+        {
+            var comments = _context.PostComments.AsQueryable();
+            if (!string.IsNullOrEmpty(filter.Comment))
+                comments = comments.Where(c => c.Comment.ToLower().Contains(filter.Comment.ToLower()));
+            var response = await comments
+                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+            var totalRecord = comments.Count();
+            var mapped = _mapper.Map<List<GetPostCommentDto>>(response);
+            return new PagedResponse<List<GetPostCommentDto>>(mapped, filter.PageNumber, filter.PageSize, totalRecord);
+        }
+        catch (Exception e)
+        {
+            return new PagedResponse<List<GetPostCommentDto>>(HttpStatusCode.BadRequest, e.Message);
+        }
+    }
+
+    public async Task<Response<GetPostCommentDto>> GetPostCommentById(int id)
+    {
+        try
+        {
+            var comment = await _context.PostComments.FindAsync(id);
+            var mapped = _mapper.Map<GetPostCommentDto>(comment);
+            return new Response<GetPostCommentDto>(mapped);
+        }
+        catch (Exception e)
+        {
+            return new Response<GetPostCommentDto>(HttpStatusCode.BadRequest, e.Message);
         }
     }
 
@@ -279,5 +313,74 @@ public class PostService : IPostService
         {
             return new Response<bool>(HttpStatusCode.BadRequest, e.Message);
         }
+    }
+
+    public async Task<PagedResponse<List<GetPostFavoriteDto>>> GetPostFavorites(PaginationFilter filter, string userId)
+    {
+        try
+        {
+            var posts = _context.Posts.AsQueryable();
+            var res = (from p in _context.PostFavorites
+                select new GetPostDto()
+                {
+                    PostId = p.Post.PostId,
+                    UserId = p.Post.UserId,
+                    
+                }).Where(p => p.UserId == userId);
+            var response = await posts.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize)
+                .ToListAsync();
+            var mapped = _mapper.Map<List<GetPostFavoriteDto>>(response);
+            var totalRecord = posts.Count();
+            return new PagedResponse<List<GetPostFavoriteDto>>(mapped, filter.PageNumber, filter.PageSize, totalRecord);
+        }
+        catch (Exception e)
+        {
+            return new PagedResponse<List<GetPostFavoriteDto>>(HttpStatusCode.BadRequest, e.Message);
+        }
+    }
+
+    public async Task<Response<GetPostFavoriteDto>> GetPostFavoriteById(int id)
+    {
+        try
+        {
+            var post = await _context.PostFavorites.FindAsync(id);
+            var mapped = _mapper.Map<GetPostFavoriteDto>(post);
+            return new Response<GetPostFavoriteDto>(mapped);
+        }
+        catch (Exception e)
+        {
+            return new Response<GetPostFavoriteDto>(HttpStatusCode.BadRequest, e.Message);
+        }
+    }
+
+    public async Task<Response<bool>> AddPostFavorite(AddPostFavoriteDto addPostFavorite, string userId)
+    {
+        var favorite = await _context.PostFavorites.FirstOrDefaultAsync(e => e.PostId == addPostFavorite.PostId);
+        if (favorite == null) return new Response<bool>(HttpStatusCode.BadRequest, "Post not found");
+
+        var existingFavoriteUser =
+            _context.PostFavoriteUsers.FirstOrDefault(st => st.UserId == userId && st.PostFavoriteId == favorite.PostId);
+        if (existingFavoriteUser == null)
+        {
+            var newPostFavorite = new PostFavoriteUser()
+            {
+                UserId = userId,
+                PostFavoriteId = favorite.PostId
+            };
+            await _context.PostFavoriteUsers.AddAsync(newPostFavorite);
+            favorite.FavoriteCount++;
+            await _context.SaveChangesAsync();
+            return new Response<bool>(true);
+        }
+
+        _context.PostFavoriteUsers.Remove(existingFavoriteUser);
+        favorite.FavoriteCount--;
+        await _context.SaveChangesAsync();
+        return new Response<bool>(false);
+    }
+
+    public Task<Response<bool>> DeletePostFavorite(int id)
+    {
+        throw new NotImplementedException();
     }
 }

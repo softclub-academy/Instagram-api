@@ -1,11 +1,14 @@
-﻿namespace Domain.Entities.Post;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Domain.Entities.Post;
+
+[NotMapped]
 public class PostFavorite
 {
-    public int PostFavoriteId { get; set; }
+    [Key]
     public int PostId { get; set; }
     public Post Post { get; set; }
-    public string UserId { get; set; }
-    public User.User User { get; set; }
-    public DateTime DateFavorited { get; set; }
+    public int FavoriteCount { get; set; }
+    public List<PostFavoriteUser> PostFavoriteUsers { get; set; }
 }
