@@ -38,7 +38,7 @@ public class PostCommentController : BaseController
         if (ModelState.IsValid)
         {
             var userTokenId=User.Claims.FirstOrDefault(e=>e.Type=="sid").Value;
-            postComment.UserId=userTokenId;
+            // postComment.UserId=userTokenId;
             var result = await _service.AddPostComment(postComment);
             return StatusCode(result.StatusCode, result);
         }

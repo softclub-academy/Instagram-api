@@ -5,9 +5,8 @@ namespace Domain.Entities.Post;
 
 public class PostCommentLike
 {
-    [Key,ForeignKey("PostComment")]
-    public int? PostCommentId { get; set; }
-    public int? LikeCount { get; set; }
+    [Key]
+    public int PostCommentId { get; set; }
+    public int LikeCount { get; set; }
     public PostComment PostComment { get; set; }
-
 }

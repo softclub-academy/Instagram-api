@@ -19,7 +19,7 @@ public class PostFavoriteService : IPostFavoriteService
         _context = context;
         _mapper = mapper;
     }
-    
+
     public async Task<PagedResponse<List<GetPostFavoriteDto>>> GetPostFavorites(PaginationFilter filter)
     {
         try
@@ -55,17 +55,19 @@ public class PostFavoriteService : IPostFavoriteService
     {
         try
         {
-            var favpost=await _context.PostFavorites.FirstOrDefaultAsync(e=>e.PostId==addPostFavorite.PostId && e.UserId==addPostFavorite.UserId);
-            if (favpost==null){
-            var post = _mapper.Map<PostFavorite>(addPostFavorite);
-            await _context.PostFavorites.AddAsync(post);
-            await _context.SaveChangesAsync();
-            return new Response<bool>(true);}
-            else{
-             _context.PostFavorites.Remove(favpost);
-            await _context.SaveChangesAsync();
-            return new Response<bool>(true);}
-            
+            // var favpost = await _context.PostFavorites.FirstOrDefaultAsync(e =>
+            //     e.PostId == addPostFavorite.PostId && e.UserId == addPostFavorite.UserId);
+            // if (favpost == null)
+            // {
+            //     var post = _mapper.Map<PostFavorite>(addPostFavorite);
+            //     await _context.PostFavorites.AddAsync(post);
+            //     await _context.SaveChangesAsync();
+            //     return new Response<bool>(true);
+            // }
+            //
+            // _context.PostFavorites.Remove(favpost);
+            // await _context.SaveChangesAsync();
+            return new Response<bool>(true);
         }
         catch (Exception e)
         {

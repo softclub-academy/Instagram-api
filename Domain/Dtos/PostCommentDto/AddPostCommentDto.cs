@@ -2,5 +2,5 @@
 
 public class AddPostCommentDto : PostCommentDto
 {
-    
+    public int PostId { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -265,6 +266,26 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PostFavoriteUsers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    PostFavoriteId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostFavoriteUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PostFavoriteUsers_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Posts",
                 columns: table => new
                 {
@@ -420,7 +441,7 @@ namespace Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     PostId = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false),
-                    Comment = table.Column<string>(type: "text", nullable: true),
+                    Comment = table.Column<string>(type: "text", nullable: false),
                     DateCommented = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -434,33 +455,6 @@ namespace Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_PostComments_Posts_PostId",
-                        column: x => x.PostId,
-                        principalTable: "Posts",
-                        principalColumn: "PostId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PostFavorites",
-                columns: table => new
-                {
-                    PostFavoriteId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PostId = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    DateFavorited = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PostFavorites", x => x.PostFavoriteId);
-                    table.ForeignKey(
-                        name: "FK_PostFavorites_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PostFavorites_Posts_PostId",
                         column: x => x.PostId,
                         principalTable: "Posts",
                         principalColumn: "PostId",
@@ -509,7 +503,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FileName = table.Column<string>(type: "text", nullable: false),
+                    FileName = table.Column<string>(type: "text", nullable: true),
                     PostId = table.Column<int>(type: "integer", nullable: true),
                     CreateAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false)
@@ -529,7 +523,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     PostCommentId = table.Column<int>(type: "integer", nullable: false),
-                    LikeCount = table.Column<int>(type: "integer", nullable: true)
+                    LikeCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -569,12 +563,39 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StoryLikes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    StoryId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StoryLikes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StoryLikes_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StoryLikes_Stories_StoryId",
+                        column: x => x.StoryId,
+                        principalTable: "Stories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "StoryStats",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ViewCount = table.Column<int>(type: "integer", nullable: false),
+                    ViewLike = table.Column<int>(type: "integer", nullable: false),
                     StoryId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -807,13 +828,8 @@ namespace Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PostFavorites_PostId",
-                table: "PostFavorites",
-                column: "PostId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostFavorites_UserId",
-                table: "PostFavorites",
+                name: "IX_PostFavoriteUsers_UserId",
+                table: "PostFavoriteUsers",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -851,6 +867,16 @@ namespace Infrastructure.Migrations
                 name: "IX_Stories_PostId",
                 table: "Stories",
                 column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StoryLikes_StoryId",
+                table: "StoryLikes",
+                column: "StoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StoryLikes_UserId",
+                table: "StoryLikes",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StoryStats_StoryId",
@@ -919,13 +945,16 @@ namespace Infrastructure.Migrations
                 name: "PostCategories");
 
             migrationBuilder.DropTable(
-                name: "PostFavorites");
+                name: "PostFavoriteUsers");
 
             migrationBuilder.DropTable(
                 name: "PostUserLikes");
 
             migrationBuilder.DropTable(
                 name: "PostViewUsers");
+
+            migrationBuilder.DropTable(
+                name: "StoryLikes");
 
             migrationBuilder.DropTable(
                 name: "StoryStats");

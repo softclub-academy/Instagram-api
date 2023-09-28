@@ -99,15 +99,16 @@ public class AccountService : IAccountService
 
     private async Task<string> GenerateJwtToken(IdentityUser user)
     {
+        var userProfile = await _dbContext.UserProfiles.FindAsync(user.Id);
         var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
         var securityKey = new SymmetricSecurityKey(key);
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new List<Claim>()
         {
             new Claim(JwtRegisteredClaimNames.Sid, user.Id),
-            new Claim(JwtRegisteredClaimNames.Name, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            
+            new Claim(JwtRegisteredClaimNames.Name, user.UserName!),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+            new Claim(JwtRegisteredClaimNames.Sub, userProfile?.Image),
         };
         //add roles
         var roles = await _userManager.GetRolesAsync(user);
