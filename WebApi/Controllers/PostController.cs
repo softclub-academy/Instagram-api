@@ -30,14 +30,16 @@ public class PostController : BaseController
     [HttpGet("get-post-by-id")]
     public async Task<IActionResult> GetPostById(int id)
     {
-        var result = await _service.GetPostById(id);
+        var userId = User.Claims.FirstOrDefault(e=>e.Type=="sid")!.Value;
+        var result = await _service.GetPostById(id, userId);
         return StatusCode(result.StatusCode, result);
     }
 
     [HttpGet("get-following-post")]
     public async Task<IActionResult> GetFollowingPost([FromQuery]PostFollowingFilter filter)
     {
-        var result = await _service.GetPostByFollowing(filter);
+        var userId = User.Claims.FirstOrDefault(e=>e.Type=="sid")!.Value;
+        var result = await _service.GetPostByFollowing(filter, userId);
         return StatusCode(result.StatusCode, result);
     }
 

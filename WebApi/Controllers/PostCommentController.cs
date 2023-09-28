@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿/*using System.Net;
 using Domain.Dtos.PostCommentDto;
 using Domain.Filters.PostCommentFilter;
 using Domain.Responses;
@@ -54,4 +54,4 @@ public class PostCommentController : BaseController
         var result = await _service.DeletePostComment(id);
         return StatusCode(result.StatusCode, result);
     }
-}
+}*/
