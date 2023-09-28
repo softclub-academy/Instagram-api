@@ -5,25 +5,10 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class upadtepostservice8 : Migration
+    public partial class createpostfavorite : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "FK_PostFavoriteUsers_PostFavorites_PostFavoriteId",
-                table: "PostFavoriteUsers");
-
-            migrationBuilder.DropTable(
-                name: "PostFavorites");
-
-            migrationBuilder.DropIndex(
-                name: "IX_PostFavoriteUsers_PostFavoriteId",
-                table: "PostFavoriteUsers");
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
                 name: "PostFavorites",
@@ -66,6 +51,21 @@ namespace Infrastructure.Migrations
                 principalTable: "PostFavorites",
                 principalColumn: "PostId",
                 onDelete: ReferentialAction.Cascade);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_PostFavoriteUsers_PostFavorites_PostFavoriteId",
+                table: "PostFavoriteUsers");
+
+            migrationBuilder.DropTable(
+                name: "PostFavorites");
+
+            migrationBuilder.DropIndex(
+                name: "IX_PostFavoriteUsers_PostFavoriteId",
+                table: "PostFavoriteUsers");
         }
     }
 }

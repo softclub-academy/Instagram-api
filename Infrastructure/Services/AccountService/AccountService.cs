@@ -108,7 +108,7 @@ public class AccountService : IAccountService
             new Claim(JwtRegisteredClaimNames.Sid, user.Id),
             new Claim(JwtRegisteredClaimNames.Name, user.UserName!),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            //new Claim(JwtRegisteredClaimNames.Sub, userProfile.Image),
+            new Claim(JwtRegisteredClaimNames.Sub, userProfile?.Image),
         };
         //add roles
         var roles = await _userManager.GetRolesAsync(user);

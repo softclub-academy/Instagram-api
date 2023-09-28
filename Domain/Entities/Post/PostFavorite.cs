@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Post;
 
-[NotMapped]
 public class PostFavorite
 {
     [Key]

@@ -46,7 +46,7 @@ public class PostService : IPostService
                     UserId = p.UserId,
                     Title = p.Title,
                     Content = p.Content,
-                    DatePublished = p.DatePublished.ToShortDateString(),
+                    DatePublished = p.DatePublished,
                     Images = p.Images.Select(i => i.ImageName).ToList(),
                     PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
                     PostLikeCount = p.PostLike.LikeCount,
@@ -54,6 +54,8 @@ public class PostService : IPostService
                     PostView = p.PostView.ViewCount,
                     UserViews = p.PostView.PostViewUsers.Select(u => u.UserId).ToList(),
                     CommentCount = p.PostComments.Count(),
+                    PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
+                    UserFavorite = p.PostFavorite.PostFavoriteUsers.Select(u => u.UserId).ToList(),
                     Comments = p.PostComments.Select(s => new GetPostCommentDto()
                     {
                         PostCommentId = s.PostCommentId,
@@ -61,7 +63,6 @@ public class PostService : IPostService
                         Comment = s.Comment,
                         DateCommented = s.DateCommented
                     }).OrderByDescending(c => c.DateCommented).ToList(),
-                    
                 }).ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
@@ -84,7 +85,7 @@ public class PostService : IPostService
                     UserId = p.UserId,
                     Title = p.Title,
                     Content = p.Content,
-                    DatePublished = p.DatePublished.ToShortDateString(),
+                    DatePublished = p.DatePublished,
                     Images = p.Images.Select(i => i.ImageName).ToList(),
                     // _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
                     PostLikeCount = p.PostLike.LikeCount,
@@ -113,7 +114,7 @@ public class PostService : IPostService
                     UserId = p.UserId,
                     Title = p.Title,
                     Content = p.Content,
-                    DatePublished = p.DatePublished.ToShortDateString(),
+                    DatePublished = p.DatePublished,
                     Images = p.Images.Select(i => i.ImageName).ToList(),
                     // _context.Images.Where(i => i.PostId == p.PostId).Select(i => i.ImageName).ToList(),
                     PostLikeCount = p.PostLike.LikeCount,
