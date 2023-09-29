@@ -35,20 +35,19 @@ public class FollowingRelationShipController : BaseController
     {
         if (ModelState.IsValid)
         {
-            var userId = User.Claims.FirstOrDefault(u => u.Type == "sid").Value;
+            var userId = User.Claims.FirstOrDefault(u => u.Type == "sid")!.Value;
             var result = await _service.AddFollowingRelationShip(followingUserId, userId);
             return StatusCode(result.StatusCode, result);
         }
 
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<FollowingRelationShipDto>(HttpStatusCode.BadRequest, errors);
+        var response = new Response<FollowingRelationShipDto>(HttpStatusCode.BadRequest, ModelStateErrors());
         return StatusCode(response.StatusCode, response);
     }
 
     [HttpDelete("delete-FollowingRelationShip")]
     public async Task<IActionResult> DeleteFollowingRelationShip(string followingId)
     {
-        var userId = User.Claims.FirstOrDefault(u => u.Type == "sid").Value;
+        var userId = User.Claims.FirstOrDefault(u => u.Type == "sid")!.Value;
         var result = await _service.DeleteFollowingRelationShip(userId, followingId);
         return StatusCode(result.StatusCode, result);
     }
