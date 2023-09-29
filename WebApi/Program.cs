@@ -54,6 +54,7 @@ try
     //seed data
     var seeder = serviceProvider.GetRequiredService<Seeder>();
     await seeder.SeedRole();
+    await seeder.SeedLocation();
     await seeder.SeedUser();
 }
 catch (Exception e)
