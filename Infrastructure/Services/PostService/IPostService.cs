@@ -21,8 +21,6 @@ public interface IPostService
     Task<Response<GetPostCommentDto>> GetPostCommentById(int id);
     Task<Response<bool>> AddComment(AddPostCommentDto comment, string userId);
     Task<Response<bool>> DeleteComment(int commentId);
-    Task<PagedResponse<List<GetPostFavoriteDto>>> GetPostFavorites(PaginationFilter filter, string userId);
-    Task<Response<GetPostFavoriteDto>> GetPostFavoriteById(int id);
+    Task<PagedResponse<List<GetPostDto>>> GetPostFavorites(PaginationFilter filter, string userId);
     Task<Response<bool>> AddPostFavorite(AddPostFavoriteDto addPostFavorite, string userId);
-    Task<Response<bool>> DeletePostFavorite(int id);
 }

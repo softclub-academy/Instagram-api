@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230929052510_addcontrainsttofollowing")]
+    partial class addcontrainsttofollowing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1189,8 +1192,8 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("LocationId");
 
                     b.HasOne("Domain.Entities.User.User", "User")
-                        .WithOne("UserProfile")
-                        .HasForeignKey("Domain.Entities.User.UserProfile", "UserId")
+                        .WithMany("UserProfiles")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1355,8 +1358,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("StoryUsers");
 
-                    b.Navigation("UserProfile")
-                        .IsRequired();
+                    b.Navigation("UserProfiles");
 
                     b.Navigation("UserSetting")
                         .IsRequired();

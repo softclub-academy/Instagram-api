@@ -1,4 +1,5 @@
 ﻿using Domain.Dtos.PostCommentDto;
+using Domain.Dtos.UserDto;
 
 namespace Domain.Dtos.PostDto;
 
@@ -10,11 +11,11 @@ public class GetPostDto : PostDto
     public List<string> Images { get; set; }
     public bool PostLike { get; set; }
     public int PostLikeCount { get; set; }
-    public List<string>? UserLikes { get; set; }
+    public List<GetUserShortInfoDto>? UserLikes { get; set; }
     public int CommentCount { get; set; }
     public List<GetPostCommentDto>? Comments { get; set; }
     public int PostView { get; set; }
-    public List<string>? UserViews { get; set; }
+    public List<GetUserShortInfoDto>? UserViews { get; set; }
     public bool PostFavorite { get; set; }
-    public List<string>? UserFavorite { get; set; }
+    public List<GetUserShortInfoDto>? UserFavorite { get; set; }
 }

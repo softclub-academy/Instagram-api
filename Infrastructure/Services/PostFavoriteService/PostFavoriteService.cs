@@ -1,6 +1,9 @@
 ﻿using System.Net;
 using AutoMapper;
+using Domain.Dtos.PostCommentDto;
+using Domain.Dtos.PostDto;
 using Domain.Dtos.PostFavoriteDto;
+using Domain.Dtos.UserDto;
 using Domain.Entities.Post;
 using Domain.Filters;
 using Domain.Responses;
@@ -20,20 +23,64 @@ public class PostFavoriteService : IPostFavoriteService
         _mapper = mapper;
     }
 
-    public async Task<PagedResponse<List<GetPostFavoriteDto>>> GetPostFavorites(PaginationFilter filter)
+    public async Task<PagedResponse<List<GetPostDto>>> GetPostFavorites(PaginationFilter filter, string userId)
     {
         try
         {
-            var posts = _context.PostFavorites.AsQueryable();
+            var posts = _context.Posts.AsQueryable();
             var response = await posts.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize)
                 .ToListAsync();
-            var mapped = _mapper.Map<List<GetPostFavoriteDto>>(response);
+            var result = await (from p in posts
+                select new GetPostDto()
+                {
+                    PostId = p.PostId,
+                    UserId = p.UserId,
+                    Title = p.Title,
+                    Content = p.Content,
+                    DatePublished = p.DatePublished,
+                    Images = p.Images.Select(i => i.ImageName).ToList(),
+                    PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
+                    PostLikeCount = p.PostLike.LikeCount,
+                    UserLikes = p.UserId == userId ? p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
+                    PostView = p.PostView.ViewCount,
+                    UserViews = p.UserId == userId ? p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
+                    CommentCount = p.PostComments.Count(),
+                    PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
+                    UserFavorite = p.UserId == userId ? p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
+                    Comments = p.PostComments.Select(s => new GetPostCommentDto()
+                    {
+                        PostCommentId = s.PostCommentId,
+                        UserId = s.UserId,
+                        Comment = s.Comment,
+                        DateCommented = s.DateCommented
+                    }).OrderByDescending(c => c.DateCommented).ToList(),
+                })
+                .Where(p => p.PostFavorite == true)
+                .ToListAsync();
             var totalRecord = posts.Count();
-            return new PagedResponse<List<GetPostFavoriteDto>>(mapped, filter.PageNumber, filter.PageSize, totalRecord);
+            return new PagedResponse<List<GetPostDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
         }
         catch (Exception e)
         {
-            return new PagedResponse<List<GetPostFavoriteDto>>(HttpStatusCode.BadRequest, e.Message);
+            return new PagedResponse<List<GetPostDto>>(HttpStatusCode.BadRequest, e.Message);
         }
     }
 

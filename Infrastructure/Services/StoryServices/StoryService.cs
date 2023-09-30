@@ -8,172 +8,190 @@ using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Services.FileService;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.Services.StoryServices;
 
-public class StoryService : IStoryService
-{
-    private readonly IFileService _fileService;
-    private readonly IMapper _mapper;
-    private readonly DataContext _context;
-    private readonly IWebHostEnvironment _hostEnvironment;
-
-    public StoryService(IFileService fileService, IMapper mapper, DataContext context,
+public class StoryService(IFileService fileService, IMapper mapper, DataContext context,
         IWebHostEnvironment hostEnvironment)
-    {
-        _fileService = fileService;
-        _mapper = mapper;
-        _context = context;
-        _hostEnvironment = hostEnvironment;
-    }
-
-
-    public async Task<Response<GetStoryDto>> GetStoryById(int id, string userId, string userName)
+    : IStoryService
+{
+    public async Task<Response<List<GetStoryDto>>> GetStories(string? userId, string userTokenId)
     {
         try
         {
-            var story = await _context.Stories.FirstOrDefaultAsync(e => e.Id == id);
-            if (story != null)
+            var stories = context.Stories.AsQueryable();
+            if (!string.IsNullOrEmpty(userId))
             {
-                var story2 = await (from st in _context.Stories
-                    join pf in _context.UserProfiles on st.UserId equals pf.UserId
-                    where st.Id == id
-                    select new GetStoryDto()
-                    {
-                        Id = st.Id,
-                        FileName = st.FileName,
-                        CreateAt = st.CreateAt,
-                        UserId = st.UserId,
-                        PostId = st.PostId,
-                        ViewerDtos = story.UserId == userId
-                            ? new ViewerDto()
-                            {
-                                Name = pf.FirstName, 
-                                UserName = userName, 
-                                ViewCount = st.StoryStat.ViewCount,
-                                ViewLike = st.StoryStat.ViewLike
-                            } : null
-                    }).FirstAsync();
-                return new Response<GetStoryDto>(story2);
-            
+                stories = stories.Where(u => u.UserId == userId);
             }
-            else
-            {
-                return new Response<GetStoryDto>(HttpStatusCode.BadRequest, "Story not found");
-            }
+            var story = await (from st in stories
+                join pf in context.UserProfiles on st.UserId equals pf.UserId
+                select new GetStoryDto()
+                {
+                    Id = st.Id,
+                    FileName = st.FileName,
+                    CreateAt = st.CreateAt,
+                    UserId = st.UserId,
+                    PostId = st.PostId,
+                    ViewerDtos = st.UserId == userTokenId
+                        ? new ViewerDto()
+                        {
+                            Name = pf.FirstName,
+                            UserName = pf.User.UserName,
+                            ViewCount = st.StoryStat.ViewCount,
+                            ViewLike = st.StoryStat.ViewLike
+                        }
+                        : null
+                }).ToListAsync();
+            return new Response<List<GetStoryDto>>(story);
         }
         catch (Exception e)
         {
-            return new Response<GetStoryDto>(HttpStatusCode.InternalServerError, e.Message);
+            return new Response<List<GetStoryDto>>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 
-    public async Task<Response<GetStoryDto>> AddStory(AddStoryDto file, string userId)
-    {
-        try
+    public async Task<Response<GetStoryDto>> GetStoryById(int id, string userId, string userName)
         {
-            var file1 = new Story()
+            try
             {
-                UserId = userId,
-                PostId = file.PostId,
-
-            };
-            if (file1.PostId == null)
-            {
-                var fileName = _fileService.CreateFile(file.Image).Data;
-                file1.FileName = fileName;
-            }
-            else
-            {
-                var post = (from p in _context.Posts
-                    join image in _context.Images on p.PostId equals image.PostId
-                    select new
-                    {
-                        Image = image.ImageName
-                    }).ToList();
-                if (post != null)
+                var story = await context.Stories.FirstOrDefaultAsync(e => e.Id == id);
+                if (story != null)
                 {
-                        var img = post[0];
-                        file1.FileName = img.Image;
+                    var story2 = await (from st in context.Stories
+                        join pf in context.UserProfiles on st.UserId equals pf.UserId
+                        where st.Id == id
+                        select new GetStoryDto()
+                        {
+                            Id = st.Id,
+                            FileName = st.FileName,
+                            CreateAt = st.CreateAt,
+                            UserId = st.UserId,
+                            PostId = st.PostId,
+                            ViewerDtos = story.UserId == userId
+                                ? new ViewerDto()
+                                {
+                                    Name = pf.FirstName,
+                                    UserName = userName,
+                                    ViewCount = st.StoryStat.ViewCount,
+                                    ViewLike = st.StoryStat.ViewLike
+                                }
+                                : null
+                        }).FirstAsync();
+                    return new Response<GetStoryDto>(story2);
                 }
                 else
                 {
-                    new Response<GetStoryDto>(HttpStatusCode.BadRequest,"Post not found");
+                    return new Response<GetStoryDto>(HttpStatusCode.BadRequest, "Story not found");
                 }
             }
-            await _context.Stories.AddAsync(file1);
-            await _context.SaveChangesAsync();
-            var stat = new StoryStat()
+            catch (Exception e)
             {
-                StoryId = file1.Id
-            };
-            await _context.StoryStats.AddAsync(stat);
-            await _context.SaveChangesAsync();
-
-            var mapped = _mapper.Map<GetStoryDto>(file1);
-            return new Response<GetStoryDto>(mapped);
+                return new Response<GetStoryDto>(HttpStatusCode.InternalServerError, e.Message);
+            }
         }
-        catch (Exception e)
+
+        public async Task<Response<GetStoryDto>> AddStory(AddStoryDto file, string userId)
         {
-            return new Response<GetStoryDto>(HttpStatusCode.InternalServerError, e.Message);
-        }
-    }
-    
-    public async Task<Response<string>> StoryLike(int StoryId,string userId)
-
-    {
-        try
-        {
-            var story = await _context.Stories.FindAsync(StoryId);
-            if (story == null) return new Response<string>(HttpStatusCode.BadRequest, "Story not found");
-
-            if (story == null) return new Response<string>(HttpStatusCode.BadRequest, "Story not found");
-
-            var user = await _context.StoryLikes.FirstOrDefaultAsync(e=>e.UserId == userId && e.StoryId == StoryId);
-            var stat = await _context.StoryStats.FindAsync(story.Id);
-            if (user == null) 
+            try
             {
-                stat.ViewLike++;
-                var storyLike = new StoryLike()
+                var file1 = new Story()
                 {
-                    StoryId = StoryId,
                     UserId = userId,
+                    PostId = file.PostId,
                 };
-               await _context.StoryLikes.AddAsync(storyLike);
-               await _context.SaveChangesAsync();
-               return new Response<string>("Liked");
+                if (file1.PostId == null)
+                {
+                    var fileName = fileService.CreateFile(file.Image).Data;
+                    file1.FileName = fileName;
+                }
+                else
+                {
+                    var post = (from p in context.Posts
+                        join image in context.Images on p.PostId equals image.PostId
+                        select new
+                        {
+                            Image = image.ImageName
+                        }).ToList();
+                    if (post != null)
+                    {
+                        var img = post[0];
+                        file1.FileName = img.Image;
+                    }
+                    else
+                    {
+                        new Response<GetStoryDto>(HttpStatusCode.BadRequest, "Post not found");
+                    }
+                }
+
+                await context.Stories.AddAsync(file1);
+                await context.SaveChangesAsync();
+                var stat = new StoryStat()
+                {
+                    StoryId = file1.Id
+                };
+                await context.StoryStats.AddAsync(stat);
+                await context.SaveChangesAsync();
+
+                var mapped = mapper.Map<GetStoryDto>(file1);
+                return new Response<GetStoryDto>(mapped);
+            }
+            catch (Exception e)
+            {
+                return new Response<GetStoryDto>(HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        public async Task<Response<string>> StoryLike(int StoryId, string userId)
+        {
+            try
+            {
+                var story = await context.Stories.FindAsync(StoryId);
+                if (story == null) return new Response<string>(HttpStatusCode.BadRequest, "Story not found");
+                var user = await context.StoryLikes.FirstOrDefaultAsync(e =>
+                    e.UserId == userId && e.StoryId == StoryId);
+                var stat = await context.StoryStats.FirstAsync(s => s.StoryId == story.Id);
+                if (user == null)
+                {
+                    stat.ViewLike++;
+                    var storyLike = new StoryLike()
+                    {
+                        StoryId = StoryId,
+                        UserId = userId,
+                    };
+                    await context.StoryLikes.AddAsync(storyLike);
+                    await context.SaveChangesAsync();
+                    return new Response<string>("Liked");
+                }
+                else
+                {
+                    stat.ViewLike--;
+                    context.StoryLikes.Remove(user);
+                    await context.SaveChangesAsync();
+                    return new Response<string>("Disliked");
+                }
+            }
+            catch (Exception e)
+            {
+                return new Response<string>(HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        public async Task<Response<bool>> DeleteStory(int id)
+        {
+            var story = context.Stories.FirstOrDefault(e => e.Id == id);
+            if (story != null)
+            {
+                var path = Path.Combine(hostEnvironment.WebRootPath, "images", story.FileName);
+                File.Decrypt(path);
+                context.Stories.Remove(story);
+                await context.SaveChangesAsync();
+                return new Response<bool>(true);
             }
             else
             {
-                stat.ViewLike--;
-                _context.StoryLikes.Remove(user);  
-                await _context.SaveChangesAsync();
-                return new Response<string>("Disliked");
+                return new Response<bool>(false);
             }
         }
-        catch (Exception e)
-        {
-            return new Response<string>(HttpStatusCode.InternalServerError, e.Message);
-        }
     }
-
-    public async Task<Response<bool>> DeleteStory(int id)
-    {
-        var story = _context.Stories.FirstOrDefault(e => e.Id == id);
-        if (story != null)
-        {
-            var path = Path.Combine(_hostEnvironment.WebRootPath, "images", story.FileName);
-            File.Decrypt(path);
-            _context.Stories.Remove(story);
-            await _context.SaveChangesAsync();
-            return new Response<bool>(true);
-        }
-        else
-        {
-            return new Response<bool>(false);
-        }
-    }
-}
