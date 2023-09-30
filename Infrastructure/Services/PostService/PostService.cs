@@ -3,6 +3,7 @@ using AutoMapper;
 using Domain.Dtos.PostCommentDto;
 using Domain.Dtos.PostDto;
 using Domain.Dtos.PostFavoriteDto;
+using Domain.Dtos.UserDto;
 using Domain.Entities.Post;
 using Domain.Filters;
 using Domain.Filters.PostCommentFilter;
@@ -14,25 +15,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.PostService;
 
-public class PostService : IPostService
-{
-    private readonly DataContext _context;
-    private readonly IMapper _mapper;
-    private readonly IFileService _fileService;
-
-    public PostService(DataContext context, IMapper mapper,
+public class PostService(DataContext context, IMapper mapper,
         IFileService fileService)
-    {
-        _context = context;
-        _mapper = mapper;
-        _fileService = fileService;
-    }
-
+    : IPostService
+{
     public async Task<PagedResponse<List<GetPostDto>>> GetPosts(PostFilter filter, string userId)
     {
         try
         {
-            var posts = _context.Posts.AsQueryable();
+            var posts = context.Posts.AsQueryable();
             if (filter.UserId != null)
                 posts = posts.Where(p => p.UserId == filter.UserId);
             if (!string.IsNullOrEmpty(filter.Content))
@@ -50,12 +41,30 @@ public class PostService : IPostService
                     Images = p.Images.Select(i => i.ImageName).ToList(),
                     PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
                     PostLikeCount = p.PostLike.LikeCount,
-                    UserLikes = p.PostLike.PostUserLikes.Select(u => u.UserId).ToList(),
+                    UserLikes = p.UserId == userId ? p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     PostView = p.PostView.ViewCount,
-                    UserViews = p.PostView.PostViewUsers.Select(u => u.UserId).ToList(),
+                    UserViews = p.UserId == userId ? p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     CommentCount = p.PostComments.Count(),
                     PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
-                    UserFavorite = p.PostFavorite.PostFavoriteUsers.Select(u => u.UserId).ToList(),
+                    UserFavorite = p.UserId == userId ? p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     Comments = p.PostComments.Select(s => new GetPostCommentDto()
                     {
                         PostCommentId = s.PostCommentId,
@@ -77,7 +86,7 @@ public class PostService : IPostService
     {
         try
         {
-            var post = await (from p in _context.Posts
+            var post = await (from p in context.Posts
                 where p.PostId == id
                 select new GetPostDto()
                 {
@@ -89,12 +98,30 @@ public class PostService : IPostService
                     Images = p.Images.Select(i => i.ImageName).ToList(),
                     PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
                     PostLikeCount = p.PostLike.LikeCount,
-                    UserLikes = p.PostLike.PostUserLikes.Select(u => u.UserId).ToList(),
+                    UserLikes = p.UserId == userId ? p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     PostView = p.PostView.ViewCount,
-                    UserViews = p.PostView.PostViewUsers.Select(u => u.UserId).ToList(),
+                    UserViews = p.UserId == userId ? p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     CommentCount = p.PostComments.Count(),
                     PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
-                    UserFavorite = p.PostFavorite.PostFavoriteUsers.Select(u => u.UserId).ToList(),
+                    UserFavorite = p.UserId == userId ? p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     Comments = p.PostComments.Select(s => new GetPostCommentDto()
                     {
                         PostCommentId = s.PostCommentId,
@@ -115,8 +142,8 @@ public class PostService : IPostService
     {
         try
         {
-            var posts = await (from p in _context.Posts
-                join f in _context.FollowingRelationShips on p.UserId equals f.FollowingId
+            var posts = await (from p in context.Posts
+                join f in context.FollowingRelationShips on p.UserId equals f.FollowingId
                 where f.UserId == filter.UserId
                 select new GetPostDto()
                 {
@@ -128,12 +155,30 @@ public class PostService : IPostService
                     Images = p.Images.Select(i => i.ImageName).ToList(),
                     PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
                     PostLikeCount = p.PostLike.LikeCount,
-                    UserLikes = p.PostLike.PostUserLikes.Select(u => u.UserId).ToList(),
+                    UserLikes = p.UserId == userId ? p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     PostView = p.PostView.ViewCount,
-                    UserViews = p.PostView.PostViewUsers.Select(u => u.UserId).ToList(),
+                    UserViews = p.UserId == userId ? p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     CommentCount = p.PostComments.Count(),
                     PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
-                    UserFavorite = p.PostFavorite.PostFavoriteUsers.Select(u => u.UserId).ToList(),
+                    UserFavorite = p.UserId == userId ? p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     Comments = p.PostComments.Select(s => new GetPostCommentDto()
                     {
                         PostCommentId = s.PostCommentId,
@@ -155,10 +200,10 @@ public class PostService : IPostService
     {
         try
         {
-            var post = _mapper.Map<Post>(addPost);
+            var post = mapper.Map<Post>(addPost);
             post.UserId = userId;
-            await _context.Posts.AddAsync(post);
-            await _context.SaveChangesAsync();
+            await context.Posts.AddAsync(post);
+            await context.SaveChangesAsync();
             var postLike = new PostLike()
             {
                 PostId = post.PostId
@@ -174,21 +219,21 @@ public class PostService : IPostService
             var list = new List<string>();
             foreach (var image in addPost.Images)
             {
-                var imageName = _fileService.CreateFile(image);
+                var imageName = fileService.CreateFile(image);
                 var images = new Image()
                 {
                     PostId = post.PostId,
                     ImageName = imageName.Data!
                 };
                 list.Add(images.ImageName);
-                await _context.Images.AddAsync(images);
-                await _context.SaveChangesAsync();
+                await context.Images.AddAsync(images);
+                await context.SaveChangesAsync();
             }
 
-            await _context.PostViews.AddAsync(postView);
-            await _context.PostLikes.AddAsync(postLike);
-            await _context.PostFavorites.AddAsync(postFavorite);
-            await _context.SaveChangesAsync();
+            await context.PostViews.AddAsync(postView);
+            await context.PostLikes.AddAsync(postLike);
+            await context.PostFavorites.AddAsync(postFavorite);
+            await context.SaveChangesAsync();
 
             return new Response<int>(post.PostId);
         }
@@ -202,10 +247,10 @@ public class PostService : IPostService
     {
         try
         {
-            var post = await _context.Posts.FindAsync(id);
+            var post = await context.Posts.FindAsync(id);
             if (post == null) return new Response<bool>(HttpStatusCode.BadRequest, "Post not found");
-            _context.Posts.Remove(post);
-            await _context.SaveChangesAsync();
+            context.Posts.Remove(post);
+            await context.SaveChangesAsync();
             return new Response<bool>(true);
         }
         catch (Exception e)
@@ -216,11 +261,11 @@ public class PostService : IPostService
 
     public async Task<Response<bool>> LikePost(string userId, int postId)
     {
-        var stats = await _context.PostLikes.FirstOrDefaultAsync(e => e.PostId == postId);
+        var stats = await context.PostLikes.FirstOrDefaultAsync(e => e.PostId == postId);
         if (stats == null) return new Response<bool>(HttpStatusCode.BadRequest, "Post not found");
 
         var existingStatUser =
-            _context.PostUserLikes.FirstOrDefault(st => st.UserId == userId && st.PostLikeId == stats.PostId);
+            context.PostUserLikes.FirstOrDefault(st => st.UserId == userId && st.PostLikeId == stats.PostId);
         if (existingStatUser == null)
         {
             var newPostUserLike = new PostUserLike()
@@ -228,15 +273,15 @@ public class PostService : IPostService
                 UserId = userId,
                 PostLikeId = stats.PostId
             };
-            await _context.PostUserLikes.AddAsync(newPostUserLike);
+            await context.PostUserLikes.AddAsync(newPostUserLike);
             stats.LikeCount++;
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return new Response<bool>(true);
         }
 
-        _context.PostUserLikes.Remove(existingStatUser);
+        context.PostUserLikes.Remove(existingStatUser);
         stats.LikeCount--;
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return new Response<bool>(false);
     }
 
@@ -245,18 +290,18 @@ public class PostService : IPostService
         try
         {
             var postViewUser =
-                await _context.PostViewUsers.FirstOrDefaultAsync(p => p.UserId == userId && p.PostViewId == postId);
+                await context.PostViewUsers.FirstOrDefaultAsync(p => p.UserId == userId && p.PostViewId == postId);
             if (postViewUser != null) return new Response<bool>(true);
 
-            var post = await _context.PostViews.FindAsync(postId);
+            var post = await context.PostViews.FindAsync(postId);
             post!.ViewCount++;
             var postView = new PostViewUser()
             {
                 UserId = userId,
                 PostViewId = postId
             };
-            await _context.PostViewUsers.AddAsync(postView);
-            await _context.SaveChangesAsync();
+            await context.PostViewUsers.AddAsync(postView);
+            await context.SaveChangesAsync();
             return new Response<bool>(true);
         }
         catch (Exception e)
@@ -269,13 +314,13 @@ public class PostService : IPostService
     {
         try
         {
-            var comments = _context.PostComments.AsQueryable();
+            var comments = context.PostComments.AsQueryable();
             if (!string.IsNullOrEmpty(filter.Comment))
                 comments = comments.Where(c => c.Comment.ToLower().Contains(filter.Comment.ToLower()));
             var response = await comments
                 .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
             var totalRecord = comments.Count();
-            var mapped = _mapper.Map<List<GetPostCommentDto>>(response);
+            var mapped = mapper.Map<List<GetPostCommentDto>>(response);
             return new PagedResponse<List<GetPostCommentDto>>(mapped, filter.PageNumber, filter.PageSize, totalRecord);
         }
         catch (Exception e)
@@ -288,8 +333,8 @@ public class PostService : IPostService
     {
         try
         {
-            var comment = await _context.PostComments.FindAsync(id);
-            var mapped = _mapper.Map<GetPostCommentDto>(comment);
+            var comment = await context.PostComments.FindAsync(id);
+            var mapped = mapper.Map<GetPostCommentDto>(comment);
             return new Response<GetPostCommentDto>(mapped);
         }
         catch (Exception e)
@@ -302,16 +347,16 @@ public class PostService : IPostService
     {
         try
         {
-            var post = await _context.Posts.FindAsync(addPostComment.PostId);
+            var post = await context.Posts.FindAsync(addPostComment.PostId);
             if (post == null)
                 return new Response<bool>(HttpStatusCode.BadRequest, "Post not found");
-            var comment = _mapper.Map<PostComment>(addPostComment);
+            var comment = mapper.Map<PostComment>(addPostComment);
             comment.UserId = userId;
-            await _context.PostComments.AddAsync(comment);
-            await _context.SaveChangesAsync();
+            await context.PostComments.AddAsync(comment);
+            await context.SaveChangesAsync();
             var postCommentLike = new PostCommentLike() { PostCommentId = comment.PostCommentId };
-            await _context.PostCommentLikes.AddAsync(postCommentLike);
-            await _context.SaveChangesAsync();
+            await context.PostCommentLikes.AddAsync(postCommentLike);
+            await context.SaveChangesAsync();
             return new Response<bool>(true);
         }
         catch (Exception e)
@@ -324,10 +369,10 @@ public class PostService : IPostService
     {
         try
         {
-            var comment = await _context.PostComments.FindAsync(commentId);
+            var comment = await context.PostComments.FindAsync(commentId);
             if (comment == null) return new Response<bool>(HttpStatusCode.BadRequest, "Comment not found");
-            _context.PostComments.Remove(comment);
-            await _context.SaveChangesAsync();
+            context.PostComments.Remove(comment);
+            await context.SaveChangesAsync();
             return new Response<bool>(true);
         }
         catch (Exception e)
@@ -340,7 +385,7 @@ public class PostService : IPostService
     {
         try
         {
-            var posts = _context.Posts.AsQueryable();
+            var posts = context.Posts.AsQueryable();
             var response = await posts.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize)
                 .ToListAsync();
             var result = await (from p in posts
@@ -354,13 +399,30 @@ public class PostService : IPostService
                     Images = p.Images.Select(i => i.ImageName).ToList(),
                     PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
                     PostLikeCount = p.PostLike.LikeCount,
-                    UserLikes = p.PostLike.PostUserLikes.Select(u => u.UserId).ToList(),
+                    UserLikes = p.UserId == userId ? p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     PostView = p.PostView.ViewCount,
-                    UserViews = p.PostView.PostViewUsers.Select(u => u.UserId).ToList(),
+                    UserViews = p.UserId == userId ? p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     CommentCount = p.PostComments.Count(),
-                    PostFavorite =
-                        p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
-                    UserFavorite = p.PostFavorite.PostFavoriteUsers.Select(u => u.UserId).ToList(),
+                    PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
+                    UserFavorite = p.UserId == userId ? p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     Comments = p.PostComments.Select(s => new GetPostCommentDto()
                     {
                         PostCommentId = s.PostCommentId,
@@ -382,11 +444,11 @@ public class PostService : IPostService
 
     public async Task<Response<bool>> AddPostFavorite(AddPostFavoriteDto addPostFavorite, string userId)
     {
-        var favorite = await _context.PostFavorites.FirstOrDefaultAsync(e => e.PostId == addPostFavorite.PostId);
+        var favorite = await context.PostFavorites.FirstOrDefaultAsync(e => e.PostId == addPostFavorite.PostId);
         if (favorite == null) return new Response<bool>(HttpStatusCode.BadRequest, "Post not found");
 
         var existingFavoriteUser =
-            _context.PostFavoriteUsers.FirstOrDefault(st => st.UserId == userId && st.PostFavoriteId == favorite.PostId);
+            context.PostFavoriteUsers.FirstOrDefault(st => st.UserId == userId && st.PostFavoriteId == favorite.PostId);
         if (existingFavoriteUser == null)
         {
             var newPostFavorite = new PostFavoriteUser()
@@ -394,15 +456,15 @@ public class PostService : IPostService
                 UserId = userId,
                 PostFavoriteId = favorite.PostId
             };
-            await _context.PostFavoriteUsers.AddAsync(newPostFavorite);
+            await context.PostFavoriteUsers.AddAsync(newPostFavorite);
             favorite.FavoriteCount++;
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return new Response<bool>(true);
         }
 
-        _context.PostFavoriteUsers.Remove(existingFavoriteUser);
+        context.PostFavoriteUsers.Remove(existingFavoriteUser);
         favorite.FavoriteCount--;
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return new Response<bool>(false);
     }
 }

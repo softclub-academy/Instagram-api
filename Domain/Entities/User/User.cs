@@ -13,7 +13,7 @@ public class User : IdentityUser
     public UserType UserType { get; set; }
     [MaxLength(45)]
     public UserSetting UserSetting { get; set; }
-    public List<UserProfile> UserProfiles { get; set; }
+    public UserProfile UserProfile { get; set; }
     public ExternalAccount ExternalAccount { get; set; }
     
     public List<StoryUser> StoryUsers { get; set; }

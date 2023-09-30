@@ -11,15 +11,12 @@ using Infrastructure.Services.LocationService;
 using Infrastructure.Services.PostCommentService;
 using Infrastructure.Services.PostFavoriteService;
 using Infrastructure.Services.PostService;
-
 using Infrastructure.Services.StatisticFollowAndPostService;
-
 using Infrastructure.Services.StoryServices;
 using Infrastructure.Services.StoryViewServices;
 using Infrastructure.Services.UserProfileService;
 using Infrastructure.Services.UserService;
 using Infrastructure.Services.UserSettingService;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

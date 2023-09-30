@@ -3,6 +3,7 @@ using AutoMapper;
 using Domain.Dtos.PostCommentDto;
 using Domain.Dtos.PostDto;
 using Domain.Dtos.PostFavoriteDto;
+using Domain.Dtos.UserDto;
 using Domain.Entities.Post;
 using Domain.Filters;
 using Domain.Responses;
@@ -40,13 +41,30 @@ public class PostFavoriteService : IPostFavoriteService
                     Images = p.Images.Select(i => i.ImageName).ToList(),
                     PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
                     PostLikeCount = p.PostLike.LikeCount,
-                    UserLikes = p.PostLike.PostUserLikes.Select(u => u.UserId).ToList(),
+                    UserLikes = p.UserId == userId ? p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     PostView = p.PostView.ViewCount,
-                    UserViews = p.PostView.PostViewUsers.Select(u => u.UserId).ToList(),
+                    UserViews = p.UserId == userId ? p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     CommentCount = p.PostComments.Count(),
-                    PostFavorite =
-                        p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
-                    UserFavorite = p.PostFavorite.PostFavoriteUsers.Select(u => u.UserId).ToList(),
+                    PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
+                    UserFavorite = p.UserId == userId ? p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
+                    {
+                        UserId = u.UserId,
+                        UserName = u.User.UserName,
+                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
+                        UserPhoto = u.User.UserProfile.Image
+                    }).ToList() : null,
                     Comments = p.PostComments.Select(s => new GetPostCommentDto()
                     {
                         PostCommentId = s.PostCommentId,
