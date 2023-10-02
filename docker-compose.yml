@@ -17,9 +17,9 @@ services:
   webapi:
     platform: linux/amd64
     image: nurullo/instagram_clone_api
-#    build:
-#      context: .
-#      dockerfile: WebApi/Dockerfile
+    build:
+      context: .
+      dockerfile: WebApi/Dockerfile
     ports:
         - "8085:8083"
     depends_on:
