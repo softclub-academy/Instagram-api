@@ -12,10 +12,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.StoryServices;
 
-public class StoryService(IFileService fileService, IMapper mapper, DataContext context,
-        IWebHostEnvironment hostEnvironment)
+public class StoryService
     : IStoryService
 {
+    private readonly IFileService fileService;
+    private readonly IMapper mapper;
+    private readonly DataContext context;
+    private readonly IWebHostEnvironment hostEnvironment;
+
+    public StoryService(IFileService fileService, IMapper mapper, DataContext context,
+        IWebHostEnvironment hostEnvironment)
+    {
+        this.fileService = fileService;
+        this.mapper = mapper;
+        this.context = context;
+        this.hostEnvironment = hostEnvironment;
+    }
     public async Task<Response<List<GetStoryDto>>> GetStories(string? userId, string userTokenId)
     {
         try

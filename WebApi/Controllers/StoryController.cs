@@ -6,8 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-public class StoryController(IStoryService storyService) : ControllerBase
+public class StoryController : ControllerBase
 {
+    private readonly IStoryService storyService;
+
+    public StoryController(IStoryService storyService)
+    {
+        this.storyService = storyService;
+    }
+    
     [HttpGet("get-stories")]
     public async Task<IActionResult> GetStories(string userId)
     {
