@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-public class StoryController : ControllerBase
+public class StoryController : BaseController  
 {
     private readonly IStoryService storyService;
 
@@ -14,7 +14,7 @@ public class StoryController : ControllerBase
     {
         this.storyService = storyService;
     }
-    
+
     [HttpGet("get-stories")]
     public async Task<IActionResult> GetStories(string userId)
     {
