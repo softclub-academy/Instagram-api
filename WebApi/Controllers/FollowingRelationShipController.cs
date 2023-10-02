@@ -31,7 +31,7 @@ public class FollowingRelationShipController : BaseController
     }
 
     [HttpPost("add-FollowingRelationShip")]
-    public async Task<IActionResult> AddFollowingRelationShip([FromBody]string followingUserId)
+    public async Task<IActionResult> AddFollowingRelationShip(string followingUserId)
     {
         if (ModelState.IsValid)
         {

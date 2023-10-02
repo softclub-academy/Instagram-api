@@ -18,12 +18,6 @@ public class DataContext : IdentityDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         
-        modelBuilder.Entity<PostLike>()
-            .HasMany(e => e.PostUserLikes)
-            .WithOne(e => e.PostLike)
-            .HasForeignKey(e => e.PostLikeId)
-            .HasPrincipalKey(e => e.PostId);
-        
         modelBuilder.HasPostgresEnum<Gender>();
         modelBuilder.HasPostgresEnum<Active>();
         modelBuilder.Entity<FollowingRelationShip>()
@@ -38,9 +32,6 @@ public class DataContext : IdentityDbContext
             .IsUnique();
         modelBuilder.Entity<Category>()
             .HasIndex(u => u.CategoryName)
-            .IsUnique();
-        modelBuilder.Entity<PostUserLike>()
-            .HasIndex(s => s.UserId)
             .IsUnique();
         base.OnModelCreating(modelBuilder);
     }
