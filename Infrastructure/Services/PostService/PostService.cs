@@ -291,28 +291,35 @@ public class PostService : IPostService
 
     public async Task<Response<bool>> LikePost(string userId, int postId)
     {
-        var stats = await context.PostLikes.FirstOrDefaultAsync(e => e.PostId == postId);
-        if (stats == null) return new Response<bool>(HttpStatusCode.BadRequest, "Post not found");
-
-        var existingStatUser =
-            context.PostUserLikes.FirstOrDefault(st => st.UserId == userId && st.PostLikeId == stats.PostId);
-        if (existingStatUser == null)
+        try
         {
-            var newPostUserLike = new PostUserLike()
-            {
-                UserId = userId,
-                PostLikeId = stats.PostId
-            };
-            await context.PostUserLikes.AddAsync(newPostUserLike);
-            stats.LikeCount++;
-            await context.SaveChangesAsync();
-            return new Response<bool>(true);
-        }
+            var stats = await context.PostLikes.FirstOrDefaultAsync(e => e.PostId == postId);
+            if (stats == null) return new Response<bool>(HttpStatusCode.BadRequest, "Post not found");
 
-        context.PostUserLikes.Remove(existingStatUser);
-        stats.LikeCount--;
-        await context.SaveChangesAsync();
-        return new Response<bool>(false);
+            var existingStatUser =
+                context.PostUserLikes.FirstOrDefault(st => st.UserId == userId && st.PostLikeId == stats.PostId);
+            if (existingStatUser == null)
+            {
+                var newPostUserLike = new PostUserLike()
+                {
+                    UserId = userId,
+                    PostLikeId = stats.PostId
+                };
+                await context.PostUserLikes.AddAsync(newPostUserLike);
+                stats.LikeCount++;
+                await context.SaveChangesAsync();
+                return new Response<bool>(true);
+            }
+
+            context.PostUserLikes.Remove(existingStatUser);
+            stats.LikeCount--;
+            await context.SaveChangesAsync();
+            return new Response<bool>(false);
+        }
+        catch (Exception e)
+        {
+            return new Response<bool>(HttpStatusCode.InternalServerError, e.Message);
+        }
     }
 
     public async Task<Response<bool>> ViewPost(string userId, int postId)

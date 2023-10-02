@@ -10,6 +10,5 @@ public class PostUserLike
     public string UserId { get; set; }
     public User.User User { get; set; }
     public int PostLikeId { get; set; }
-    [ForeignKey("PostLikeId")]
     public PostLike PostLike { get; set; }
 }
