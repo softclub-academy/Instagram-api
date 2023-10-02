@@ -6,9 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-public class StoryController(IStoryService storyService) : ControllerBase
+public class StoryController : BaseController  
 {
-    [HttpGet("get-stories")]
+    private readonly IStoryService storyService;
+
+    public StoryController(IStoryService storyService)
+    {
+        this.storyService = storyService;
+    }
+
+[HttpGet("get-stories")]
     public async Task<IActionResult> GetStories(string userId)
     {
         var userTokenId =User.Claims.FirstOrDefault(e => e.Type == "sid")!.Value;
