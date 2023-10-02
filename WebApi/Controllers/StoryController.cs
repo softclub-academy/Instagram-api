@@ -15,7 +15,7 @@ public class StoryController : BaseController
         this.storyService = storyService;
     }
 
-[HttpGet("get-stories")]
+    [HttpGet("get-stories")]
     public async Task<IActionResult> GetStories(string userId)
     {
         var userTokenId =User.Claims.FirstOrDefault(e => e.Type == "sid")!.Value;

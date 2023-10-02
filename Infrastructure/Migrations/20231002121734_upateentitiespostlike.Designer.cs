@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231002121734_upateentitiespostlike")]
+    partial class upateentitiespostlike
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -312,24 +315,18 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Post.PostUserLike", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.Property<int>("PostLikeId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "PostLikeId");
 
                     b.HasIndex("PostLikeId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("PostUserLikes");
                 });
@@ -525,18 +522,19 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("FollowingId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnOrder(2);
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnOrder(1);
 
                     b.HasKey("FollowingRelationShipId");
 
                     b.HasIndex("FollowingId");
 
-                    b.HasIndex("UserId", "FollowingId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("FollowingRelationShips");
                 });

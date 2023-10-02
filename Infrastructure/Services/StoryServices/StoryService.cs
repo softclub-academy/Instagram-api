@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.StoryServices;
 
-public class StoryService
-   : IStoryService
+public class StoryService : IStoryService
+
 {
     private readonly IFileService fileService;
     private readonly IMapper mapper;
@@ -28,7 +28,7 @@ public class StoryService
         this.context = context;
         this.hostEnvironment = hostEnvironment;
     }
-    
+
     public async Task<Response<List<GetStoryDto>>> GetStories(string? userId, string userTokenId)
     {
         try
