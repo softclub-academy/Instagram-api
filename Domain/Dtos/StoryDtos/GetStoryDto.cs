@@ -1,7 +1,10 @@
-﻿namespace Domain.Dtos.StoryDtos;
+﻿using Domain.Dtos.UserDto;
+using Domain.Dtos.ViewerDtos;
+
+namespace Domain.Dtos.StoryDtos;
 
 public class GetStoryDto : StoryDto
 {
-   
-    public ViewerDtos.ViewerDto ViewerDtos { get; set; }
+    public string? UserAvatar { get; set; }
+    public ViewerDto? ViewerDto { get; set; }
 }
