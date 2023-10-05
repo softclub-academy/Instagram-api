@@ -33,11 +33,22 @@ public class UserService : IUserService
                 users = users.Where(u => u.UserName.ToLower().Contains(filter.UserName.ToLower()));
             if (!string.IsNullOrEmpty(filter.Email))
                 users = users.Where(u => u.Email.ToLower().Contains(filter.Email.ToLower()));
-            var response = await users
-                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+            var response = users
+                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize);
+            var result = await (from u in users
+                select new GetUserDto()
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    Avatar = u.UserProfile.Image,
+                    UserType = u.UserType,
+                    DateRegistered = u.DateRegistred
+                }).ToListAsync();
             var mapped = _mapper.Map<List<GetUserDto>>(response);
             var totalRecord = users.Count();
-            return new PagedResponse<List<GetUserDto>>(mapped, filter.PageNumber, filter.PageSize, totalRecord);
+            
+            return new PagedResponse<List<GetUserDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
         }
         catch (Exception e)
         {
