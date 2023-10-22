@@ -1,6 +1,9 @@
-﻿namespace Domain.Filters.FollowingRelationShipFilter;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class FollowingRelationShipFilter : PaginationFilter
+namespace Domain.Filters.FollowingRelationShipFilter;
+
+public class FollowingRelationShipFilter
 {
-    public string? Username { get; set; }
+    [Required]
+    public string UserId { get; set; } = null!;
 }

@@ -1,10 +1,7 @@
-﻿using System.Net;
-using Domain.Dtos;
+﻿using Domain.Dtos;
 using Domain.Dtos.MessagesDto;
 using MailKit.Net.Smtp;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
 

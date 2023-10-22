@@ -10,9 +10,10 @@ public class FollowingRelationShip
 {
     [Key]
     public int FollowingRelationShipId { get; set; }
-    public string UserId { get; set; }
-    public User User { get; set; }
-    public string FollowingId { get; set; }
-    public User Following { get; set; }
+
+    public string UserId { get; set; } = null!;
+    public User User { get; set; } = null!;
+    public string FollowingId { get; set; } = null!;
+    public User Following { get; set; } = null!;
     public DateTime DateFollowed { get; set; }
 }

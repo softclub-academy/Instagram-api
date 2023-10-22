@@ -30,14 +30,12 @@ public class UserProfileService : IUserProfileService
     {
         try
         {
-            var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == id.Trim());
+            var userProfile = await _context.UserProfiles.FindAsync(id);
             if (userProfile != null)
             {
-                //var mapped = _mapper.Map<GetUserProfileDto>(userProfile);
-             
                 var mapped = new GetUserProfileDto()
                 {
-                    Gender = (string)userProfile.Gender.ToString(),
+                    Gender = userProfile.Gender.ToString()!,
                     Occupation = userProfile.Occupation,
                     FirstName = userProfile.FirstName,
                     LastName = userProfile.LastName,
@@ -45,7 +43,9 @@ public class UserProfileService : IUserProfileService
                     LocationId = userProfile.LocationId,
                     DOB = userProfile.DOB,
                     About = userProfile.About,
-                    Image = userProfile.Image
+                    Image = userProfile.Image!,
+                    SubscribersCount = _context.FollowingRelationShips.Count(x => x.FollowingId == id),
+                    SubscriptionsCount = _context.FollowingRelationShips.Count(x => x.UserId == id)
                 };
                 return new Response<GetUserProfileDto>(mapped);
             }
@@ -94,10 +94,10 @@ public class UserProfileService : IUserProfileService
                 existing.Gender = existing.Gender;
 
 
-                    if (addUserProfile.DOB != null)
-                    {
-                        existing.DOB = addUserProfile.DOB;
-                    }
+                if (addUserProfile.DOB != null)
+                {
+                    existing.DOB = addUserProfile.DOB;
+                }
 
                 existing.DOB = existing.DOB;
                 if (existing.DateUpdated != null) existing.DateUpdated = addUserProfile.DateUpdated;
@@ -135,7 +135,6 @@ public class UserProfileService : IUserProfileService
                     LocationId = existing.LocationId,
                     DOB = existing.DOB,
                     Gender = (string)existing.Gender.ToString()
-                    
                 };
 
                 return new Response<GetUserProfileDto>(mapped);

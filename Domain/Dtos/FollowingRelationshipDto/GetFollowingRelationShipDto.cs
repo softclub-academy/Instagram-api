@@ -1,8 +1,7 @@
 ﻿namespace Domain.Dtos.FollowingRelationshipDto;
 
-public class GetFollowingRelationShipDto : FollowingRelationShipDto
+public class GetFollowingRelationShipDto
 {
-    public int FollowingRelationShipId { get; set; }
-    public string UserId { get; set; }
-    public DateTime DateFollowed { get; set; }
+    public List<SubscriptionsDto> Subscriptions { get; set; } = null!;
+    public List<SubscribersDto> Subscribers { get; set; } = null!;
 }
