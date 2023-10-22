@@ -7,13 +7,12 @@ namespace Domain.Entities.User;
 
 public class UserProfile
 {
-    [Key,ForeignKey("User")]
-    public string UserId { get; set; }
-    public User User { get; set; }
+    [Key, ForeignKey("User")] public string UserId { get; set; } = null!;
+    public User User { get; set; } = null!;
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public int? LocationId { get; set; } 
-    public Location Location { get; set; }
+    public Location Location { get; set; } = null!;
     public string? Image { get; set; }
     public Gender? Gender { get; set; }
     public DateTime DOB { get; set; } = DateTime.UtcNow;

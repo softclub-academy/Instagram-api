@@ -2,8 +2,8 @@
 
 public class GetUserShortInfoDto
 {
-    public string UserId { get; set; }
-    public string UserName { get; set; }
-    public string UserPhoto { get; set; }
-    public string Fullname { get; set; }
+    public string UserId { get; set; } = null!;
+    public string UserName { get; set; } = null!;
+    public string UserPhoto { get; set; } = null!;
+    public string Fullname { get; set; } = null!;
 }

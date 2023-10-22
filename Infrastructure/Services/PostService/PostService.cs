@@ -293,6 +293,8 @@ public class PostService : IPostService
 
     public async Task<Response<bool>> LikePost(string userId, int postId)
     {
+        if (userId == null) throw new ArgumentNullException(nameof(userId));
+        if (userId == null) throw new ArgumentNullException(nameof(userId));
         try
         {
             var stats = await context.PostLikes.FirstOrDefaultAsync(e => e.PostId == postId);

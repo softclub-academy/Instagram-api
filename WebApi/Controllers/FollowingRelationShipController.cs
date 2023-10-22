@@ -23,12 +23,12 @@ public class FollowingRelationShipController : BaseController
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpGet("get-FollowingRelationShip-by-id")]
+    /*[HttpGet("get-FollowingRelationShip-by-id")]
     public async Task<IActionResult> GetFollowingRelationShipById(int id)
     {
         var result = await _service.GetFollowingRelationShipById(id);
         return StatusCode(result.StatusCode, result);
-    }
+    }*/
 
     [HttpPost("add-FollowingRelationShip")]
     public async Task<IActionResult> AddFollowingRelationShip(string followingUserId)
@@ -45,10 +45,9 @@ public class FollowingRelationShipController : BaseController
     }
 
     [HttpDelete("delete-FollowingRelationShip")]
-    public async Task<IActionResult> DeleteFollowingRelationShip(string followingId)
+    public async Task<IActionResult> DeleteFollowingRelationShip(int id)
     {
-        var userId = User.Claims.FirstOrDefault(u => u.Type == "sid")!.Value;
-        var result = await _service.DeleteFollowingRelationShip(userId, followingId);
+        var result = await _service.DeleteFollowingRelationShip(id);
         return StatusCode(result.StatusCode, result);
     }
 }

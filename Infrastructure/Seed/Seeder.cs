@@ -70,15 +70,15 @@ public class Seeder
         var profileAdmin = new UserProfile()
         {
             UserId = identity.Id,
-            FirstName = string.Empty,
-            LastName = string.Empty,
+            FirstName = "Shodmon",
+            LastName = "Inoyatzoda",
             Occupation = string.Empty,
             DateUpdated = DateTime.UtcNow,
             LocationId = 1,
             DOB = DateTime.UtcNow,
             Image = string.Empty,
             About = string.Empty,
-            Gender = Gender.Female,
+            Gender = Gender.Male,
         };
         await _context.UserProfiles.AddAsync(profileAdmin);
         await _context.SaveChangesAsync();

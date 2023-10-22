@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using AutoMapper;
 using Domain.Dtos.FollowingRelationshipDto;
+using Domain.Dtos.UserDto;
 using Domain.Entities.User;
 using Domain.Filters.FollowingRelationShipFilter;
 using Domain.Responses;
@@ -19,29 +20,53 @@ public class FollowingRelationShipService : IFollowingRelationShipService
         _context = context;
         _mapper = mapper;
     }
-    
-    public async Task<PagedResponse<List<GetFollowingRelationShipDto>>> GetFollowingRelationShip(
+
+    public async Task<Response<GetFollowingRelationShipDto>> GetFollowingRelationShip(
         FollowingRelationShipFilter filter)
     {
         try
         {
             var followingRelationShips = _context.FollowingRelationShips.AsQueryable();
-            if (filter.Username != null)
-                followingRelationShips =
-                    followingRelationShips.Where(f => f.User.UserName == filter.Username);
-            var response = await followingRelationShips
-                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
-            var mapped = _mapper.Map<List<GetFollowingRelationShipDto>>(response);
+            var response = await (from f in followingRelationShips
+                select new GetFollowingRelationShipDto()
+                {
+                    Subscribers = (from fr in followingRelationShips
+                        where fr.FollowingId == filter.UserId
+                        select new SubscribersDto()
+                        {
+                            Id = fr.FollowingRelationShipId,
+                            UserShortInfo = new GetUserShortInfoDto()
+                            {
+                                UserId = fr.UserId,
+                                UserName = fr.User.UserName,
+                                Fullname = (fr.User.UserProfile.FirstName + " " + f.User.UserProfile.LastName),
+                                UserPhoto = fr.User.UserProfile.Image
+                            }
+                        }).ToList(),
+                    Subscriptions = (from fr in followingRelationShips
+                        where fr.UserId == filter.UserId
+                        select new SubscriptionsDto()
+                        {
+                            Id = fr.FollowingRelationShipId,
+                            UserShortInfo = new GetUserShortInfoDto()
+                            {
+                                UserId = fr.FollowingId,
+                                UserName = fr.Following.UserName,
+                                Fullname = (fr.Following.UserProfile.FirstName + " " + f.Following.UserProfile.LastName),
+                                UserPhoto = fr.Following.UserProfile.Image
+                            }
+                        }).ToList()
+                }).FirstOrDefaultAsync();
             var totalRecord = followingRelationShips.Count();
-            return new PagedResponse<List<GetFollowingRelationShipDto>>(mapped, filter.PageNumber, filter.PageSize, totalRecord);
+            return new Response<GetFollowingRelationShipDto>(response);
         }
         catch (Exception e)
         {
-            return new PagedResponse<List<GetFollowingRelationShipDto>>(HttpStatusCode.BadRequest, e.Message);
+            return new Response<GetFollowingRelationShipDto>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 
-    public async Task<Response<GetFollowingRelationShipDto>> GetFollowingRelationShipById(int id)
+    /*public async Task<Response<GetFollowingRelationShipDto>> GetFollowingRelationShipById(int id)
     {
         try
         {
@@ -53,7 +78,7 @@ public class FollowingRelationShipService : IFollowingRelationShipService
         {
             return new Response<GetFollowingRelationShipDto>(HttpStatusCode.BadRequest, e.Message);
         }
-    }
+    }*/
 
     public async Task<Response<bool>> AddFollowingRelationShip(string followingUserId, string userId)
     {
@@ -81,21 +106,21 @@ public class FollowingRelationShipService : IFollowingRelationShipService
         }
     }
 
-    public async Task<Response<bool>> DeleteFollowingRelationShip(string userId, string followingUserId)
+    public async Task<Response<bool>> DeleteFollowingRelationShip(int id)
     {
         try
         {
             var following =
-                await _context.FollowingRelationShips.FirstOrDefaultAsync(f => f.UserId == userId && f.FollowingId == followingUserId);
+                await _context.FollowingRelationShips.FindAsync(id);
             if (following == null)
-                return new Response<bool>(HttpStatusCode.BadRequest, "Following relation ship not found");
+                return new Response<bool>(HttpStatusCode.BadRequest, "Following relationShip not found");
             _context.FollowingRelationShips.Remove(following);
             await _context.SaveChangesAsync();
             return new Response<bool>(true);
         }
         catch (Exception e)
         {
-            return new Response<bool>(HttpStatusCode.BadRequest, e.Message);
+            return new Response<bool>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 }
