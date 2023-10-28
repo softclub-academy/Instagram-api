@@ -60,7 +60,7 @@ public class AccountService : IAccountService
                 Occupation = string.Empty,
                 DateUpdated = DateTime.UtcNow,
                 LocationId = 1,
-                DOB = DateTime.UtcNow,
+                Dob = DateTime.UtcNow,
                 Image = string.Empty,
                 About = string.Empty,
                 Gender = Gender.Female,
@@ -100,15 +100,16 @@ public class AccountService : IAccountService
     private async Task<string> GenerateJwtToken(IdentityUser user)
     {
         var userProfile = await _dbContext.UserProfiles.FindAsync(user.Id);
-        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
         var securityKey = new SymmetricSecurityKey(key);
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new List<Claim>()
         {
-            new Claim(JwtRegisteredClaimNames.Sid, user.Id),
-            new Claim(JwtRegisteredClaimNames.Name, user.UserName!),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(JwtRegisteredClaimNames.Sub, userProfile?.Image),
+            
+            new(JwtRegisteredClaimNames.Sid, user.Id),
+            new(JwtRegisteredClaimNames.Name, user.UserName!),
+            new(JwtRegisteredClaimNames.Email, user.Email!),
+            new(JwtRegisteredClaimNames.Sub, userProfile.Image),
         };
         //add roles
         var roles = await _userManager.GetRolesAsync(user);
@@ -126,9 +127,6 @@ public class AccountService : IAccountService
         var tokenString = securityTokenHandler.WriteToken(token);
         return tokenString;
     }
-    
-    
-    
     
      public async Task<Response<string>> ChangePassword(ChangePasswordDto passwordDto, string userId)
     {
@@ -158,7 +156,7 @@ public class AccountService : IAccountService
     {
         try
         {
-            var existing = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+            var existing = await _userManager.FindByEmailAsync(forgotPasswordDto.Email!);
             if (existing == null) return new Response<string>(HttpStatusCode.BadRequest, "email  not found");
             var token = await _userManager.GeneratePasswordResetTokenAsync(existing);
             var url = $"http://localhost:5271/account/resetpassword?token={token}&email={forgotPasswordDto.Email}";

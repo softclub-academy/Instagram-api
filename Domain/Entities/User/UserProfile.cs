@@ -15,7 +15,7 @@ public class UserProfile
     public Location Location { get; set; } = null!;
     public string? Image { get; set; }
     public Gender? Gender { get; set; }
-    public DateTime DOB { get; set; } = DateTime.UtcNow;
+    public DateTime Dob { get; set; } = DateTime.UtcNow;
     public string? Occupation { get; set; }
     public string? About { get; set; }
     public DateTime DateUpdated { get; set; }

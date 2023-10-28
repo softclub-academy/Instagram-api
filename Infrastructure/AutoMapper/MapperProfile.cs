@@ -61,10 +61,10 @@ public class MapperProfile : Profile
             .ForMember(dest => dest.DateRegistred, opt => opt.MapFrom(src => DateTime.UtcNow));
 
         CreateMap<UserProfile, GetUserProfileDto>()
-            .ForMember(dest => dest.DOB, opt => opt.MapFrom(src => src.DOB.ToShortDateString()))
+            .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => src.Dob.ToShortDateString()))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image));
         CreateMap<AddUserProfileDto, UserProfile>()
-            .ForMember(dest => dest.DOB, opt => opt.MapFrom(src => src.DOB.ToShortDateString()))
+            .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => src.Dob.ToShortDateString()))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image.FileName))
             .ForMember(dest => dest.DateUpdated, opt => opt.MapFrom(src => DateTime.UtcNow));
 

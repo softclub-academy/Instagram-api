@@ -33,6 +33,10 @@ public class DataContext : IdentityDbContext
         modelBuilder.Entity<Category>()
             .HasIndex(u => u.CategoryName)
             .IsUnique();
+
+        modelBuilder.Entity<PostLike>()
+            .ToTable(p => p.HasCheckConstraint("PostLikes", @" ""LikeCount"" >= 0"));
+        
         base.OnModelCreating(modelBuilder);
     }
 

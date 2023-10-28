@@ -75,7 +75,7 @@ public class Seeder
             Occupation = string.Empty,
             DateUpdated = DateTime.UtcNow,
             LocationId = 1,
-            DOB = DateTime.UtcNow,
+            Dob = DateTime.UtcNow,
             Image = string.Empty,
             About = string.Empty,
             Gender = Gender.Male,
