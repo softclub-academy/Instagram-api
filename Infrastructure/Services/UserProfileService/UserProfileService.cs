@@ -41,7 +41,7 @@ public class UserProfileService : IUserProfileService
                     LastName = userProfile.LastName,
                     DateUpdated = userProfile.DateUpdated,
                     LocationId = userProfile.LocationId,
-                    DOB = userProfile.DOB,
+                    Dob = userProfile.Dob,
                     About = userProfile.About,
                     Image = userProfile.Image!,
                     SubscribersCount = _context.FollowingRelationShips.Count(x => x.FollowingId == id),
@@ -68,7 +68,7 @@ public class UserProfileService : IUserProfileService
         try
         {
             var existing = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
-
+            
 
             if (existing != null)
             {
@@ -94,14 +94,15 @@ public class UserProfileService : IUserProfileService
                 existing.Gender = existing.Gender;
 
 
-                if (addUserProfile.DOB != null)
+                if (addUserProfile.Dob != null)
                 {
-                    existing.DOB = addUserProfile.DOB;
+                    existing.Dob = addUserProfile.Dob;
                 }
 
-                existing.DOB = existing.DOB;
-                if (existing.DateUpdated != null) existing.DateUpdated = addUserProfile.DateUpdated;
+                existing.Dob = addUserProfile.Dob;
+                
                 existing.DateUpdated = DateTime.UtcNow;
+                
                 if (existing.Image != null)
                 {
                     if (addUserProfile != null && existing.Image != null)
@@ -133,7 +134,7 @@ public class UserProfileService : IUserProfileService
                     LastName = existing.LastName,
                     DateUpdated = existing.DateUpdated,
                     LocationId = existing.LocationId,
-                    DOB = existing.DOB,
+                    Dob = existing.Dob,
                     Gender = (string)existing.Gender.ToString()
                 };
 

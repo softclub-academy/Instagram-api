@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 
 namespace Domain.Dtos.UserProfileDto;
@@ -9,7 +10,7 @@ public class UserProfileDto
     public string? LastName { get; set; }
     public int? LocationId { get; set; }
     public IFormFile? Image { get; set; }
-    public DateTime DOB { get; set; }
+    public DateTime Dob { get; set; }
     public string? Occupation { get; set; }
     public string? About { get; set; }
 }

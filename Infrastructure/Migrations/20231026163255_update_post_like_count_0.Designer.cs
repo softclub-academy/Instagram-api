@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231026163255_update_post_like_count_0")]
+    partial class update_post_like_count_0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -309,7 +312,7 @@ namespace Infrastructure.Migrations
 
                     b.ToTable("PostLikes", t =>
                         {
-                            t.HasCheckConstraint("PostLikes", " \"LikeCount\" >= 0");
+                            t.HasCheckConstraint("PostLike", " \"LikeCount\" >= 0");
                         });
                 });
 
@@ -577,10 +580,10 @@ namespace Infrastructure.Migrations
                     b.Property<string>("About")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DateUpdated")
+                    b.Property<DateTime>("DOB")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("Dob")
+                    b.Property<DateTime>("DateUpdated")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FirstName")
