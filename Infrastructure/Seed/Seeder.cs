@@ -3,36 +3,28 @@ using Domain.Entities.User;
 using Domain.Enums;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Seed;
 
-public class Seeder
+public class Seeder(DataContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
 {
-    private readonly DataContext _context;
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-
-    public Seeder(DataContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
-    {
-        _context = context;
-        _userManager = userManager;
-        _roleManager = roleManager;
-    }
+    private readonly DataContext _context = context;
 
     public async Task SeedRole()
     {
         var newroles = new List<IdentityRole>()
         {
-            new IdentityRole(Roles.Admin),
-            new IdentityRole(Roles.User)
+            new(Roles.Admin),
+            new(Roles.User)
         };
 
-        var existing = _roleManager.Roles.ToList();
+        var existing = roleManager.Roles.ToList();
         foreach (var role in newroles)
         {
             if (existing.Exists(e => e.Name == role.Name) == false)
             {
-                await _roleManager.CreateAsync(role);
+                await roleManager.CreateAsync(role);
             }
         }
     }
@@ -55,7 +47,7 @@ public class Seeder
 
     public async Task SeedUser()
     {
-        var existing = await _userManager.FindByNameAsync("admin");
+        var existing = await userManager.FindByNameAsync("admin");
         if (existing != null) return;
         var identity = new User()
         {
@@ -64,8 +56,8 @@ public class Seeder
             Email = "admin@gmail.com",
             DateRegistred = DateTime.UtcNow,
         };
-        await _userManager.CreateAsync(identity, "hello123");
-        await _userManager.AddToRoleAsync(identity, Roles.Admin);
+        await userManager.CreateAsync(identity, "hello123");
+        await userManager.AddToRoleAsync(identity, Roles.Admin);
 
         var profileAdmin = new UserProfile()
         {

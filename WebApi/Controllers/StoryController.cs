@@ -1,20 +1,15 @@
 ﻿using Domain.Dtos.StoryDtos;
-using Domain.Entities.Post;
+using Domain.Dtos.StoryViewDtos;
 using Domain.Responses;
 using Infrastructure.Services.StoryServices;
+using Infrastructure.Services.StoryViewServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-public class StoryController : BaseController  
+public class StoryController(IStoryService storyService,
+    IStoryViewService storyViewService) : BaseController  
 {
-    private readonly IStoryService storyService;
-
-    public StoryController(IStoryService storyService)
-    {
-        this.storyService = storyService;
-    }
-
     [HttpGet("get-stories")]
     public async Task<IActionResult> GetStories(string userId)
     {
@@ -24,11 +19,12 @@ public class StoryController : BaseController
     }
     
     [HttpPost("LikeStory")]
-    public async Task<Response<string>> LikeStory(int storyID)
+    public async Task<Response<string>> LikeStory(int storyId)
     {
         var userId =User.Claims.FirstOrDefault(e => e.Type == "sid")!.Value;
-        return await storyService.StoryLike(storyID,userId);
+        return await storyService.StoryLike(storyId,userId);
     }
+    
     [HttpGet("GetStoryById")]
     public async Task<Response<GetStoryDto>> GetStoryById(int id)
     {
@@ -49,4 +45,11 @@ public class StoryController : BaseController
     {
         return await storyService.DeleteStory(id);
     }
+    
+    [HttpPost("add-story-view")]
+    public Task<Response<GetStoryViewDto>> AddStoryView(AddStoryViewDto model)
+    {
+        var token = User.Claims.FirstOrDefault(e => e.Type == "sid")!.Value;
+        return storyViewService.AddStoryView(model, token);
+    } 
 }

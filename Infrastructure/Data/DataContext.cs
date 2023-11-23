@@ -40,7 +40,7 @@ public class DataContext : IdentityDbContext
         base.OnModelCreating(modelBuilder);
     }
 
-    public DbSet<User> Users { get; set; }
+    public new DbSet<User> Users { get; set; }
     public DbSet<Story> Stories { get; set; }
     public DbSet<StoryLike> StoryLikes { get; set; }
     public DbSet<StoryUser> StoryUsers { get; set; }

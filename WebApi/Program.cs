@@ -39,7 +39,9 @@ var app = builder.Build();
 
 
 app.UseCors(
-    builder => builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000","https://localhost:3000", "https://clever-raindrop-966a86.netlify.app")
+    builder => builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000","https://localhost:3000", 
+            "https://clever-raindrop-966a86.netlify.app", "https://my-website-first.vercel.app")
+        .SetIsOriginAllowed(origin => true)
         .AllowAnyHeader()
         .AllowAnyMethod()
 );
@@ -61,6 +63,7 @@ catch (Exception e)
 {
     // ignored
 }
+
 
 
 // Configure the HTTP request pipeline.

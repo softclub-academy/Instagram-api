@@ -1,42 +1,36 @@
 ﻿using System.Net;
 using Domain.Dtos.UserProfileDto;
+using Domain.Filters;
 using Domain.Filters.UserProfileFilter;
 using Domain.Responses;
+using Infrastructure.Services.PostService;
 using Infrastructure.Services.StatisticFollowAndPostService;
 using Infrastructure.Services.UserProfileService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-public class UserProfileController : BaseController
+public class UserProfileController(IUserProfileService userProfileService,
+        IStatisticFollowAndPostService statisticFollowAndPostService,
+        IPostService postService)
+    : BaseController
 {
-    private readonly IUserProfileService _userProfileService;
-    private readonly IStatisticFollowAndPostService _statisticFollowAndPostService;
-
-    public UserProfileController( IUserProfileService userProfileService, IStatisticFollowAndPostService statisticFollowAndPostService)
-    {
-        _userProfileService = userProfileService;
-        _statisticFollowAndPostService = statisticFollowAndPostService;
-    }
-
-   
-
-    [HttpGet("get-UserProfile-by-id")]
+    [HttpGet("get-user-profile-by-id")]
     public async Task<IActionResult> GetUserProfileById(string id)
     {
-        var result = await _userProfileService.GetUserProfileById(id);
+        var result = await userProfileService.GetUserProfileById(id);
         return StatusCode(result.StatusCode, result);
     }
 
    
     
-    [HttpPut("update-UserProfile")]
+    [HttpPut("update-user-profile")]
     public async Task<IActionResult> UpdateUserProfile([FromForm]UpdateUserProfileDto userProfile)
     {
         if (ModelState.IsValid)
         {
             var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
-            var result = await _userProfileService.UpdateUserProfile(userProfile,userId);
+            var result = await userProfileService.UpdateUserProfile(userProfile,userId);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -44,21 +38,24 @@ public class UserProfileController : BaseController
         var response = new Response<UserProfileDto>(HttpStatusCode.BadRequest, errors);
         return StatusCode(response.StatusCode, response);
     }
+    
+    [HttpGet("get-post-favorites")]
+    public async Task<IActionResult> GetPostFavorites([FromQuery] PaginationFilter filter)
+    {
+        var userId = User.Claims.FirstOrDefault(u => u.Type == "sid")!.Value;
+        var result = await postService.GetPostFavorites(filter, userId);
+        return StatusCode(result.StatusCode, result);
+    }
 
     
     // statistic profile
-    
-    
-
-    
-
-    [HttpGet("CounterProfile")]
+    /*[HttpGet("CounterProfile")]
     public async Task<Response<GetStatistic>> GetCountPost()
     {
-        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
-        var post = await _statisticFollowAndPostService.GetUserPost(userId);
-        var following = await _statisticFollowAndPostService.GetFollowing(userId);
-        var follower = await _statisticFollowAndPostService.GetFollowers(userId);
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+        var post = await statisticFollowAndPostService.GetUserPost(userId);
+        var following = await statisticFollowAndPostService.GetFollowing(userId);
+        var follower = await statisticFollowAndPostService.GetFollowers(userId);
         var test = new GetStatistic()
         {
             Post = post.Data,
@@ -66,7 +63,5 @@ public class UserProfileController : BaseController
             Following = following.Data
         };
         return new Response<GetStatistic>(test);
-    }
-   
-  
+    }*/
 }

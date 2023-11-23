@@ -16,20 +16,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Services.PostService;
 
 
-public class PostService : IPostService
+public class PostService(DataContext context, IMapper mapper, IFileService fileService)
+    : IPostService
 {
-    private readonly DataContext context;
-    private readonly IMapper mapper;
-    private readonly IFileService fileService;
-
-
-    public PostService(DataContext context, IMapper mapper, IFileService fileService)
-    {
-        this.context = context;
-        this.mapper = mapper;
-        this.fileService = fileService;
-    }
-
     public async Task<PagedResponse<List<GetPostDto>>> GetPosts(PostFilter filter, string userId)
     {
         try
@@ -90,13 +79,13 @@ public class PostService : IPostService
                         Comment = s.Comment,
                         DateCommented = s.DateCommented
                     }).OrderByDescending(c => c.DateCommented).ToList(),
-                }).ToListAsync();
+                }).AsNoTracking().ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
         }
         catch (Exception e)
         {
-            return new PagedResponse<List<GetPostDto>>(HttpStatusCode.BadRequest, e.Message);
+            return new PagedResponse<List<GetPostDto>>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 
@@ -154,7 +143,7 @@ public class PostService : IPostService
                         Comment = s.Comment,
                         DateCommented = s.DateCommented
                     }).OrderByDescending(c => c.DateCommented).ToList(),
-                }).FirstOrDefaultAsync(p => p.PostId == id);
+                }).AsNoTracking().FirstOrDefaultAsync(p => p.PostId == id);
             return new Response<GetPostDto>(post);
         }
         catch (Exception e)
@@ -218,7 +207,7 @@ public class PostService : IPostService
                         Comment = s.Comment,
                         DateCommented = s.DateCommented
                     }).OrderByDescending(c => c.DateCommented).ToList(),
-                }).ToListAsync();
+                }).AsNoTracking().ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(posts, filter.PageNumber, filter.PageSize, totalRecord);
         }
@@ -248,19 +237,21 @@ public class PostService : IPostService
             {
                 PostId = post.PostId
             };
-            var list = new List<string>();
+            var list = new List<Image>();
             foreach (var image in addPost.Images)
             {
                 var imageName = fileService.CreateFile(image);
-                var images = new Image()
+                var img = new Image()
                 {
                     PostId = post.PostId,
                     ImageName = imageName.Data!
                 };
-                list.Add(images.ImageName);
-                await context.Images.AddAsync(images);
-                await context.SaveChangesAsync();
+                list.Add(img);
+                // await context.Images.AddAsync(images);
+                // await context.SaveChangesAsync();
             }
+
+            await context.AddRangeAsync(list);
 
             await context.PostViews.AddAsync(postView);
             await context.PostLikes.AddAsync(postLike);
@@ -357,7 +348,7 @@ public class PostService : IPostService
             if (!string.IsNullOrEmpty(filter.Comment))
                 comments = comments.Where(c => c.Comment.ToLower().Contains(filter.Comment.ToLower()));
             var response = await comments
-                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).ToListAsync();
+                .Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize).AsNoTracking().ToListAsync();
             var totalRecord = comments.Count();
             var mapped = mapper.Map<List<GetPostCommentDto>>(response);
             return new PagedResponse<List<GetPostCommentDto>>(mapped, filter.PageNumber, filter.PageSize, totalRecord);
@@ -482,6 +473,7 @@ public class PostService : IPostService
                         }).OrderByDescending(c => c.DateCommented).ToList(),
                     })
                 .Where(p => p.PostFavorite == true)
+                .AsNoTracking()
                 .ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
