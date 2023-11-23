@@ -10,25 +10,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.UserService;
 
-public class UserService : IUserService
-{
-    private readonly DataContext _context;
-    private readonly IMapper _mapper;
-    private readonly UserManager<IdentityUser> _userManager;
-
-    public UserService(DataContext context, IMapper mapper,
+public class UserService(DataContext context, IMapper mapper,
         UserManager<IdentityUser> userManager)
-    {
-        _context = context;
-        _mapper = mapper;
-        _userManager = userManager;
-    }
-    
+    : IUserService
+{
     public async Task<PagedResponse<List<GetUserDto>>> GetUsers(UserFilter filter)
     {
         try
         {
-            var users = _context.Users.AsQueryable();
+            var users = context.Users.AsQueryable();
             if (!string.IsNullOrEmpty(filter.UserName))
                 users = users.Where(u => u.UserName!.ToLower().Contains(filter.UserName.ToLower()));
             if (!string.IsNullOrEmpty(filter.Email))
@@ -44,8 +34,8 @@ public class UserService : IUserService
                     Avatar = u.UserProfile.Image,
                     UserType = u.UserType,
                     DateRegistered = u.DateRegistred
-                }).ToListAsync();
-            _mapper.Map<List<GetUserDto>>(response);
+                }).AsNoTracking().ToListAsync();
+            mapper.Map<List<GetUserDto>>(response);
             var totalRecord = users.Count();
             
             return new PagedResponse<List<GetUserDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
@@ -60,7 +50,8 @@ public class UserService : IUserService
     {
         try
         {
-            var user = await (from u in _context.Users
+            var user = await (from u in context.Users
+                where u.Id == id
                 select new GetUserDto()
                 {
                     Id = u.Id,
@@ -69,7 +60,7 @@ public class UserService : IUserService
                     Avatar = u.UserProfile.Image,
                     UserType = u.UserType,
                     DateRegistered = u.DateRegistred
-                }).FirstOrDefaultAsync(u => u.Id == id);
+                }).AsNoTracking().FirstOrDefaultAsync();
             return new Response<GetUserDto>(user);
         }
         catch (Exception e)
@@ -82,9 +73,9 @@ public class UserService : IUserService
     {
         try
         {
-            var user = _mapper.Map<User>(addUser);
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            var user = mapper.Map<User>(addUser);
+            context.Users.Update(user);
+            await context.SaveChangesAsync();
             return new Response<GetUserDto>(HttpStatusCode.BadRequest, "Yor account updated successfully");
         }
         catch (Exception e)
@@ -97,10 +88,10 @@ public class UserService : IUserService
     {
         try
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await context.Users.FindAsync(id);
             if (user == null) return new Response<bool>(HttpStatusCode.BadRequest, "User not found");
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            context.Users.Remove(user);
+            await context.SaveChangesAsync();
             return new Response<bool>(true);
         }
         catch (Exception e)

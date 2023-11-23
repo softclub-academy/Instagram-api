@@ -1,4 +1,4 @@
-﻿using Domain.Dtos.StoryViewDtos;
+﻿/*using Domain.Dtos.StoryViewDtos;
 using Domain.Responses;
 using Infrastructure.Services.StoryViewServices;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +14,10 @@ public class StoryViewController : BaseController
         _storyViewService = storyViewService;
     }
 
-    [HttpPost("AddStoryView")]
+    [HttpPost("add-story-view")]
     public Task<Response<GetStoryViewDto>> AddStoryView(AddStoryViewDto model)
     {
-        var token = User.Claims.FirstOrDefault(e => e.Type == "sid").Value;
+        var token = User.Claims.FirstOrDefault(e => e.Type == "sid")!.Value;
         return _storyViewService.AddStoryView(model, token);
     } 
-}
+}*/

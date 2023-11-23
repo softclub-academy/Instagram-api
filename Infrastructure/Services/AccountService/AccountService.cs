@@ -4,7 +4,6 @@ using System.Security.Claims;
 using System.Text;
 using Domain.Dtos;
 using Domain.Dtos.LoginDto;
-using Domain.Dtos.MessageDto;
 using Domain.Dtos.MessagesDto;
 using Domain.Dtos.RegisterDto;
 using Domain.Entities.User;
@@ -19,31 +18,15 @@ using MimeKit.Text;
 
 namespace Infrastructure.Services.AccountService;
 
-public class AccountService : IAccountService
+public class AccountService(IConfiguration configuration,
+        UserManager<IdentityUser> userManager, DataContext dbContext, IEmailService emailService)
+    : IAccountService
 {
-    private readonly IConfiguration _configuration;
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    private readonly  DataContext _dbContext;
-
-    private readonly IEmailService _emailService;
-
-
-    public AccountService(IConfiguration configuration,
-        UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, DataContext dbContext, IEmailService emailService)
-    {
-        _configuration = configuration;
-        _userManager = userManager;
-        _roleManager = roleManager;
-        _dbContext = dbContext;
-        _emailService = emailService;
-    }
-
     public async Task<Response<string>> Register(RegisterDto model)
     {
         try
         {
-            var result = await _userManager.FindByNameAsync(model.UserName);
+            var result = await userManager.FindByNameAsync(model.UserName);
             if (result != null) return new Response<string>(HttpStatusCode.BadRequest, "Such a user already exists!");
             var user = new User()
             {
@@ -66,10 +49,10 @@ public class AccountService : IAccountService
                 Gender = Gender.Female,
             };
 
-            await _userManager.CreateAsync(user, model.Password);
-            await _userManager.AddToRoleAsync(user,Roles.User);
-            await _dbContext.UserProfiles.AddAsync(profile);
-            await _dbContext.SaveChangesAsync();
+            await userManager.CreateAsync(user, model.Password);
+            await userManager.AddToRoleAsync(user,Roles.User);
+            await dbContext.UserProfiles.AddAsync(profile);
+            await dbContext.SaveChangesAsync();
             return new Response<string>($"Done.  Your registered by id {user.Id}");
         }
         catch (Exception e)
@@ -82,10 +65,10 @@ public class AccountService : IAccountService
     {
         try
         {
-            var user = await _userManager.FindByNameAsync(model.UserName);
+            var user = await userManager.FindByNameAsync(model.UserName);
             if (user != null)
             {
-                var result = await _userManager.CheckPasswordAsync(user, model.Password);
+                var result = await userManager.CheckPasswordAsync(user, model.Password);
                 if (result)
                     return new Response<string>(await GenerateJwtToken(user));
             }
@@ -99,8 +82,8 @@ public class AccountService : IAccountService
 
     private async Task<string> GenerateJwtToken(IdentityUser user)
     {
-        var userProfile = await _dbContext.UserProfiles.FindAsync(user.Id);
-        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
+        var userProfile = await dbContext.UserProfiles.FindAsync(user.Id);
+        var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!);
         var securityKey = new SymmetricSecurityKey(key);
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new List<Claim>()
@@ -109,17 +92,17 @@ public class AccountService : IAccountService
             new(JwtRegisteredClaimNames.Sid, user.Id),
             new(JwtRegisteredClaimNames.Name, user.UserName!),
             new(JwtRegisteredClaimNames.Email, user.Email!),
-            new(JwtRegisteredClaimNames.Sub, userProfile.Image),
+            new(JwtRegisteredClaimNames.Sub, userProfile!.Image!),
         };
         //add roles
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = await userManager.GetRolesAsync(user);
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
         
         var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
+            issuer: configuration["Jwt:Issuer"],
+            audience: configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
+            expires: DateTime.UtcNow.AddHours(24),
             signingCredentials: credentials
         );
 
@@ -132,17 +115,17 @@ public class AccountService : IAccountService
     {
         try
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await userManager.FindByIdAsync(userId);
 
-            var checkPassword = await _userManager.CheckPasswordAsync(user!, passwordDto.OldPassword);
+            var checkPassword = await userManager.CheckPasswordAsync(user!, passwordDto.OldPassword);
             if (checkPassword == false)
             {
                 return new Response<string>(HttpStatusCode.BadRequest, "password is incorrect");
             }
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user!);
-            var result = await _userManager.ResetPasswordAsync(user!, token, passwordDto.Password);
-            if (result.Succeeded == true)
+            var token = await userManager.GeneratePasswordResetTokenAsync(user!);
+            var result = await userManager.ResetPasswordAsync(user!, token, passwordDto.Password);
+            if (result.Succeeded)
                 return new Response<string>(HttpStatusCode.OK, "success");
             else return new Response<string>(HttpStatusCode.BadRequest, "could not reset your password");
         }
@@ -156,12 +139,12 @@ public class AccountService : IAccountService
     {
         try
         {
-            var existing = await _userManager.FindByEmailAsync(forgotPasswordDto.Email!);
+            var existing = await userManager.FindByEmailAsync(forgotPasswordDto.Email!);
             if (existing == null) return new Response<string>(HttpStatusCode.BadRequest, "email  not found");
-            var token = await _userManager.GeneratePasswordResetTokenAsync(existing);
+            var token = await userManager.GeneratePasswordResetTokenAsync(existing);
             var url = $"http://localhost:5271/account/resetpassword?token={token}&email={forgotPasswordDto.Email}";
-            _emailService.SendEmail(
-                new MessagesDto(new[] { forgotPasswordDto.Email }, "reset password",
+            emailService.SendEmail(
+                new MessagesDto(new[] { forgotPasswordDto.Email }!, "reset password",
                     $"<h1><a href=\"{url}\">reset password</a></h1>"), TextFormat.Html);
 
             return new Response<string>(HttpStatusCode.OK, "reset password has been sent");
@@ -176,12 +159,12 @@ public class AccountService : IAccountService
     {
         try
         {
-            var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+            var user = await userManager.FindByEmailAsync(resetPasswordDto.Email);
             if (user == null)
                 return new Response<string>(HttpStatusCode.BadRequest, "user not found");
 
             var resetPassResult =
-                await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
+                await userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
             if (resetPassResult.Succeeded)
                 return new Response<string>(HttpStatusCode.OK, "success");
 

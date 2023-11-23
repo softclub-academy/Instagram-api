@@ -7,23 +7,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-public class UserController : BaseController
+public class UserController(IUserService service) : BaseController
 {
-    private readonly IUserService _service;
-
-    public UserController(IUserService service)
-    {
-        _service = service;
-    }
-
     [HttpGet("get-users")]
     public async Task<IActionResult> GetUsers([FromQuery]UserFilter filter)
     {
-        var result = await _service.GetUsers(filter);
+        var result = await service.GetUsers(filter);
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpGet("get-User-by-id")]
+    /*[HttpGet("get-User-by-id")]
     public async Task<IActionResult> GetUserById(string userId)
     {
         var result = await _service.GetUserById(userId);
@@ -43,12 +36,12 @@ public class UserController : BaseController
             .Errors.Select(er => er.ErrorMessage) ?? Array.Empty<string>()).ToList();
         var response = new Response<UserDto>(HttpStatusCode.BadRequest, errors);
         return StatusCode(response.StatusCode, response);
-    }
+    }*/
 
     [HttpDelete("delete-User")]
     public async Task<IActionResult> DeleteUser(string userId)
     {
-        var result = await _service.DeleteUser(userId);
+        var result = await service.DeleteUser(userId);
         return StatusCode(result.StatusCode, result);
     }
 }
