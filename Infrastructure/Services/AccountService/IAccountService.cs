@@ -1,4 +1,5 @@
 ﻿using Domain.Dtos;
+using Domain.Dtos.EmailDto;
 using Domain.Dtos.LoginDto;
 using Domain.Dtos.RegisterDto;
 using Domain.Responses;

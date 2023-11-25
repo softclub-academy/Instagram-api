@@ -66,4 +66,6 @@ public class DataContext : IdentityDbContext
     public DbSet<Chat> Chats { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<PostFavoriteUser> PostFavoriteUsers { get; set; }
+    public DbSet<SearchHistory> SearchHistories { get; set; } = null!;
+    public DbSet<UserSearchHistory> UserSearchHistories { get; set; } = null!;
 }

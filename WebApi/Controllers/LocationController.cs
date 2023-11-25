@@ -39,8 +39,7 @@ public class LocationController : BaseController
             return StatusCode(result.StatusCode, result);
         }
 
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<LocationDto>(HttpStatusCode.BadRequest, errors);
+        var response = new Response<LocationDto>(HttpStatusCode.BadRequest, ModelStateErrors());
         return StatusCode(response.StatusCode, response);
     }
     
@@ -53,8 +52,7 @@ public class LocationController : BaseController
             return StatusCode(result.StatusCode, result);
         }
 
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<LocationDto>(HttpStatusCode.BadRequest, errors);
+        var response = new Response<LocationDto>(HttpStatusCode.BadRequest, ModelStateErrors());
         return StatusCode(response.StatusCode, response);
     }
 

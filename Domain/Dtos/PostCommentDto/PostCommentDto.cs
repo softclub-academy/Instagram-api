@@ -1,6 +1,9 @@
-﻿namespace Domain.Dtos.PostCommentDto;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Domain.Dtos.PostCommentDto;
 
 public class PostCommentDto
 {
-    public string? Comment { get; set; }
+    [Required]
+    public string Comment { get; set; } = null!;
 }

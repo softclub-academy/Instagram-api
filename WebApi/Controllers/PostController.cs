@@ -3,7 +3,6 @@ using Domain.Dtos.PostCommentDto;
 using Domain.Dtos.PostDto;
 using Domain.Dtos.PostFavoriteDto;
 using Domain.Filters;
-using Domain.Filters.PostCommentFilter;
 using Domain.Filters.PostFilter;
 using Domain.Responses;
 using Infrastructure.Services.PostService;
@@ -20,6 +19,15 @@ public class PostController(IPostService service) : BaseController
         var result = await service.GetPosts(filter, userId);
         return StatusCode(result.StatusCode, result);
     }
+
+    [HttpGet("get-reels")]
+    public async Task<IActionResult> GetReels(PaginationFilter filter)
+    {
+        var userId = User.Claims.FirstOrDefault(x => x.Type == "sid")!.Value;
+        var result = await service.GetReels(filter, userId);
+        return StatusCode(result.StatusCode, result);
+    }
+
 
     [HttpGet("get-post-by-id")]
     public async Task<IActionResult> GetPostById(int id)

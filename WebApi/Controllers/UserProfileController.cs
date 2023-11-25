@@ -1,17 +1,14 @@
 ﻿using System.Net;
 using Domain.Dtos.UserProfileDto;
 using Domain.Filters;
-using Domain.Filters.UserProfileFilter;
 using Domain.Responses;
 using Infrastructure.Services.PostService;
-using Infrastructure.Services.StatisticFollowAndPostService;
 using Infrastructure.Services.UserProfileService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
 public class UserProfileController(IUserProfileService userProfileService,
-        IStatisticFollowAndPostService statisticFollowAndPostService,
         IPostService postService)
     : BaseController
 {
@@ -29,13 +26,12 @@ public class UserProfileController(IUserProfileService userProfileService,
     {
         if (ModelState.IsValid)
         {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
             var result = await userProfileService.UpdateUserProfile(userProfile,userId);
             return StatusCode(result.StatusCode, result);
         }
 
-        var errors = ModelState.SelectMany(e => e.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-        var response = new Response<UserProfileDto>(HttpStatusCode.BadRequest, errors);
+        var response = new Response<UserProfileDto>(HttpStatusCode.BadRequest, ModelStateErrors());
         return StatusCode(response.StatusCode, response);
     }
     

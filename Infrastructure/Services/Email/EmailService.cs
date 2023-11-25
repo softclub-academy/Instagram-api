@@ -1,4 +1,5 @@
 ﻿using Domain.Dtos;
+using Domain.Dtos.EmailDto;
 using Domain.Dtos.MessagesDto;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;

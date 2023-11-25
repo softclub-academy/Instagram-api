@@ -1,6 +1,4 @@
-﻿using Domain.Responses;
-
-namespace Domain.Dtos.UserProfileDto;
+﻿namespace Domain.Dtos.UserProfileDto;
 
 public class GetStatistic
 {

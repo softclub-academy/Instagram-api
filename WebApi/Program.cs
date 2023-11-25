@@ -1,4 +1,4 @@
-using Domain.Dtos;
+using Domain.Dtos.EmailDto;
 using Infrastructure.AutoMapper;
 using Infrastructure.Data;
 using Infrastructure.Seed;
@@ -39,9 +39,9 @@ var app = builder.Build();
 
 
 app.UseCors(
-    builder => builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000","https://localhost:3000", 
+    corsPolicyBuilder => corsPolicyBuilder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000","https://localhost:3000", 
             "https://clever-raindrop-966a86.netlify.app", "https://my-website-first.vercel.app")
-        .SetIsOriginAllowed(origin => true)
+        .SetIsOriginAllowed(_ => true)
         .AllowAnyHeader()
         .AllowAnyMethod()
 );
@@ -59,7 +59,7 @@ try
     await seeder.SeedLocation();
     await seeder.SeedUser();
 }
-catch (Exception e)
+catch (Exception)
 {
     // ignored
 }

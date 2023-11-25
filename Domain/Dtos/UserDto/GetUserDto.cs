@@ -2,7 +2,8 @@
 
 public class GetUserDto : UserDto
 {
-    public string Id { get; set; }
-    public DateTime DateRegistered { get; set; }
-    public string Avatar { get; set; }
+    public string Id { get; set; } = null!;
+    public string Avatar { get; set; } = null!;
+    public string FullName { get; set; } = null!;
+    public int SubscribersCount { get; set; }
 }

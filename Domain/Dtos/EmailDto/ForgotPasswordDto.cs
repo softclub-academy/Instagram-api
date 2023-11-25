@@ -1,6 +1,9 @@
-﻿namespace Domain.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Domain.Dtos.EmailDto;
 
 public class ForgotPasswordDto
 {
-    public string? Email { get; set; }
+    [Required]
+    public string Email { get; set; } = null!;
 }

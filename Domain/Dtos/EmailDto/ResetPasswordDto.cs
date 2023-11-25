@@ -1,14 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Dtos;
+namespace Domain.Dtos.EmailDto;
 
 public class ResetPasswordDto
 {
-    public string Token { get; set; }
-    public string Email { get; set; }
+    [Required]
+    public string Token { get; set; } = null!;
+    [Required]
+    public string Email { get; set; } = null!;
+    [Required]
     [DataType(DataType.Password)]
-    public string Password { get; set; }
+    public string Password { get; set; } = null!;
 
-    [Compare("Password")]
-    public string ConfirmPassword { get; set; }
+    [Required]
+    [Compare("Password"), DataType(DataType.Password)]
+    public string ConfirmPassword { get; set; } = null!;
 }

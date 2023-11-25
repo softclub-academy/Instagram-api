@@ -1,58 +1,44 @@
 ﻿using System.Net;
-using AutoMapper;
 using Domain.Dtos.UserProfileDto;
-using Domain.Entities.User;
-using Domain.Enums;
-using Domain.Filters.UserProfileFilter;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Services.FileService;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.UserProfileService;
 
-public class UserProfileService : IUserProfileService
+public class UserProfileService(DataContext context, IFileService fileService)
+    : IUserProfileService
 {
-    private readonly DataContext _context;
-    private readonly IMapper _mapper;
-    private readonly IFileService _fileService;
-
-    public UserProfileService(DataContext context, IMapper mapper, IFileService fileService)
-    {
-        _context = context;
-        _mapper = mapper;
-        _fileService = fileService;
-    }
-
-
     public async Task<Response<GetUserProfileDto>> GetUserProfileById(string id)
     {
         try
         {
-            var userProfile = await _context.UserProfiles.FindAsync(id);
+            var userProfile = await (from p in context.UserProfiles
+                where p.UserId == id
+                select new GetUserProfileDto()
+                {
+                    UserName = p.User.UserName!,
+                    Gender = p.Gender.ToString()!,
+                    Occupation = p.Occupation,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    DateUpdated = p.DateUpdated,
+                    LocationId = p.LocationId,
+                    Dob = p.Dob,
+                    About = p.About,
+                    Image = p.Image!,
+                    PostCount = p.User.Posts.Count,
+                    SubscribersCount = context.FollowingRelationShips.Count(x => x.FollowingId == id),
+                    SubscriptionsCount = p.User.FollowingRelationShips.Count // context.FollowingRelationShips.Count(x => x.UserId == id)
+                }).AsNoTracking().FirstOrDefaultAsync();
+            
             if (userProfile != null)
             {
-                var mapped = new GetUserProfileDto()
-                {
-                    Gender = userProfile.Gender.ToString()!,
-                    Occupation = userProfile.Occupation,
-                    FirstName = userProfile.FirstName,
-                    LastName = userProfile.LastName,
-                    DateUpdated = userProfile.DateUpdated,
-                    LocationId = userProfile.LocationId,
-                    Dob = userProfile.Dob,
-                    About = userProfile.About,
-                    Image = userProfile.Image!,
-                    SubscribersCount = _context.FollowingRelationShips.Count(x => x.FollowingId == id),
-                    SubscriptionsCount = _context.FollowingRelationShips.Count(x => x.UserId == id)
-                };
-                return new Response<GetUserProfileDto>(mapped);
+                
+                return new Response<GetUserProfileDto>(userProfile);
             }
-            else
-            {
-                return new Response<GetUserProfileDto>(HttpStatusCode.NotFound, "not found");
-            }
+            return new Response<GetUserProfileDto>(HttpStatusCode.NotFound, "User not found");
         }
         catch (Exception e)
         {
@@ -67,7 +53,7 @@ public class UserProfileService : IUserProfileService
     {
         try
         {
-            var existing = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
+            var existing = await context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
             
 
             if (existing != null)
@@ -80,7 +66,7 @@ public class UserProfileService : IUserProfileService
                 existing.About = existing.About;
                 if (addUserProfile.Occupation != null) existing.Occupation = addUserProfile.Occupation;
                 existing.Occupation = existing.Occupation;
-                var loc = await _context.Locations.FirstOrDefaultAsync(x => x.LocationId == addUserProfile.LocationId);
+                var loc = await context.Locations.FirstOrDefaultAsync(x => x.LocationId == addUserProfile.LocationId);
                 if (loc == null)
                 {
                     return new Response<GetUserProfileDto>(HttpStatusCode.NotFound, "not found this location");
@@ -107,24 +93,24 @@ public class UserProfileService : IUserProfileService
                 {
                     if (addUserProfile != null && existing.Image != null)
                     {
-                        _fileService.DeleteFile(existing.Image);
-                        existing.Image = _fileService.CreateFile(addUserProfile.Image).Data;
-                        await _context.SaveChangesAsync();
+                        fileService.DeleteFile(existing.Image);
+                        existing.Image = fileService.CreateFile(addUserProfile.Image).Data;
+                        await context.SaveChangesAsync();
                     }
                     else if (addUserProfile.Image == null)
                     {
                         existing.Image = existing.Image;
-                        await _context.SaveChangesAsync();
+                        await context.SaveChangesAsync();
                     }
                 }
                 else if (existing.Image == null && addUserProfile.Image != null)
                 {
-                    existing.Image = _fileService.CreateFile(addUserProfile.Image).Data;
-                    await _context.SaveChangesAsync();
+                    existing.Image = fileService.CreateFile(addUserProfile.Image).Data;
+                    await context.SaveChangesAsync();
                 }
 
 
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 var mapped = new GetUserProfileDto()
                 {
                     About = existing.About,

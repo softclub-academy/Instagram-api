@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Domain.Dtos;
+using Domain.Dtos.EmailDto;
 using Domain.Dtos.LoginDto;
 using Domain.Dtos.RegisterDto;
 using Domain.Responses;
@@ -9,28 +10,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-public class AccountController : BaseController
+public class AccountController(IAccountService service) : BaseController
 {
-    private readonly IAccountService _service;
-
-    public AccountController(IAccountService service)
-    {
-        _service = service;
-    }
-    
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody]RegisterDto model)
     {
         if (ModelState.IsValid)
         {
-            var response = await _service.Register(model);
+            var response = await service.Register(model);
             return StatusCode(response.StatusCode, response);
         }
         else
         {
-            var errorMessage = ModelState.SelectMany(op => op.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-            var response = new Response<string>(HttpStatusCode.BadRequest, errorMessage);
+            var response = new Response<string>(HttpStatusCode.BadRequest, ModelStateErrors());
             return StatusCode(response.StatusCode, response);
         }
     }
@@ -41,13 +34,12 @@ public class AccountController : BaseController
     {
         if (ModelState.IsValid)
         {
-            var response = await _service.Login(model);
+            var response = await service.Login(model);
             return StatusCode(response.StatusCode, response);
         }
         else
         {
-            var errorMessage = ModelState.SelectMany(op => op.Value.Errors.Select(er => er.ErrorMessage)).ToList();
-            var response = new Response<string>(HttpStatusCode.BadRequest, errorMessage);
+            var response = new Response<string>(HttpStatusCode.BadRequest, ModelStateErrors());
             return StatusCode(response.StatusCode, response);
         }
     }
@@ -56,7 +48,7 @@ public class AccountController : BaseController
     [AllowAnonymous]
     public async Task<Response<string>> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
     {
-        return await _service.ForgotPasswordTokenGenerator(forgotPasswordDto);
+        return await service.ForgotPasswordTokenGenerator(forgotPasswordDto);
     }
     
       
@@ -64,14 +56,14 @@ public class AccountController : BaseController
     [AllowAnonymous]
     public async Task<Response<string>> ResetPassword(ResetPasswordDto resetPasswordDto)
     {
-        return await _service.ResetPassword(resetPasswordDto);
+        return await service.ResetPassword(resetPasswordDto);
     }
     
     [HttpPut("ChangePassword")]
     [AllowAnonymous]
     public async Task<Response<string>> ChangePassword(ChangePasswordDto changePasswordDto)
     {
-        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")?.Value;
-        return await _service.ChangePassword(changePasswordDto,userId!);
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+        return await service.ChangePassword(changePasswordDto,userId!);
     }
 }
