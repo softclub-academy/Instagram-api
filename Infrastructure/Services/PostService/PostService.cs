@@ -12,9 +12,9 @@ using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Services.FileService;
 using Microsoft.EntityFrameworkCore;
+using static System.Guid;
 
 namespace Infrastructure.Services.PostService;
-
 
 public class PostService(DataContext context, IMapper mapper, IFileService fileService)
     : IPostService
@@ -27,65 +27,152 @@ public class PostService(DataContext context, IMapper mapper, IFileService fileS
             if (filter.UserId != null)
                 posts = posts.Where(p => p.UserId == filter.UserId);
             if (!string.IsNullOrEmpty(filter.Content))
-                posts = posts.Where(p => p.Content.ToLower().Contains(filter.Content.ToLower()));
+                posts = posts.Where(p => p.Content!.ToLower().Contains(filter.Content.ToLower()));
             if (!string.IsNullOrEmpty(filter.Title))
-                posts = posts.Where(p => p.Title.ToLower().Contains(filter.Title.ToLower()));
+                posts = posts.Where(p => p.Title!.ToLower().Contains(filter.Title.ToLower()));
             var result = await (from p in posts
-                select new GetPostDto()
-                {
-                    PostId = p.PostId,
-                    UserId = p.UserId,
-                    Title = p.Title,
-                    Content = p.Content,
-                    DatePublished = p.DatePublished,
-                    Images = p.Images.Select(i => i.ImageName).ToList(),
-                    PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
-                    PostLikeCount = p.PostLike.LikeCount,
-                    UserLikes = p.UserId == userId
-                        ? p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
-                        {
-                            UserId = u.UserId,
-                            UserName = u.User.UserName,
-                            Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
-                            UserPhoto = u.User.UserProfile.Image
-                        }).ToList()
-                        : null,
-                    PostView = p.PostView.ViewCount,
-                    UserViews = p.UserId == userId
-                        ? p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
-                        {
-                            UserId = u.UserId,
-                            UserName = u.User.UserName,
-                            Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
-                            UserPhoto = u.User.UserProfile.Image
-                        }).ToList()
-                        : null,
-                    CommentCount = p.PostComments.Count(),
-                    PostFavorite =
-                        p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
-                    UserFavorite = p.UserId == userId
-                        ? p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
-                        {
-                            UserId = u.UserId,
-                            UserName = u.User.UserName,
-                            Fullname = string.Concat(u.User.UserProfile.FirstName + " " + u.User.UserProfile.LastName),
-                            UserPhoto = u.User.UserProfile.Image
-                        }).ToList()
-                        : null,
-                    Comments = p.PostComments.Select(s => new GetPostCommentDto()
+                    select new GetPostDto()
                     {
-                        PostCommentId = s.PostCommentId,
-                        UserId = s.UserId,
-                        Comment = s.Comment,
-                        DateCommented = s.DateCommented
-                    }).OrderByDescending(c => c.DateCommented).ToList(),
-                }).AsNoTracking().ToListAsync();
+                        PostId = p.PostId,
+                        UserId = p.UserId,
+                        Title = p.Title,
+                        Content = p.Content,
+                        DatePublished = p.DatePublished,
+                        Images = p.Images.Select(i => i.ImageName).ToList(),
+                        PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
+                        PostLikeCount = p.PostLike.LikeCount,
+                        UserLikes = p.UserId == userId
+                            ? p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
+                            {
+                                UserId = u.UserId,
+                                UserName = u.User.UserName,
+                                Fullname = string.Concat(u.User.UserProfile.FirstName + " " +
+                                                         u.User.UserProfile.LastName),
+                                UserPhoto = u.User.UserProfile.Image
+                            }).ToList()
+                            : null,
+                        PostView = p.PostView.ViewCount,
+                        UserViews = p.UserId == userId
+                            ? p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
+                            {
+                                UserId = u.UserId,
+                                UserName = u.User.UserName,
+                                Fullname = string.Concat(u.User.UserProfile.FirstName + " " +
+                                                         u.User.UserProfile.LastName),
+                                UserPhoto = u.User.UserProfile.Image
+                            }).ToList()
+                            : null,
+                        CommentCount = p.PostComments.Count(),
+                        PostFavorite =
+                            p.PostFavorite.PostFavoriteUsers.Any(
+                                l => l.UserId == userId && l.PostFavoriteId == p.PostId),
+                        UserFavorite = p.UserId == userId
+                            ? p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
+                            {
+                                UserId = u.UserId,
+                                UserName = u.User.UserName,
+                                Fullname = string.Concat(u.User.UserProfile.FirstName + " " +
+                                                         u.User.UserProfile.LastName),
+                                UserPhoto = u.User.UserProfile.Image
+                            }).ToList()
+                            : null,
+                        Comments = p.PostComments.Select(s => new GetPostCommentDto()
+                        {
+                            PostCommentId = s.PostCommentId,
+                            UserId = s.UserId,
+                            Comment = s.Comment,
+                            DateCommented = s.DateCommented
+                        }).OrderByDescending(c => c.DateCommented).ToList(),
+                    })
+                .OrderBy(x => NewGuid())
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .AsNoTracking().ToListAsync();
             var totalRecord = posts.Count();
             return new PagedResponse<List<GetPostDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
         }
         catch (Exception e)
         {
             return new PagedResponse<List<GetPostDto>>(HttpStatusCode.InternalServerError, e.Message);
+        }
+    }
+
+    public async Task<PagedResponse<List<GetReelsDto>>> GetReels(PaginationFilter filter, string userId)
+    {
+        try
+        {
+            var posts = context.Posts.AsQueryable();
+            var totalRecord = posts.Count();
+            var result = await (from p in posts
+                    where p.Images.Any(x => x.ImageName.Contains(".mp4")) ||
+                          p.Images.Any(x => x.ImageName.Contains(".avi")) ||
+                          p.Images.Any(x => x.ImageName.Contains(".mpg")) ||
+                          p.Images.Any(x => x.ImageName.Contains(".3pg"))
+                    select new GetReelsDto()
+                    {
+                        PostId = p.PostId,
+                        UserId = p.UserId,
+                        Title = p.Title,
+                        Content = p.Content,
+                        DatePublished = p.DatePublished,
+                        Images = p.Images.Where(x =>
+                            x.ImageName.ToLower().Contains(".mp4") ||
+                            x.ImageName.ToLower().Contains(".avi") ||
+                            x.ImageName.ToLower().Contains(".mpg") ||
+                            x.ImageName.ToLower().Contains(".3gp")).Select(i => i.ImageName).FirstOrDefault(),
+                        PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
+                        PostLikeCount = p.PostLike.LikeCount,
+                        UserLikes = p.UserId == userId
+                            ? p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
+                            {
+                                UserId = u.UserId,
+                                UserName = u.User.UserName,
+                                Fullname = string.Concat(u.User.UserProfile.FirstName + " " +
+                                                         u.User.UserProfile.LastName),
+                                UserPhoto = u.User.UserProfile.Image
+                            }).ToList()
+                            : null,
+                        PostView = p.PostView.ViewCount,
+                        UserViews = p.UserId == userId
+                            ? p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
+                            {
+                                UserId = u.UserId,
+                                UserName = u.User.UserName,
+                                Fullname = string.Concat(u.User.UserProfile.FirstName + " " +
+                                                         u.User.UserProfile.LastName),
+                                UserPhoto = u.User.UserProfile.Image
+                            }).ToList()
+                            : null,
+                        CommentCount = p.PostComments.Count(),
+                        PostFavorite =
+                            p.PostFavorite.PostFavoriteUsers.Any(
+                                l => l.UserId == userId && l.PostFavoriteId == p.PostId),
+                        UserFavorite = p.UserId == userId
+                            ? p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
+                            {
+                                UserId = u.UserId,
+                                UserName = u.User.UserName,
+                                Fullname = string.Concat(u.User.UserProfile.FirstName + " " +
+                                                         u.User.UserProfile.LastName),
+                                UserPhoto = u.User.UserProfile.Image
+                            }).ToList()
+                            : null,
+                        Comments = p.PostComments.Select(s => new GetPostCommentDto()
+                        {
+                            PostCommentId = s.PostCommentId,
+                            UserId = s.UserId,
+                            Comment = s.Comment,
+                            DateCommented = s.DateCommented
+                        }).OrderByDescending(c => c.DateCommented).ToList()
+                    })
+                .OrderBy(x => NewGuid())
+                .Skip(int.Abs(filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize).AsNoTracking().ToListAsync();
+            return new PagedResponse<List<GetReelsDto>>(result, filter.PageNumber, filter.PageSize, totalRecord);
+        }
+        catch (Exception e)
+        {
+            return new PagedResponse<List<GetReelsDto>>(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 
@@ -416,8 +503,6 @@ public class PostService(DataContext context, IMapper mapper, IFileService fileS
         try
         {
             var posts = context.Posts.AsQueryable();
-            var response = await posts.Skip((filter.PageNumber - 1) * filter.PageSize).Take(filter.PageSize)
-                .ToListAsync();
             var result = await (from p in posts
                     select new GetPostDto()
                     {
@@ -473,6 +558,8 @@ public class PostService(DataContext context, IMapper mapper, IFileService fileS
                         }).OrderByDescending(c => c.DateCommented).ToList(),
                     })
                 .Where(p => p.PostFavorite == true)
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .AsNoTracking()
                 .ToListAsync();
             var totalRecord = posts.Count();

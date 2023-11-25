@@ -1,7 +1,11 @@
-﻿namespace Domain.Dtos.MessageDto;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Domain.Dtos.MessageDto;
 
 public class MessageDto
 {
+    [Required]
     public int ChatId { get; set; }
-    public string MessageText { get; set; }
+    [Required]
+    public string MessageText { get; set; } = null!;
 }

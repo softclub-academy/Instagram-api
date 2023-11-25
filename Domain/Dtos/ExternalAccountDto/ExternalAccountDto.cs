@@ -1,8 +1,13 @@
-﻿namespace Domain.Dtos.ExternalAccountDto;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Domain.Dtos.ExternalAccountDto;
 
 public class ExternalAccountDto
 {
-    public int UserId { get; set; }
-    public string FacebookEmail { get; set; }
-    public string TwitterUsername { get; set; }
+    [Required]
+    public string UserId { get; set; } = null!;
+    [Required]
+    public string FacebookEmail { get; set; } = null!;
+    [Required]
+    public string TwitterUsername { get; set; } = null!;
 }

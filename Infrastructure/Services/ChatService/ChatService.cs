@@ -8,20 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.ChatService;
 
-public class ChatService : IChatService
+public class ChatService(DataContext context) : IChatService
 {
-    private readonly DataContext _context;
-
-    public ChatService(DataContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Response<List<GetChatDto>>> GetChats(string? userId)
     {
         try
         {
-            var chats = await _context.Chats.Where(u => u.SendUserId == userId || u.ReceiveUserId == userId)
+            var chats = await context.Chats.Where(u => u.SendUserId == userId || u.ReceiveUserId == userId)
                 .Select(c => new GetChatDto()
                 {
                     ChatId = c.ChatId,
@@ -40,10 +33,10 @@ public class ChatService : IChatService
     {
         try
         {
-            var chat = await _context.Chats.FindAsync(chatId);
+            var chat = await context.Chats.FindAsync(chatId);
             if (chat == null) return new Response<List<GetMessageDto>>(HttpStatusCode.BadRequest, "Chat not found");
-            var response = await (from c in _context.Chats
-                join m in _context.Messages on c.ChatId equals m.ChatId
+            var response = await (from c in context.Chats
+                join m in context.Messages on c.ChatId equals m.ChatId
                 where c.ChatId == chatId
                 select new GetMessageDto()
                 {
@@ -67,7 +60,7 @@ public class ChatService : IChatService
         {
             if (sendUserId == receiveUserId)
                 return new Response<int>(HttpStatusCode.BadRequest, "You can't create a chat with yourself");
-            var result = await _context.Chats.FirstOrDefaultAsync(u =>
+            var result = await context.Chats.FirstOrDefaultAsync(u =>
                 (u.SendUserId == sendUserId && u.ReceiveUserId == receiveUserId) ||
                 (u.ReceiveUserId == sendUserId) && u.SendUserId == receiveUserId);
             if (result == null)
@@ -77,8 +70,8 @@ public class ChatService : IChatService
                     SendUserId = sendUserId,
                     ReceiveUserId = receiveUserId
                 };
-                await _context.Chats.AddAsync(newChat);
-                await _context.SaveChangesAsync();
+                await context.Chats.AddAsync(newChat);
+                await context.SaveChangesAsync();
                 return new Response<int>(newChat.ChatId);
             }
 
@@ -94,7 +87,7 @@ public class ChatService : IChatService
     {
         try
         {
-            var chat = await _context.Chats.FindAsync(message.ChatId);
+            var chat = await context.Chats.FindAsync(message.ChatId);
             if (chat == null) return new Response<int>(HttpStatusCode.BadRequest, "Chat not found!");
             var newMessage = new Message()
             {
@@ -103,8 +96,8 @@ public class ChatService : IChatService
                 MessageText = message.MessageText,
                 SendMassageDate = DateTime.UtcNow
             };
-            await _context.Messages.AddAsync(newMessage);
-            await _context.SaveChangesAsync();
+            await context.Messages.AddAsync(newMessage);
+            await context.SaveChangesAsync();
             return new Response<int>(newMessage.MessageId);
         }
         catch (Exception e)
@@ -117,10 +110,10 @@ public class ChatService : IChatService
     {
         try
         {
-            var message = await _context.Messages.FindAsync(massageId);
+            var message = await context.Messages.FindAsync(massageId);
             if (message == null) return new Response<bool>(false);
-            _context.Messages.Remove(message);
-            await _context.SaveChangesAsync();
+            context.Messages.Remove(message);
+            await context.SaveChangesAsync();
             return new Response<bool>(true);
         }
         catch (Exception e)
@@ -131,10 +124,10 @@ public class ChatService : IChatService
 
     public async Task<Response<bool>> DeleteChat(int chatId)
     {
-        var chat = await _context.Chats.FindAsync(chatId);
+        var chat = await context.Chats.FindAsync(chatId);
         if (chat == null) return new Response<bool>(false);
-        _context.Chats.Remove(chat);
-        await _context.SaveChangesAsync();
+        context.Chats.Remove(chat);
+        await context.SaveChangesAsync();
         return new Response<bool>(true);
     }
 }

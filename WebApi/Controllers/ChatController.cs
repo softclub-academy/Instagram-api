@@ -1,9 +1,4 @@
 using System.Net;
-using System.Security.Claims;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using Domain.Dtos.ChatDto;
 using Domain.Dtos.MessageDto;
 using Domain.Responses;
 using Infrastructure.Services.ChatService;
@@ -11,22 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-public class ChatController : BaseController
+public class ChatController(IChatService service) : BaseController
 {
-    private readonly IChatService _service;
-
-    public ChatController(IChatService service)
-    {
-        _service = service;
-    }
-
     [HttpGet("get-chats")]
     public async Task<IActionResult> GetChats()
     {
         if (ModelState.IsValid)
         {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid").Value;
-            var result = await _service.GetChats(userId);
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+            var result = await service.GetChats(userId);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -39,7 +27,7 @@ public class ChatController : BaseController
     {
         if (ModelState.IsValid)
         {
-            var result = await _service.GetChatById(chatId);
+            var result = await service.GetChatById(chatId);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -48,10 +36,10 @@ public class ChatController : BaseController
     }
 
     [HttpPost("create-chat")]
-    public async Task<IActionResult> CreateChat(string resceiveUserId)
+    public async Task<IActionResult> CreateChat(string receiverUserId)
     {
-        var sendUserId = User.Claims.FirstOrDefault(c => c.Type == "sid").Value;
-        var response = await _service.CreateChat(sendUserId, resceiveUserId);
+        var sendUserId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+        var response = await service.CreateChat(sendUserId, receiverUserId);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -60,8 +48,8 @@ public class ChatController : BaseController
     {
         if (ModelState.IsValid)
         {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid").Value;
-                var result = await _service.SendMessage(message, userId);
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+                var result = await service.SendMessage(message, userId);
             return StatusCode(result.StatusCode, result);
         }
         
@@ -72,14 +60,14 @@ public class ChatController : BaseController
     [HttpDelete("delete-message")]
     public async Task<IActionResult> DeleteMessage(int massageId)
     {
-        var result = await _service.DeleteMessage(massageId);
+        var result = await service.DeleteMessage(massageId);
         return StatusCode(result.StatusCode, result);
     }
     
     [HttpDelete("delete-chat")]
     public async Task<IActionResult> DeleteChat(int chatId)
     {
-        var result = await _service.DeleteChat(chatId);
+        var result = await service.DeleteChat(chatId);
         return StatusCode(result.StatusCode, result);
     }
 }

@@ -5,11 +5,16 @@ namespace Domain.Dtos.RegisterDto;
 
 public class RegisterDto
 {
-    public string UserName { get; set; }
-    public string Email { get; set; }
+    [Required]
+    public string UserName { get; set; } = null!;
+    [Required]
+    public string FullName { get; set; } = null!;
+    [Required]
+    public string Email { get; set; } = null!;
     [DataType(DataType.Password)]
-    public string Password { get; set; }
+    [Required]
+    public string Password { get; set; } = null!;
     [Compare("Password")][DataType(DataType.Password)]
-    public string ConfirmPassword { get; set; }
-    public UserType UserType { get; set; }
+    [Required]
+    public string ConfirmPassword { get; set; } = null!;
 }

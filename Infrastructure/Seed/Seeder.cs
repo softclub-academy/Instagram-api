@@ -3,24 +3,21 @@ using Domain.Entities.User;
 using Domain.Enums;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Seed;
 
 public class Seeder(DataContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
 {
-    private readonly DataContext _context = context;
-
     public async Task SeedRole()
     {
-        var newroles = new List<IdentityRole>()
+        var newRoles = new List<IdentityRole>()
         {
             new(Roles.Admin),
             new(Roles.User)
         };
 
         var existing = roleManager.Roles.ToList();
-        foreach (var role in newroles)
+        foreach (var role in newRoles)
         {
             if (existing.Exists(e => e.Name == role.Name) == false)
             {
@@ -31,7 +28,7 @@ public class Seeder(DataContext context, UserManager<IdentityUser> userManager, 
     
     public async Task SeedLocation()
     {
-        var locations = await _context.Locations.FindAsync(1);
+        var locations = await context.Locations.FindAsync(1);
         if (locations != null) return;
         var location = new Location()
         {
@@ -41,8 +38,8 @@ public class Seeder(DataContext context, UserManager<IdentityUser> userManager, 
             State = "",
             ZipCode = ""
         };
-        await _context.Locations.AddAsync(location);
-        await _context.SaveChangesAsync();
+        await context.Locations.AddAsync(location);
+        await context.SaveChangesAsync();
     }
 
     public async Task SeedUser()
@@ -72,8 +69,8 @@ public class Seeder(DataContext context, UserManager<IdentityUser> userManager, 
             About = string.Empty,
             Gender = Gender.Male,
         };
-        await _context.UserProfiles.AddAsync(profileAdmin);
-        await _context.SaveChangesAsync();
+        await context.UserProfiles.AddAsync(profileAdmin);
+        await context.SaveChangesAsync();
     }
 }
 

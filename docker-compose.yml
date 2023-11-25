@@ -27,6 +27,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
+    volumes:
+      - instagram-uploads:/app/wwwroot/images
     networks:
       - postgres-network
 
@@ -36,3 +38,4 @@ networks:
 
 volumes:
   postgresql-data:
+  instagram-uploads:

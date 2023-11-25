@@ -1,7 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Domain.Dtos.PostCommentDto;
 
 public class LikeCommentPostDto
 {
-    public string UserId { get; set; }
+    [Required]
+    public string UserId { get; set; } = null!;
+    [Required]
     public int PostId { get; set; }
 }

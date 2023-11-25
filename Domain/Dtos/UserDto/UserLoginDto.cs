@@ -1,7 +1,11 @@
-﻿namespace Domain.Dtos.UserDto;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Domain.Dtos.UserDto;
 
 public class UserLoginDto
 {
-    public string UserName { get; set; }
-    public string Password { get; set; }
+    [Required]
+    public string UserName { get; set; } = null!;
+    [Required]
+    public string Password { get; set; } = null!;
 }

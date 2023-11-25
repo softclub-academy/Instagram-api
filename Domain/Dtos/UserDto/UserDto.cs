@@ -1,10 +1,10 @@
-﻿using Domain.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using Domain.Enums;
 
 namespace Domain.Dtos.UserDto;
 
 public class UserDto
 {
-    public string UserName { get; set; }
-    public string Email { get; set; }
-    public UserType UserType { get; set; }
+    [Required]
+    public string UserName { get; set; } = null!;
 }

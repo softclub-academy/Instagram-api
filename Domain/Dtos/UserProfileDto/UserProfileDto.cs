@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Domain.Enums;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Domain.Dtos.UserProfileDto;
 

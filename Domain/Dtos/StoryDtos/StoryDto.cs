@@ -8,8 +8,8 @@ public class StoryDto
 {
    
     public int Id { get; set; }
-    public string FileName { get; set; }
+    public string FileName { get; set; } = null!;
     public int? PostId { get; set; }
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
-    public string UserId { get; set; }
+    public string UserId { get; set; } = null!;
 }

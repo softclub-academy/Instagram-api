@@ -1,8 +1,11 @@
-﻿using System.Net;
-using Domain.Dtos.UserDto;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Net;
+using Domain.Dtos.SearchHistoryDto;
+using Domain.Dtos.UserSearchHistoryDto;
 using Domain.Filters.UserFilter;
 using Domain.Responses;
 using Infrastructure.Services.UserService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -13,6 +16,92 @@ public class UserController(IUserService service) : BaseController
     public async Task<IActionResult> GetUsers([FromQuery]UserFilter filter)
     {
         var result = await service.GetUsers(filter);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("add-search-history")]
+    public async Task<IActionResult> AddSearchHistory(AddSearchHistoryDto searchHistory)
+    {
+        if (ModelState.IsValid)
+        {
+            var userId = User.Claims.FirstOrDefault(x => x.Type == "sid")!.Value;
+            var result = await service.AddSearchHistory(searchHistory, userId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var response = new Response<bool>(HttpStatusCode.BadRequest, ModelStateErrors());
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpGet("get-search-histories")]
+    public async Task<IActionResult> GetSearchHistories()
+    {
+        var userId = User.Claims.FirstOrDefault(x => x.Type == "sid")!.Value;
+        var result = await service.GetSearchHistories(userId);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpDelete("delete-search-history")]
+    public async Task<IActionResult> DeleteSearchHistory([Required]int id)
+    {
+        if (ModelState.IsValid)
+        {
+            var result = await service.DeleteSearchHistory(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var response = new Response<bool>(HttpStatusCode.BadRequest, ModelStateErrors());
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpDelete("delete-search-histories")]
+    public async Task<IActionResult> DeleteSearchHistories()
+    {
+        var userId = User.Claims.FirstOrDefault(x => x.Type == "sid")!.Value;
+        var result = await service.DeleteSearchHistories(userId);
+        return StatusCode(result.StatusCode, result);
+    }
+    
+    [HttpPost("add-user-search-history")]
+    public async Task<IActionResult> AddUserSearchHistory(AddUserSearchHistoryDto userSearchHistory)
+    {
+        if (ModelState.IsValid)
+        {
+            var userId = User.Claims.FirstOrDefault(x => x.Type == "sid")!.Value;
+            var result = await service.AddUserSearchHistory(userSearchHistory, userId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var response = new Response<bool>(HttpStatusCode.BadRequest, ModelStateErrors());
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpGet("get-user-search-histories")]
+    public async Task<IActionResult> GetUserSearchHistories()
+    {
+        var userId = User.Claims.FirstOrDefault(x => x.Type == "sid")!.Value;
+        var result = await service.GetUserSearchHistories(userId);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpDelete("delete-user-search-history")]
+    public async Task<IActionResult> DeleteUserSearchHistory([Required]int id)
+    {
+        if (ModelState.IsValid)
+        {
+            var result = await service.DeleteUserSearchHistory(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var response = new Response<bool>(HttpStatusCode.BadRequest, ModelStateErrors());
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpDelete("delete-user-search-histories")]
+    public async Task<IActionResult> DeleteUserSearchHistories()
+    {
+        var userId = User.Claims.FirstOrDefault(x => x.Type == "sid")!.Value;
+        var result = await service.DeleteUserSearchHistories(userId);
         return StatusCode(result.StatusCode, result);
     }
 
@@ -38,7 +127,8 @@ public class UserController(IUserService service) : BaseController
         return StatusCode(response.StatusCode, response);
     }*/
 
-    [HttpDelete("delete-User")]
+    [HttpDelete("delete-user")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUser(string userId)
     {
         var result = await service.DeleteUser(userId);
