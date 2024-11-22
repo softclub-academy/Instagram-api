@@ -4,22 +4,27 @@ using Domain.Dtos.MessageDto;
 using Domain.Entities;
 using Domain.Responses;
 using Infrastructure.Data;
+using Infrastructure.Services.FileService;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.ChatService;
 
-public class ChatService(DataContext context) : IChatService
+public class ChatService(DataContext context, IFileService fileService) : IChatService
 {
     public async Task<Response<List<GetChatDto>>> GetChats(string? userId)
     {
         try
         {
-            var chats = await context.Chats.Where(u => u.SendUserId == userId || u.ReceiveUserId == userId)
+            var chats = await context.Chats.Include(x => x.SendUser).Include(x => x.ReceiveUser).Where(u => u.SendUserId == userId || u.ReceiveUserId == userId)
                 .Select(c => new GetChatDto()
                 {
                     ChatId = c.ChatId,
                     SendUserId = c.SendUserId,
-                    ReceiveUserId = c.ReceiveUserId
+                    SendUserName = c.SendUser.UserName,
+                    SendUserImage = c.SendUser.UserProfile.Image,
+                    ReceiveUserId = c.ReceiveUserId,
+                    ReceiveUserName = c.ReceiveUser.UserName,
+                    ReceiveUserImage = c.ReceiveUser.UserProfile.Image,
                 }).ToListAsync();
             return new Response<List<GetChatDto>>(chats);
         }
@@ -35,8 +40,11 @@ public class ChatService(DataContext context) : IChatService
         {
             var chat = await context.Chats.FindAsync(chatId);
             if (chat == null) return new Response<List<GetMessageDto>>(HttpStatusCode.BadRequest, "Chat not found");
+
             var response = await (from c in context.Chats
                 join m in context.Messages on c.ChatId equals m.ChatId
+                join user in context.Users on  m.UserId equals user.Id
+                join profile in context.UserProfiles on user.Id equals profile.UserId
                 where c.ChatId == chatId
                 select new GetMessageDto()
                 {
@@ -44,7 +52,10 @@ public class ChatService(DataContext context) : IChatService
                     ChatId = m.ChatId,
                     UserId = m.UserId,
                     MessageText = m.MessageText,
-                    SendMassageDate = m.SendMassageDate
+                    SendMassageDate = m.SendMassageDate,
+                    File = m.File,
+                    UserImage = profile.Image,
+                    UserName = user.UserName
                 }).OrderByDescending(x => x.SendMassageDate).ToListAsync();
             return new Response<List<GetMessageDto>>(response);
         }
@@ -60,9 +71,11 @@ public class ChatService(DataContext context) : IChatService
         {
             if (sendUserId == receiveUserId)
                 return new Response<int>(HttpStatusCode.BadRequest, "You can't create a chat with yourself");
+
             var result = await context.Chats.FirstOrDefaultAsync(u =>
                 (u.SendUserId == sendUserId && u.ReceiveUserId == receiveUserId) ||
                 (u.ReceiveUserId == sendUserId) && u.SendUserId == receiveUserId);
+
             if (result == null)
             {
                 var newChat = new Chat()
@@ -70,8 +83,10 @@ public class ChatService(DataContext context) : IChatService
                     SendUserId = sendUserId,
                     ReceiveUserId = receiveUserId
                 };
+
                 await context.Chats.AddAsync(newChat);
                 await context.SaveChangesAsync();
+
                 return new Response<int>(newChat.ChatId);
             }
 
@@ -96,8 +111,19 @@ public class ChatService(DataContext context) : IChatService
                 MessageText = message.MessageText,
                 SendMassageDate = DateTime.UtcNow
             };
+
+            if (message.File != null)
+            {
+                var response = fileService.CreateFile(message.File);
+                if(response.StatusCode != 200)
+                    return new Response<int>(HttpStatusCode.BadRequest, "File not saved !");
+
+                newMessage.File = response.Data;
+            }
+
             await context.Messages.AddAsync(newMessage);
             await context.SaveChangesAsync();
+
             return new Response<int>(newMessage.MessageId);
         }
         catch (Exception e)

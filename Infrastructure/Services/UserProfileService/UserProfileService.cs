@@ -3,6 +3,7 @@ using Domain.Dtos.UserProfileDto;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Services.FileService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services.UserProfileService;
@@ -10,6 +11,8 @@ namespace Infrastructure.Services.UserProfileService;
 public class UserProfileService(DataContext context, IFileService fileService)
     : IUserProfileService
 {
+    
+
     public async Task<Response<GetUserProfileDto>> GetUserProfileById(string id)
     {
         try
@@ -46,16 +49,49 @@ public class UserProfileService(DataContext context, IFileService fileService)
         }
     }
 
+    public async Task<Response<GetUserProfileDto>> UpdateUserImageProfile(string userId, IFormFile imageFile)
+    {
+        var existing = await context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
+        if (existing == null)
+        {
+            return new Response<GetUserProfileDto>(HttpStatusCode.BadRequest, "User not found");
+        }
 
-    #region UpdateUserProfile
+        if (existing.Image != null)
+        {
+            fileService.DeleteFile(existing.Image);
+        }
+
+        existing.Image = fileService.CreateFile(imageFile).Data;
+
+        await context.SaveChangesAsync();
+
+        return new Response<GetUserProfileDto>(HttpStatusCode.OK, "success");
+    }
+
+    public async Task<Response<GetUserProfileDto>> DeleteUserImageProfile(string userId)
+    {
+        var existing = await context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
+        if (existing == null)
+        {
+            return new Response<GetUserProfileDto>(HttpStatusCode.BadRequest, "User not found");
+        }
+
+        if (existing.Image != null)
+        {
+            fileService.DeleteFile(existing.Image);
+        }
+
+        await context.SaveChangesAsync();
+
+        return new Response<GetUserProfileDto>(HttpStatusCode.OK, "success");
+    }
 
     public async Task<Response<GetUserProfileDto>> UpdateUserProfile(UpdateUserProfileDto addUserProfile, string userId)
     {
         try
         {
             var existing = await context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
-            
-
             if (existing != null)
             {
                 if (addUserProfile.FirstName != null) existing.FirstName = addUserProfile.FirstName;
@@ -135,5 +171,4 @@ public class UserProfileService(DataContext context, IFileService fileService)
         }
     }
 
-    #endregion
 }

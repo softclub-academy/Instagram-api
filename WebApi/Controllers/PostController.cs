@@ -37,6 +37,16 @@ public class PostController(IPostService service) : BaseController
         return StatusCode(result.StatusCode, result);
     }
 
+    [HttpGet("get-my-posts")]
+    public async Task<IActionResult> GetMyPosts()
+    {
+        var userId = User.Claims.FirstOrDefault(e => e.Type == "sid")!.Value;
+
+        var result = await service.GetMyPosts(userId);
+
+        return Ok(result);
+    }
+
     [HttpGet("get-following-post")]
     public async Task<IActionResult> GetFollowingPost([FromQuery] PostFollowingFilter filter)
     {

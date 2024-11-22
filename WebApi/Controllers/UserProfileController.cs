@@ -16,11 +16,22 @@ public class UserProfileController(IUserProfileService userProfileService,
     public async Task<IActionResult> GetUserProfileById(string id)
     {
         var result = await userProfileService.GetUserProfileById(id);
+
         return StatusCode(result.StatusCode, result);
     }
 
-   
-    
+    [HttpGet("get-my-profile")]
+    public async Task<IActionResult> GetUserMyProfile()
+    {
+        var userId = User.Claims.FirstOrDefault(u => u.Type == "sid")!.Value;
+
+        var result = await userProfileService.GetUserProfileById(userId);
+
+        return StatusCode(result.StatusCode, result);
+    }
+
+
+
     [HttpPut("update-user-profile")]
     public async Task<IActionResult> UpdateUserProfile([FromForm]UpdateUserProfileDto userProfile)
     {
@@ -43,21 +54,36 @@ public class UserProfileController(IUserProfileService userProfileService,
         return StatusCode(result.StatusCode, result);
     }
 
-    
-    // statistic profile
-    /*[HttpGet("CounterProfile")]
-    public async Task<Response<GetStatistic>> GetCountPost()
+    [HttpPut("update-user-image-profile")]
+    public async Task<IActionResult> UpdateUserImageProfile(IFormFile imageFile)
     {
-        var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
-        var post = await statisticFollowAndPostService.GetUserPost(userId);
-        var following = await statisticFollowAndPostService.GetFollowing(userId);
-        var follower = await statisticFollowAndPostService.GetFollowers(userId);
-        var test = new GetStatistic()
+        if (ModelState.IsValid)
         {
-            Post = post.Data,
-            Follower = follower.Data,
-            Following = following.Data
-        };
-        return new Response<GetStatistic>(test);
-    }*/
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+
+            var result = await userProfileService.UpdateUserImageProfile(userId, imageFile);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var response = new Response<UserProfileDto>(HttpStatusCode.BadRequest, ModelStateErrors());
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpDelete("delete-user-image-profile")]
+    public async Task<IActionResult> DeleteUserImageProfile()
+    {
+        if (ModelState.IsValid)
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+
+            var result = await userProfileService.DeleteUserImageProfile(userId);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
+        var response = new Response<UserProfileDto>(HttpStatusCode.BadRequest, ModelStateErrors());
+
+        return StatusCode(response.StatusCode, response);
+    }
 }

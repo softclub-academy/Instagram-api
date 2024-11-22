@@ -11,6 +11,7 @@ namespace Infrastructure.Services.PostService;
 public interface IPostService
 {
     Task<PagedResponse<List<GetPostDto>>> GetPosts(PostFilter filter, string userId);
+    Task<List<GetPostDto>> GetMyPosts(string userId);
     Task<PagedResponse<List<GetReelsDto>>> GetReels(PaginationFilter filter, string userId);
     Task<Response<GetPostDto>> GetPostById(int id, string userId);
     Task<PagedResponse<List<GetPostDto>>> GetPostByFollowing(PostFollowingFilter filter, string userId);

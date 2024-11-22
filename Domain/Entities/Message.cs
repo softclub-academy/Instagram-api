@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace Domain.Entities;
+﻿namespace Domain.Entities;
 
 public class Message
 {
@@ -9,6 +7,7 @@ public class Message
     public Chat Chat { get; set; }
     public string UserId { get; set; }
     public User.User User { get; set; }
-    public string MessageText { get; set; }
+    public string? MessageText { get; set; }
     public DateTime SendMassageDate { get; set; }
+    public string? File { get; set; }
 }

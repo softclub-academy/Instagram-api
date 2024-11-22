@@ -97,6 +97,68 @@ public class PostService(DataContext context, IMapper mapper, IFileService fileS
         }
     }
 
+    public async Task<List<GetPostDto>> GetMyPosts(string userId)
+    {
+        try
+        {
+            var posts = context.Posts.Where(x => x.UserId == userId).AsQueryable();
+
+            var result = await (from p in posts
+                                select new GetPostDto()
+                                {
+                                    PostId = p.PostId,
+                                    UserId = p.UserId,
+                                    Title = p.Title,
+                                    Content = p.Content,
+                                    DatePublished = p.DatePublished,
+                                    Images = p.Images.Select(i => i.ImageName).ToList(),
+                                    PostLike = p.PostLike.PostUserLikes.Any(l => l.UserId == userId && l.PostLikeId == p.PostId),
+                                    PostLikeCount = p.PostLike.LikeCount,
+                                    UserLikes = p.PostLike.PostUserLikes.Select(u => new GetUserShortInfoDto()
+                                        {
+                                            UserId = u.UserId,
+                                            UserName = u.User.UserName,
+                                            Fullname = string.Concat(u.User.UserProfile.FirstName + " " +
+                                                                     u.User.UserProfile.LastName),
+                                            UserPhoto = u.User.UserProfile.Image
+                                        }).ToList(),
+                                    PostView = p.PostView.ViewCount,
+                                    UserViews = p.PostView.PostViewUsers.Select(u => new GetUserShortInfoDto()
+                                    {
+                                        UserId = u.UserId,
+                                        UserName = u.User.UserName,
+                                        Fullname = string.Concat(u.User.UserProfile.FirstName + " " +
+                                                                     u.User.UserProfile.LastName),
+                                        UserPhoto = u.User.UserProfile.Image
+                                    }).ToList(),
+                                    CommentCount = p.PostComments.Count(),
+                                    PostFavorite = p.PostFavorite.PostFavoriteUsers.Any(l => l.UserId == userId && l.PostFavoriteId == p.PostId),
+                                    UserFavorite = p.PostFavorite.PostFavoriteUsers.Select(u => new GetUserShortInfoDto()
+                                        {
+                                            UserId = u.UserId,
+                                            UserName = u.User.UserName,
+                                            Fullname = string.Concat(u.User.UserProfile.FirstName + " " +
+                                                                     u.User.UserProfile.LastName),
+                                            UserPhoto = u.User.UserProfile.Image
+                                        }).ToList(),
+                                    Comments = p.PostComments.Select(s => new GetPostCommentDto()
+                                    {
+                                        PostCommentId = s.PostCommentId,
+                                        UserId = s.UserId,
+                                        Comment = s.Comment,
+                                        DateCommented = s.DateCommented
+                                    }).OrderByDescending(c => c.DateCommented).ToList(),
+                                })
+                .OrderBy(x => x.DatePublished).ToListAsync();
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            return [];
+        }
+    }
+
     public async Task<PagedResponse<List<GetReelsDto>>> GetReels(PaginationFilter filter, string userId)
     {
         try

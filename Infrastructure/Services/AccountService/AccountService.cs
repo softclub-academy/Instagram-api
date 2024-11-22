@@ -28,7 +28,9 @@ public class AccountService(IConfiguration configuration,
         try
         {
             var result = await userManager.FindByNameAsync(model.UserName);
-            if (result != null) return new Response<string>(HttpStatusCode.BadRequest, "Such a user already exists!");
+            if (result != null) 
+                return new Response<string>(HttpStatusCode.BadRequest, "Such a user already exists!");
+
             var user = new User()
             {
                 UserName = model.UserName.ToLower(),
@@ -36,12 +38,16 @@ public class AccountService(IConfiguration configuration,
                 UserType = UserType.Personal,
                 DateRegistred = DateTime.UtcNow
             };
+
             var fullName = model.FullName.Split(' ');
+            var firstName = fullName[0];
+            var lastName = fullName.Count() > 1 ? fullName[1] : string.Empty;
+
             var profile = new UserProfile()
             {
                 UserId = user.Id,
-                FirstName = fullName[0],
-                LastName = fullName[1] != string.Empty ? fullName[1] : string.Empty,
+                FirstName = firstName,
+                LastName = lastName,
                 Occupation = string.Empty,
                 DateUpdated = DateTime.UtcNow,
                 LocationId = 1,
@@ -52,9 +58,13 @@ public class AccountService(IConfiguration configuration,
             };
 
             await userManager.CreateAsync(user, model.Password);
+
             await userManager.AddToRoleAsync(user, Roles.User);
+
             await dbContext.UserProfiles.AddAsync(profile);
+
             await dbContext.SaveChangesAsync();
+
             return new Response<string>($"Done.  Your registered by id {user.Id}");
         }
         catch (Exception e)

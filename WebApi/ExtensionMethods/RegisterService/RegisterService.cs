@@ -28,6 +28,7 @@ public static class RegisterService
     {
         services.AddDbContext<DataContext>(configure =>
             configure.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IExternalAccountService, ExternalAccountService>();
         services.AddScoped<IFollowingRelationShipService, FollowingRelationShipService>();
