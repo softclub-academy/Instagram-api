@@ -638,9 +638,7 @@ public class PostService(DataContext context, IMapper mapper, IFileService fileS
                             DateCommented = s.DateCommented,
                             UserImage = s.User.UserProfile.Image,
                             UserName = s.User.UserName,
-                        }).OrderByDescendi
-                        
-                        ng(c => c.DateCommented).ToList(),
+                        }).OrderByDescending(c => c.DateCommented).ToList(),
                     })
                 .Where(p => p.PostFavorite == true)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
