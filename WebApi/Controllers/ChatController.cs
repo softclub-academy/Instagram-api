@@ -14,7 +14,9 @@ public class ChatController(IChatService service) : BaseController
         if (ModelState.IsValid)
         {
             var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+
             var result = await service.GetChats(userId);
+
             return StatusCode(result.StatusCode, result);
         }
 
@@ -39,7 +41,9 @@ public class ChatController(IChatService service) : BaseController
     public async Task<IActionResult> CreateChat(string receiverUserId)
     {
         var sendUserId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
+
         var response = await service.CreateChat(sendUserId, receiverUserId);
+
         return StatusCode(response.StatusCode, response);
     }
 

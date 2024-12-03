@@ -20,6 +20,16 @@ public class UserProfileController(IUserProfileService userProfileService,
         return StatusCode(result.StatusCode, result);
     }
 
+    [HttpGet("get-is-follow-user-profile-by-id")]
+    public async Task<IActionResult> GetIsFollowUserProfileById(string followingUserId)
+    {
+        var userId = User.Claims.FirstOrDefault(u => u.Type == "sid")!.Value;
+
+        var result = await userProfileService.GetIsFollowUserProfileById(userId, followingUserId);
+
+        return StatusCode(result.StatusCode, result);
+    }
+
     [HttpGet("get-my-profile")]
     public async Task<IActionResult> GetUserMyProfile()
     {
@@ -30,10 +40,8 @@ public class UserProfileController(IUserProfileService userProfileService,
         return StatusCode(result.StatusCode, result);
     }
 
-
-
     [HttpPut("update-user-profile")]
-    public async Task<IActionResult> UpdateUserProfile([FromForm]UpdateUserProfileDto userProfile)
+    public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfileDto userProfile)
     {
         if (ModelState.IsValid)
         {

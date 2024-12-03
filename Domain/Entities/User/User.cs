@@ -15,10 +15,11 @@ public class User : IdentityUser
     public ExternalAccount ExternalAccount { get; set; } = null!;
     public List<StoryUser> StoryUsers { get; set; } = null!;
     public List<StoryLike> StoryLikes { get; set; } = null!;
-    public List<FollowingRelationShip> FollowingRelationShips { get; set; } = null!;
+    public List<FollowingRelationShip> FollowingRelationShips { get; set; } = [];
     public List<Post.Post> Posts { get; set; } = null!;
     public List<PostComment> PostComments { get; set; } = null!;
     public List<PostFavorite> PostFavorites { get; set; } = null!;
     public List<PostUserLike> PostUserLikes { get; set; } = null!;
     public List<ListOfUserCommentLike> ListOfUserCommentLikes { get; set; } = null!;
+    public List<Story> Stories { get; set; } = null!;
 }

@@ -1,6 +1,15 @@
-﻿namespace Domain.Dtos.LocationDto;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class AddLocationDto : LocationDto
+namespace Domain.Dtos.LocationDto;
+
+public class AddLocationDto
 {
-    
+    [Required]
+    public string City { get; set; } = null!;
+    [Required]
+    public string State { get; set; } = null!;
+    [Required]
+    public string ZipCode { get; set; } = null!;
+    [Required]
+    public string Country { get; set; } = null!;
 }

@@ -48,7 +48,9 @@ public class FollowingRelationShipController(IFollowingRelationShipService servi
         if (ModelState.IsValid)
         {
             var userId = User.Claims.FirstOrDefault(u => u.Type == "sid")!.Value;
+
             var result = await service.AddFollowingRelationShip(followingUserId, userId);
+
             return StatusCode(result.StatusCode, result);
         }
 
@@ -57,9 +59,12 @@ public class FollowingRelationShipController(IFollowingRelationShipService servi
     }
 
     [HttpDelete("delete-following-relation-ship")]
-    public async Task<IActionResult> DeleteFollowingRelationShip(int id)
+    public async Task<IActionResult> DeleteFollowingRelationShip(string followingUserId)
     {
-        var result = await service.DeleteFollowingRelationShip(id);
+        var userId = User.Claims.FirstOrDefault(u => u.Type == "sid")!.Value;
+
+        var result = await service.DeleteFollowingRelationShip(followingUserId, userId);
+
         return StatusCode(result.StatusCode, result);
     }
 }

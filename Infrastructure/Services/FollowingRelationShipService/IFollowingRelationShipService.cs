@@ -10,5 +10,5 @@ public interface IFollowingRelationShipService
     Task<Response<List<SubscribersDto>>> GetSubscribers(FollowingRelationShipFilter filter);
     Task<Response<List<SubscriptionsDto>>> GetSubscriptions(FollowingRelationShipFilter filter);
     Task<Response<bool>> AddFollowingRelationShip(string followingUserId, string userId);
-    Task<Response<bool>> DeleteFollowingRelationShip(int id);
+    Task<Response<bool>> DeleteFollowingRelationShip(string followingUserId, string userId);
 }

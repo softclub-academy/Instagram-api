@@ -15,7 +15,10 @@ public class ChatService(DataContext context, IFileService fileService) : IChatS
     {
         try
         {
-            var chats = await context.Chats.Include(x => x.SendUser).Include(x => x.ReceiveUser).Where(u => u.SendUserId == userId || u.ReceiveUserId == userId)
+            var chats = await context.Chats
+                .Include(x => x.SendUser)
+                .Include(x => x.ReceiveUser)
+                .Where(u => u.SendUserId == userId || u.ReceiveUserId == userId)
                 .Select(c => new GetChatDto()
                 {
                     ChatId = c.ChatId,
@@ -26,6 +29,7 @@ public class ChatService(DataContext context, IFileService fileService) : IChatS
                     ReceiveUserName = c.ReceiveUser.UserName,
                     ReceiveUserImage = c.ReceiveUser.UserProfile.Image,
                 }).ToListAsync();
+
             return new Response<List<GetChatDto>>(chats);
         }
         catch (Exception e)
@@ -43,8 +47,6 @@ public class ChatService(DataContext context, IFileService fileService) : IChatS
 
             var response = await (from c in context.Chats
                 join m in context.Messages on c.ChatId equals m.ChatId
-                join user in context.Users on  m.UserId equals user.Id
-                join profile in context.UserProfiles on user.Id equals profile.UserId
                 where c.ChatId == chatId
                 select new GetMessageDto()
                 {
@@ -54,9 +56,10 @@ public class ChatService(DataContext context, IFileService fileService) : IChatS
                     MessageText = m.MessageText,
                     SendMassageDate = m.SendMassageDate,
                     File = m.File,
-                    UserImage = profile.Image,
-                    UserName = user.UserName
+                    UserImage = m.User.UserProfile.Image,
+                    UserName = m.User.UserName
                 }).OrderByDescending(x => x.SendMassageDate).ToListAsync();
+
             return new Response<List<GetMessageDto>>(response);
         }
         catch (Exception e)
