@@ -60,10 +60,11 @@ public class AccountController(IAccountService service) : BaseController
     }
     
     [HttpPut("ChangePassword")]
-    [AllowAnonymous]
+    //[AllowAnonymous]
     public async Task<Response<string>> ChangePassword(ChangePasswordDto changePasswordDto)
     {
         var userId = User.Claims.FirstOrDefault(c => c.Type == "sid")!.Value;
-        return await service.ChangePassword(changePasswordDto,userId!);
+
+        return await service.ChangePassword(changePasswordDto, userId);
     }
 }

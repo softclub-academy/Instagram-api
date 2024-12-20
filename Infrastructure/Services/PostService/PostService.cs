@@ -181,6 +181,7 @@ public class PostService(DataContext context, IMapper mapper, IFileService fileS
             var totalRecord = posts.Count();
 
             var result = await (from p in posts
+                               where p.Images.Any(x => x.ImageName.Contains(".mp4"))
                     select new GetReelsDto()
                     {
                         PostId = p.PostId,
